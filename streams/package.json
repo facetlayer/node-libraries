@@ -1,0 +1,38 @@
+{
+  "name": "@facetlayer/streams",
+  "version": "1.0.0",
+  "license": "MIT",
+  "sideEffects": false,
+  "description": "Streams utility class",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "prepare": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "CHANGELOG.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}

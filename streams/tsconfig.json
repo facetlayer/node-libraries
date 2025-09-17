@@ -1,0 +1,32 @@
+{
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": [
+      "es2021",
+      "dom"
+    ],
+    "target": "es2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "isolatedModules": false,
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "noLib": false,
+    "skipLibCheck": true,
+    "preserveConstEnums": true,
+    "esModuleInterop": true,
+    "strict": false,
+    "noImplicitAny": false
+  },
+  "exclude": [
+    "node_modules",
+    "src/__tests__"
+  ]
+}
