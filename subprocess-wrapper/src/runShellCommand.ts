@@ -1,14 +1,22 @@
 
-import { SpawnOptions } from 'child_process';
+import { SpawnOptions as NodeSpawnOptions } from 'child_process';
 import { Subprocess } from './Subprocess'
 import { SubprocessResult } from './SubprocessResult';
 
-export interface StartShellCommandOptions {
-    spawnOptions?: SpawnOptions
+export interface StartShellCommandOptions extends NodeSpawnOptions {
     enableOutputBuffering?: boolean
     onStdout?: (line: string) => void;
     onStderr?: (line: string) => void;
-    pipePrefix?: string | boolean;
+};
+
+// getNodeSpawnOptions - Filters the options object to only include objects
+// that are used by node:child_process
+function getNodeSpawnOptions(options: StartShellCommandOptions): NodeSpawnOptions {
+    const filteredOptions = { ...options };
+    delete filteredOptions.enableOutputBuffering;
+    delete filteredOptions.onStdout;
+    delete filteredOptions.onStderr;
+    return filteredOptions;
 }
 
 export function startShellCommand(command: string, args: string[] = [], options: StartShellCommandOptions = {}): Subprocess {
@@ -19,22 +27,6 @@ export function startShellCommand(command: string, args: string[] = [], options:
     if (!command) {
         throw new Error('startShellCommand usage error: command cannot be empty');
     }
-
-    if (options.pipePrefix) {
-        let prefix = `[${options.pipePrefix}]`;
-
-        if (options.pipePrefix === true) {
-            const displayCommand = [command, ...args].join(' ').trim() || command;
-            prefix = `[${displayCommand}]`;
-        }
-
-        subprocess.onStdout(line => {
-            console.log(`${prefix} ${line}`);
-        });
-        subprocess.onStderr(line => {
-            console.error(`${prefix} [stderr] ${line}`);
-        });
-    }
     
     if (options.onStdout) {
         subprocess.onStdout(options.onStdout);
@@ -44,7 +36,7 @@ export function startShellCommand(command: string, args: string[] = [], options:
         subprocess.onStderr(options.onStderr);
     }
 
-    subprocess.start(command, args, options.spawnOptions);
+    subprocess.spawn(command, args, getNodeSpawnOptions(options));
 
     return subprocess;
 }
@@ -60,6 +52,7 @@ export async function runShellCommand(command: string, args: string[] = [], opti
 
     await subprocess.waitForExit();
 
+    // Enable output buffering by default, turn it off if the options have enableOutputBuffering=false.
     const bufferingEnabled = subprocess.setupOptions.enableOutputBuffering !== false;
 
     const result = new SubprocessResult();

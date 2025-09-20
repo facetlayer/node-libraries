@@ -55,7 +55,7 @@ function verboseLog(...args: any[]) {
 }
 
 /*
-  Launch a subprocess and return a single stream of events for all the process's activity.
+  Launch a subprocess, and return a single stream of events for all the process's activity.
 */
 export function spawnProcess(command: string, args: string[] = [], options: SpawnOptions = {}): SpawnOutput {
 

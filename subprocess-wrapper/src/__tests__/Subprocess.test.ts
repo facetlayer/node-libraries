@@ -15,7 +15,7 @@ describe('Subprocess', () => {
         it('should execute a simple script and capture output', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             
             await subprocess.waitForStart();
             expect(subprocess.hasStarted).toBe(true);
@@ -31,7 +31,7 @@ describe('Subprocess', () => {
         it('should handle command arguments', async () => {
             const argsScript = path.join(fixturesDir, 'echo-args.js');
             
-            subprocess.start('node', [argsScript, 'arg1', 'arg2', 'arg3']);
+            subprocess.spawn('node', [argsScript, 'arg1', 'arg2', 'arg3']);
             
             await subprocess.waitForExit();
             
@@ -42,7 +42,7 @@ describe('Subprocess', () => {
         it('should capture stderr output separately', async () => {
             const stderrScript = path.join(fixturesDir, 'stderr-test.js');
             
-            subprocess.start('node', [stderrScript]);
+            subprocess.spawn('node', [stderrScript]);
             
             await subprocess.waitForExit();
             
@@ -56,7 +56,7 @@ describe('Subprocess', () => {
         it('should handle non-zero exit codes', async () => {
             const exitCodeScript = path.join(fixturesDir, 'exit-code.js');
             
-            subprocess.start('node', [exitCodeScript, '42']);
+            subprocess.spawn('node', [exitCodeScript, '42']);
             
             await subprocess.waitForExit();
             
@@ -80,7 +80,7 @@ describe('Subprocess', () => {
             const subprocess = new Subprocess({ enableOutputBuffering: false });
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             await subprocess.waitForExit();
             
             expect(() => subprocess.getStdout()).toThrow('Output buffering is not enabled');
@@ -97,7 +97,7 @@ describe('Subprocess', () => {
                 receivedLines.push(line);
             });
             
-            subprocess.start('node', [multilineScript]);
+            subprocess.spawn('node', [multilineScript]);
             await subprocess.waitForExit();
             
             expect(receivedLines).toContain('First line');
@@ -113,7 +113,7 @@ describe('Subprocess', () => {
                 receivedErrorLines.push(line);
             });
             
-            subprocess.start('node', [multilineScript]);
+            subprocess.spawn('node', [multilineScript]);
             await subprocess.waitForExit();
             
             expect(receivedErrorLines).toContain('Error line 1');
@@ -128,7 +128,7 @@ describe('Subprocess', () => {
             subprocess.onStdout(line => lines1.push(line));
             subprocess.onStdout(line => lines2.push(line));
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             await subprocess.waitForExit();
             
             expect(lines1).toContain('Hello, World!');
@@ -143,7 +143,7 @@ describe('Subprocess', () => {
             
             expect(subprocess.hasStarted).toBe(false);
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             
             await subprocess.waitForStart();
             expect(subprocess.hasStarted).toBe(true);
@@ -152,7 +152,7 @@ describe('Subprocess', () => {
         it('should handle slow processes', async () => {
             const slowScript = path.join(fixturesDir, 'slow-output.js');
             
-            subprocess.start('node', [slowScript, '50']);
+            subprocess.spawn('node', [slowScript, '50']);
             
             await subprocess.waitForStart();
             expect(subprocess.hasStarted).toBe(true);
@@ -170,10 +170,10 @@ describe('Subprocess', () => {
         it('should throw error when starting already started process', () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             
             expect(() => {
-                subprocess.start('node', [helloScript]);
+                subprocess.spawn('node', [helloScript]);
             }).toThrow('usage error: process already started');
         });
     });
@@ -182,7 +182,7 @@ describe('Subprocess', () => {
         it('should be able to kill a running process', async () => {
             const slowScript = path.join(fixturesDir, 'slow-output.js');
             
-            subprocess.start('node', [slowScript, '1000']);
+            subprocess.spawn('node', [slowScript, '1000']);
             await subprocess.waitForStart();
             
             subprocess.kill();
@@ -196,7 +196,7 @@ describe('Subprocess', () => {
         it('should handle string commands', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('echo', ['Hello from string command']);
+            subprocess.spawn('echo', ['Hello from string command']);
             
             await subprocess.waitForExit();
             
@@ -207,7 +207,7 @@ describe('Subprocess', () => {
         it('should handle commands with argument arrays', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             
             await subprocess.waitForExit();
             
@@ -216,7 +216,7 @@ describe('Subprocess', () => {
         });
 
         it('should handle quoted arguments in string commands', async () => {
-            subprocess.start('echo', ['hello world with spaces']);
+            subprocess.spawn('echo', ['hello world with spaces']);
             
             await subprocess.waitForExit();
             
@@ -225,7 +225,7 @@ describe('Subprocess', () => {
         });
 
         it('should handle mixed quoted arguments', async () => {
-            subprocess.start('echo', ['first arg', 'second arg', 'third']);
+            subprocess.spawn('echo', ['first arg', 'second arg', 'third']);
             
             await subprocess.waitForExit();
             
@@ -241,7 +241,7 @@ describe('Subprocess', () => {
         it('should resolve waitForStart immediately if already started', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             await subprocess.waitForStart();
             
             // Should resolve immediately
@@ -255,7 +255,7 @@ describe('Subprocess', () => {
         it('should resolve waitForExit immediately if already exited', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
-            subprocess.start('node', [helloScript]);
+            subprocess.spawn('node', [helloScript]);
             await subprocess.waitForExit();
             
             // Should resolve immediately

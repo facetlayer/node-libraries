@@ -92,14 +92,12 @@ describe('runShellCommand', () => {
             expect(result.stdout).toContain('Hello, World!');
         });
 
-        it('should handle spawnOptions', async () => {
+        it('should handle cwd and env options', async () => {
             const helloScript = path.join(fixturesDir, 'hello.js');
             
             const result = await runShellCommand('node', [helloScript], {
-                spawnOptions: {
-                    cwd: process.cwd(),
-                    env: { ...process.env, TEST_VAR: 'test' }
-                }
+                cwd: process.cwd(),
+                env: { ...process.env, TEST_VAR: 'test' }
             });
             
             expect(result.exitCode).toBe(0);
@@ -136,44 +134,6 @@ describe('runShellCommand', () => {
             expect(result.exitCode).toBe(0);
             expect(stderrLines).toContain('Error line 1');
             expect(stderrLines).toContain('Error line 2');
-        });
-    });
-
-    describe('pipe prefix functionality', () => {
-        let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-        let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
-
-        beforeEach(() => {
-            consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-            consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            consoleLogSpy.mockRestore();
-            consoleErrorSpy.mockRestore();
-        });
-
-        it('should use custom pipePrefix string', async () => {
-            const multilineScript = path.join(fixturesDir, 'multiline-output.js');
-            
-            await runShellCommand('node', [multilineScript], {
-                pipePrefix: 'TEST'
-            });
-            
-            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[TEST] First line'));
-            expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('[TEST] [stderr] Error line 1'));
-        });
-
-        it('should use command as pipePrefix when true', async () => {
-            const helloScript = path.join(fixturesDir, 'hello.js');
-            
-            await runShellCommand('node', [helloScript], {
-                pipePrefix: true
-            });
-            
-            expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining(`[node ${helloScript}] Hello, World!`)
-            );
         });
     });
 
@@ -244,49 +204,6 @@ describe('startShellCommand', () => {
             
             expect(subprocess.proc).toBeDefined();
             subprocess.kill(); // Clean up
-        });
-    });
-
-    describe('pipe prefix with startShellCommand', () => {
-        let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-        let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
-
-        beforeEach(() => {
-            consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-            consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            consoleLogSpy.mockRestore();
-            consoleErrorSpy.mockRestore();
-        });
-
-        it('should pipe output with prefix when pipePrefix is string', async () => {
-            const helloScript = path.join(fixturesDir, 'hello.js');
-            
-            const subprocess = startShellCommand('node', [helloScript], {
-                pipePrefix: 'PREFIX'
-            });
-            
-            await subprocess.waitForExit();
-            
-            expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining('[PREFIX] Hello, World!')
-            );
-        });
-
-        it('should use command as prefix when pipePrefix is true', async () => {
-            const helloScript = path.join(fixturesDir, 'hello.js');
-            
-            const subprocess = startShellCommand('node', [helloScript], {
-                pipePrefix: true
-            });
-            
-            await subprocess.waitForExit();
-            
-            expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining(`[node ${helloScript}] Hello, World!`)
-            );
         });
     });
 

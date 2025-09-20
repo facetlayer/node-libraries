@@ -37,9 +37,7 @@ Launching a subprocess and waiting for lifecycle events:
 import { runShellCommand } from '@facetlayer/subprocess-wrapper';
 
 const subprocess = startShellCommand('ping', ['google.com'], {
-  spawnOptions: {
-      ...
-  },
+  cwd: '/tmp/project',
   onStdout: (line) => console.log('OUT:', line),
   onStderr: (line) => console.log('ERR:', line)
 });
@@ -62,12 +60,12 @@ This is a high-level convenience function that uses `startShellCommand` (below).
 Similar to `child_process.exec`.
 
 Does not throw an error if the subprocess had a non-zero error code. Check
-the .exitCode of the result to see if the process had a non-zero code.
+the `.exitCode` of the result to see if the process had a non-zero code.
 
 **Parameters:**
 - `command: string` - Executable to run
 - `args?: string[]` - Arguments passed to the executable
-- `options?: ShellCommandOptions` - Configuration options
+- `options?: StartShellCommandOptions` - Configuration options
 
 **Returns:** `Promise<SubprocessResult>`
 
@@ -82,12 +80,13 @@ console.log(result.failed()); // false
 #### `startShellCommand(command, args?, options?)`
 
 Starts a shell command and returns a Subprocess instance for real-time interaction.
-Similar to `child_process.spawn`.
+Similar to `child_process.spawn`, and accepts any `child_process` spawn options in addition to
+wrapper-specific settings like output buffering and line listeners.
 
 **Parameters:**
 - `command: string` - Executable to run
 - `args?: string[]` - Arguments passed to the executable
-- `options?: ShellCommandOptions` - Configuration options
+- `options?: StartShellCommandOptions` - Configuration options
 
 **Returns:** `Subprocess` (see details below);
 
@@ -120,9 +119,9 @@ new Subprocess(options?: { enableOutputBuffering?: boolean })
 
 **Methods:**
 
-##### `start(command, args?, options?)`
+##### `spawn(command, args?, options?)`
 
-Starts the subprocess.
+Spawns the subprocess.
 
 - `command: string` - Executable to run
 - `args?: string[]` - Arguments passed to the executable
@@ -133,7 +132,7 @@ Starts the subprocess.
 ```typescript
 const subprocess = new Subprocess();
 subprocess.onStdout(line => console.log('Output:', line));
-subprocess.start('ls', ['-la'], { cwd: '/tmp' });
+subprocess.spawn('ls', ['-la'], { cwd: '/tmp' });
 await subprocess.waitForExit();
 ```
 
@@ -169,7 +168,7 @@ Returns all stdout lines as an array (requires `enableOutputBuffering: true`).
 **Example:**
 ```typescript
 const subprocess = new Subprocess({ enableOutputBuffering: true });
-subprocess.start('ls', ['-la']);
+subprocess.spawn('ls', ['-la']);
 await subprocess.waitForExit();
 const lines = subprocess.getStdout();
 console.log('All output lines:', lines);
@@ -191,8 +190,8 @@ Returns a promise that resolves when the process exits.
 
 Resolves to the numeric exit code value.
 
-Does not throw a promise rejection for a non-zero exit code. Check the .exitCode value to see
-if the process had a non-zero codehad a non-zero code
+Does not throw a promise rejection for a non-zero exit code. Check the `.exitCode` value to see
+if the process had a non-zero code.
 
 **Returns:** `Promise<number>`
 
@@ -266,19 +265,21 @@ console.log(result.stdoutAsString()); // Multi-line string output
 
 ### Options
 
-#### `ShellCommandOptions`
+#### `StartShellCommandOptions`
 
-Configuration options for shell commands.
+Configuration options for shell commands. This interface extends Node's `SpawnOptions`,
+so you can pass any options supported by `child_process.spawn`.
 
 ```typescript
-interface ShellCommandOptions {
-  spawnOptions?: SpawnOptions             // Options sent to `spawn` in `child_process`
+interface StartShellCommandOptions extends SpawnOptions {
   enableOutputBuffering?: boolean;        // Buffer output for getStdout/getStderr
   onStdout?: (line: string) => void;      // Stdout line callback
   onStderr?: (line: string) => void;      // Stderr line callback
-  pipePrefix?: string | boolean;          // Prefix for piped output to console
 }
 ```
+
+Output buffering is enabled by default. Set `enableOutputBuffering` to `false`
+if you want to avoid storing stdout/stderr lines in memory.
 
 ## Usage Examples
 
@@ -302,9 +303,7 @@ console.log(result2.stdout);
 import { startShellCommand } from '@facetlayer/subprocess-wrapper';
 
 const subprocess = startShellCommand('npm', ['install'], {
-  spawnOptions: {
-    cwd: '/path/to/project',
-  },
+  cwd: '/path/to/project',
   onStdout: (line) => console.log('📦', line),
   onStderr: (line) => console.error('❌', line)
 });
@@ -347,13 +346,11 @@ try {
 
 ```typescript
 const result = await runShellCommand('node', ['build.js'], {
-  spawnOptions: {
-    cwd: '/path/to/project',
-    env: {
-      ...process.env,
-      NODE_ENV: 'production',
-      BUILD_TARGET: 'web'
-    }
+  cwd: '/path/to/project',
+  env: {
+    ...process.env,
+    NODE_ENV: 'production',
+    BUILD_TARGET: 'web'
   }
 });
 ```
@@ -362,7 +359,7 @@ const result = await runShellCommand('node', ['build.js'], {
 
 ```typescript
 const subprocess = new Subprocess({ enableOutputBuffering: true });
-subprocess.start('find', ['.', '-name', '*.js']);
+subprocess.spawn('find', ['.', '-name', '*.js']);
 await subprocess.waitForExit();
 
 const jsFiles = subprocess.getStdout();

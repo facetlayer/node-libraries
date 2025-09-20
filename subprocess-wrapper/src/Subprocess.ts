@@ -50,7 +50,7 @@ export class Subprocess {
         }
     }
 
-    start(
+    spawn(
         command: string,
         args: string[] = [],
         options: SpawnOptions = {}
