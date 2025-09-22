@@ -65,5 +65,15 @@ describe('SQL Statement Builders', () => {
             expect(result.sql).toBe('update users set name = ?, age = ? where id = ? and status = ?');
             expect(result.values).toEqual(['John', 30, 1, 'pending']);
         });
+
+        it('should handle empty where object by creating update without where clause', () => {
+            const result = prepareUpdateStatement_v2(
+                'users',
+                {},
+                { name: 'John', age: 30 }
+            );
+            expect(result.sql).toBe('update users set name = ?, age = ?');
+            expect(result.values).toEqual(['John', 30]);
+        });
     });
 });

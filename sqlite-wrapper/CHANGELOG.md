@@ -1,4 +1,12 @@
 
+# 0.9.1
+
+ - Bug fix when building SQL when the `where` object is empty.
+
+# 0.9.0
+
+ - Moved to new repo
+
 # 0.3.2
 
  - Add SlowQueryWarning

@@ -76,7 +76,11 @@ export function prepareUpdateStatement_v2(tableName: string, where: Record<strin
         setValues.push(value);
     }
 
-    const sql = `update ${tableName} set ${setParams.join(', ')} where ${whereParams.join(' and ')}`;
+    let sql = `update ${tableName} set ${setParams.join(', ')}`;
+    if (whereParams.length > 0) {
+        sql += ` where ${whereParams.join(' and ')}`;
+    }
+
     return {
         sql,
         values: setValues.concat(whereValues)
