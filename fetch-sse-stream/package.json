@@ -1,0 +1,33 @@
+{
+  "name": "@facetlayer/fetch-sse-stream",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "HTTP client using fetch with Server-Sent Events parsing, using @facetlayer/streams",
+  "main": "dist/index.js",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "pnpm build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "tsconfig.json"
+  ],
+  "dependencies": {
+    "@facetlayer/streams": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
