@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/fetch-sse-stream",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "HTTP client using fetch with Server-Sent Events parsing, using @facetlayer/streams",
   "main": "dist/index.js",
