@@ -134,4 +134,80 @@ describe('unixPipeToLines', () => {
         mockStream.emit('close');
         expect(lines).toEqual(['Partial', null]);
     });
+
+    it('should remove event listeners when cleanup is called', () => {
+        const mockStream = new EventEmitter();
+        const lines: (string | null)[] = [];
+
+        const cleanup = unixPipeToLines(mockStream as any, (line) => {
+            lines.push(line);
+        });
+
+        // Emit data before cleanup
+        mockStream.emit('data', Buffer.from('Line 1\n'));
+        expect(lines).toEqual(['Line 1']);
+
+        // Call cleanup
+        cleanup();
+
+        // Emit data after cleanup - should not be captured
+        mockStream.emit('data', Buffer.from('Line 2\n'));
+        mockStream.emit('close');
+
+        // Lines should still only contain the first line
+        expect(lines).toEqual(['Line 1']);
+    });
+
+    it('should allow calling cleanup multiple times safely', () => {
+        const mockStream = new EventEmitter();
+        const cleanup = unixPipeToLines(mockStream as any, () => {});
+
+        // Should not throw when called multiple times
+        expect(() => {
+            cleanup();
+            cleanup();
+            cleanup();
+        }).not.toThrow();
+    });
+
+    it('should cleanup before stream closes without issues', () => {
+        const mockStream = new EventEmitter();
+        const lines: (string | null)[] = [];
+
+        const cleanup = unixPipeToLines(mockStream as any, (line) => {
+            lines.push(line);
+        });
+
+        mockStream.emit('data', Buffer.from('Line 1\nLine 2'));
+        expect(lines).toEqual(['Line 1']);
+
+        // Cleanup early, before close
+        cleanup();
+
+        // Close should not trigger callback since we cleaned up
+        mockStream.emit('close');
+
+        // Should still only have the first line, not Line 2 or null
+        expect(lines).toEqual(['Line 1']);
+    });
+
+    it('should verify listener count decreases after cleanup', () => {
+        const mockStream = new EventEmitter();
+
+        const initialDataListeners = mockStream.listenerCount('data');
+        const initialCloseListeners = mockStream.listenerCount('close');
+
+        const cleanup = unixPipeToLines(mockStream as any, () => {});
+
+        // Verify listeners were added
+        expect(mockStream.listenerCount('data')).toBe(initialDataListeners + 1);
+        expect(mockStream.listenerCount('close')).toBe(initialCloseListeners + 1);
+
+        // Call cleanup
+        cleanup();
+
+        // Verify listeners were removed
+        expect(mockStream.listenerCount('data')).toBe(initialDataListeners);
+        expect(mockStream.listenerCount('close')).toBe(initialCloseListeners);
+    });
 });

@@ -13,15 +13,18 @@ import { Stream } from "stream";
  *
  * When the stream is closed, the onCompleteLine callback will be called with 'null'.
  *
+ * Returns a cleanup function that removes the event listeners. Call this function
+ * when you want to stop listening to the stream to prevent memory leaks.
+ *
  */
-export function unixPipeToLines(stream: Stream, onCompleteLine: (s: string | null) => void) {
+export function unixPipeToLines(stream: Stream, onCompleteLine: (s: string | null) => void): () => void {
     const normalizeLine = (line: string) => line.replace(/\r$/, '');
 
     // currentLine contains the string for an unfinished line (when we haven't
     // received the newline yet)
     let currentLine: string | null = null;
 
-    stream.on('data', (data: Buffer) => {
+    const onData = (data: Buffer) => {
         const dataStr = data.toString('utf-8');
         const endsWithNewline = dataStr[dataStr.length - 1] == '\n';
         const segments = dataStr.split('\n');
@@ -53,12 +56,21 @@ export function unixPipeToLines(stream: Stream, onCompleteLine: (s: string | nul
 
         if (leftover !== null)
             currentLine = (currentLine || '') + leftover;
-    });
+    };
 
-    stream.on('close', () => {
+    const onClose = () => {
         if (currentLine) {
             onCompleteLine(normalizeLine(currentLine));
         }
         onCompleteLine(null);
-    });
+    };
+
+    stream.on('data', onData);
+    stream.on('close', onClose);
+
+    // Return cleanup function
+    return () => {
+        stream.off('data', onData);
+        stream.off('close', onClose);
+    };
 }

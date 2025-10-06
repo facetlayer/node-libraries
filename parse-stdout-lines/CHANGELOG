@@ -1,0 +1,6 @@
+
+1.1.0
+ - Returns a cleanup function that removes the stream listeners
+
+1.0.0
+ - Initial public release
