@@ -11,8 +11,8 @@ import { performTableRebuild } from './rebuildTable';
 import { SingletonAccessor } from './SingletonAccessor';
 import { IncrementingIdOptions, SingletonIncrementingId } from './SingletonIncrementingId';
 import { SlowQueryWarning } from './SlowQueryWarning';
-import { runUpsert } from './sqlOperations';
-import { prepareInsertStatement, prepareUpdateStatement } from './sqlStatementBuilders';
+import { upsert } from './upsert';
+import { prepareInsertStatement, prepareUpdateStatement } from './statementBuilders';
 
 function paramsToArray(params) {
     if (params === undefined)
@@ -86,7 +86,7 @@ export class SqliteDatabase {
 
     *each(sql: string, params?: any) {
         if (typeof sql !== 'string')
-            throw new Error("first arg (sql) should be a string");
+            throw new Error("first arg of each() should be a string");
 
         const timer = new SlowQueryWarning(sql, (msg) => this.logs.warn(msg));
         try {
@@ -154,13 +154,13 @@ export class SqliteDatabase {
         return this.run(sql, values);
     }
 
-    update(tableName: string, whereClause: string, whereValues: any[], row: Record<string,any>) {
-        const { sql, values } = prepareUpdateStatement(tableName, whereClause, whereValues, row);
+    update(tableName: string, whereClause: Record<string,any>, row: Record<string,any>) {
+        const { sql, values } = prepareUpdateStatement(tableName, whereClause, row);
         return this.run(sql, values);
     }
 
     upsert(tableName: string, whereClause: Record<string,any>, row: Record<string,any>) {
-        return runUpsert(this, tableName, whereClause, row);
+        return upsert(this, tableName, whereClause, row);
     }
     
     singleton(tableName: string) {
@@ -183,7 +183,7 @@ export class SqliteDatabase {
             return;
         }
 
-        const getExistingCount = this.get(`select count(*) from ${parsed.table_name}`);
+        const getExistingCount = this.get(`SELECT count(*) FROM ${parsed.table_name}`);
         const count = getExistingCount['count(*)'];
 
         if (count === 0) {

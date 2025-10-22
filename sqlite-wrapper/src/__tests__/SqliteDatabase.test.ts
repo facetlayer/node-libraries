@@ -56,7 +56,7 @@ describe('SqliteDatabase.update', () => {
     // Insert test data first
     db.insert('users', { name: 'Bob', age: 25 });
 
-    const result = db.update('users', 'name = ?', ['Bob'], { age: 26 });
+    const result = db.update('users', { name: 'Bob' }, { age: 26 });
     expect(result.changes).toBe(1);
 
     const updated = db.get('select * from users where name = ?', 'Bob');
@@ -69,7 +69,7 @@ describe('SqliteDatabase.update', () => {
     db.insert('users', { name: 'Alice', age: 20 });
     db.insert('users', { name: 'Charlie', age: 20 });
 
-    const result = db.update('users', 'age = ?', [20], { age: 21 });
+    const result = db.update('users', { age: 20 }, { age: 21 });
     expect(result.changes).toBe(2);
 
     const count = db.count('from users where age = ?', 21);

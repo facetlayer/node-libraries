@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { SqliteDatabase } from '../SqliteDatabase';
 import { DatabaseLoader } from '../DatabaseLoader';
 import { loadBetterSqlite } from '../BetterSqliteLoader';
-import { runUpsert } from '../sqlOperations';
+import { upsert } from '../upsert';
 import { existsSync, unlinkSync } from 'fs';
 import { Stream } from '@facetlayer/streams';
 
@@ -41,7 +41,7 @@ describe('SQL Operations', () => {
 
     describe('runUpsert', () => {
         it('should insert when no matching rows exist', () => {
-            runUpsert(db, 'users', { email: 'john@example.com' }, { name: 'John', age: 30 });
+            upsert(db, 'users', { email: 'john@example.com' }, { name: 'John', age: 30 });
 
             const users = db.list('SELECT * FROM users');
             expect(users).toHaveLength(1);
@@ -53,7 +53,7 @@ describe('SQL Operations', () => {
         it('should update when matching rows exist', () => {
             db.insert('users', { name: 'John', email: 'john@example.com', age: 25 });
 
-            runUpsert(db, 'users', { email: 'john@example.com' }, { name: 'John Doe', age: 30 });
+            upsert(db, 'users', { email: 'john@example.com' }, { name: 'John Doe', age: 30 });
 
             const users = db.list('SELECT * FROM users');
             expect(users).toHaveLength(1);
@@ -66,7 +66,7 @@ describe('SQL Operations', () => {
             db.insert('users', { name: 'John', email: 'john@example.com', age: 25 });
             db.insert('users', { name: 'Jane', email: 'jane@example.com', age: 28 });
 
-            runUpsert(db, 'users', {}, { age: 35 });
+            upsert(db, 'users', {}, { age: 35 });
 
             const users = db.list('SELECT * FROM users ORDER BY name');
             expect(users).toHaveLength(2);

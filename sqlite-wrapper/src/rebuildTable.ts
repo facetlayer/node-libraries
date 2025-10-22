@@ -11,9 +11,13 @@ import {
 import { SqliteDatabase } from './SqliteDatabase';
 
 /*
- * Recreate a new table from scratch (using the schema) and migrate all existing rows over.
- *
- * This is required for some migrations in SQLite, such as dropping a column.
+ * Rebuilds a table
+ * 
+ * The process is:
+ * 1. Create a new table with the latest schema and a temporary name
+ * 2. Migrate all existing rows over with 'INSERT INTO'
+ * 3. Drop the old table
+ * 4. Rename the new table to the old table name
  */
 export function performTableRebuild(db: SqliteDatabase, schema: DatabaseSchema, tableName: string) {
   db.info('Starting a table rebuild');
