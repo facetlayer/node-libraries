@@ -28,4 +28,8 @@
  *    - Can result in data loss if any existing data doesn't fit the new schema.
  *    - Recommended for local development and automated testing.
  */
-export type MigrationBehavior = 'strict' | 'safe-upgrades' | 'full-destructive-updates' | 'ignore';
+export type MigrationBehavior =
+  | "strict"
+  | "safe-upgrades"
+  | "full-destructive-updates"
+  | "ignore";

@@ -1,0 +1,14 @@
+packages:
+  - 'csv-tool'
+  - 'fetch-sse-stream'
+  - 'generic-lexer'
+  - 'parse-stdout-lines'
+  - 'sqlite-wrapper'
+  - 'streams'
+  - 'subprocess-wrapper'
+
+ignoredBuiltDependencies:
+  - esbuild
+
+onlyBuiltDependencies:
+  - better-sqlite3

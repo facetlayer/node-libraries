@@ -1,10 +1,10 @@
-import { Stream } from '@facetlayer/streams';
-import Database from 'better-sqlite3';
-import { DatabaseSchema } from './DatabaseSchema';
-import { getOneTableMigration } from './migration';
-import { MigrationBehavior } from './MigrationBehavior';
-import { parseSql } from './parser';
-import { SqliteDatabase } from './SqliteDatabase';
+import { Stream } from "@facetlayer/streams";
+import Database from "better-sqlite3";
+import { DatabaseSchema } from "./DatabaseSchema";
+import { getOneTableMigration } from "./migration";
+import { MigrationBehavior } from "./MigrationBehavior";
+import { parseSql } from "./parser";
+import { SqliteDatabase } from "./SqliteDatabase";
 
 export type LoadDatabaseFn = (filename: string) => Database.Database;
 
@@ -29,7 +29,7 @@ export class DatabaseLoader {
     this.options = options;
 
     if (!this.options.loadDatabase) {
-      throw new Error('.options.loadDatabase is missing');
+      throw new Error(".options.loadDatabase is missing");
     }
   }
 
@@ -41,23 +41,23 @@ export class DatabaseLoader {
       const behavior = this.options.migrationBehavior;
 
       switch (behavior) {
-        case 'ignore':
+        case "ignore":
           break;
 
-        case 'strict':
+        case "strict":
           // In strict mode, only check that the schema matches
           // Don't perform any migrations
           this.db.runDatabaseSloppynessCheck(this.options.schema);
           break;
 
-        case 'safe-upgrades':
+        case "safe-upgrades":
           this.db.migrateToSchema(this.options.schema, {
             includeDestructive: false,
           });
           this.db.runDatabaseSloppynessCheck(this.options.schema);
           break;
 
-        case 'full-destructive-updates':
+        case "full-destructive-updates":
           // Perform all migrations including destructive ones
           this.db.migrateToSchema(this.options.schema, {
             includeDestructive: true,
@@ -69,7 +69,7 @@ export class DatabaseLoader {
 
         default:
           throw new Error(
-            `Invalid migration behavior: ${behavior}. Must be one of: strict, safe-upgrades, full-destructive-updates`
+            `Invalid migration behavior: ${behavior}. Must be one of: strict, safe-upgrades, full-destructive-updates`,
           );
       }
 
@@ -89,29 +89,29 @@ export class DatabaseLoader {
       const statement = parseSql(statementText);
 
       switch (statement.t) {
-        case 'create_table':
+        case "create_table":
           schemaTables.add(statement.table_name);
           break;
-        case 'create_index':
+        case "create_index":
           schemaTables.add(statement.index_name);
           break;
       }
     }
 
     const existingItems = this.db.list(
-      `select name, type from sqlite_schema where type IN ('table', 'index')`
+      `select name, type from sqlite_schema where type IN ('table', 'index')`,
     );
 
     for (const { name: itemName, type } of existingItems) {
-      if (itemName.startsWith('sqlite_')) continue;
-      if (itemName.startsWith('_litestream')) continue;
-      if (itemName === 'dm_database_meta') continue;
+      if (itemName.startsWith("sqlite_")) continue;
+      if (itemName.startsWith("_litestream")) continue;
+      if (itemName === "dm_database_meta") continue;
 
       if (!schemaTables.has(itemName)) {
-        if (type === 'table') {
+        if (type === "table") {
           this.db.info(`Dropping leftover table: ${itemName}`);
           this.db.run(`DROP TABLE ${itemName}`);
-        } else if (type === 'index') {
+        } else if (type === "index") {
           this.db.info(`Dropping leftover index: ${itemName}`);
           this.db.run(`DROP INDEX ${itemName}`);
         }
@@ -125,11 +125,11 @@ export class DatabaseLoader {
     for (const statementText of this.options.schema.statements) {
       const statement = parseSql(statementText);
 
-      if (statement.t !== 'create_table') continue;
+      if (statement.t !== "create_table") continue;
 
       const existingTable: any = this.db.get(
         `select sql from sqlite_schema where name = ?`,
-        statement.table_name
+        statement.table_name,
       );
 
       if (!existingTable) continue;
@@ -137,11 +137,15 @@ export class DatabaseLoader {
       const migration = getOneTableMigration(existingTable.sql, statementText);
 
       const needsRebuild = migration.warnings.some(
-        warning => warning.includes('requires a rebuild') || warning.includes('destructive')
+        (warning) =>
+          warning.includes("requires a rebuild") ||
+          warning.includes("destructive"),
       );
 
       if (needsRebuild) {
-        this.db.info(`Performing destructive rebuild for table: ${statement.table_name}`);
+        this.db.info(
+          `Performing destructive rebuild for table: ${statement.table_name}`,
+        );
         this.db.performRebuild(this.options.schema, statement.table_name);
       }
     }
