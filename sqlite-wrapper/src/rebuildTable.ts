@@ -1,83 +1,111 @@
-
-
-import { SqliteDatabase } from './SqliteDatabase'
-import { DatabaseSchema } from './DatabaseSchema'
-import { CreateTable, SqlStatement, parseSql, createTableWithReplacedTableName } from './parser'
-import { randomHex } from '@facetlayer/streams'
-import { captureError, ErrorDetails } from '@facetlayer/streams'
+import { captureError } from "@facetlayer/streams";
+import { randomHex } from "@facetlayer/streams";
+import { DatabaseSchema } from "./DatabaseSchema";
+import {
+  CreateTableStatement,
+  createTableWithReplacedTableName,
+  parseSql,
+  SqlStatement,
+} from "./parser";
+import { SqliteDatabase } from "./SqliteDatabase";
 
 /*
- * Recreate a new table from scratch (using the schema) and migrate all existing rows over.
+ * Rebuilds a table
  *
- * This is required for some migrations in SQLite, such as dropping a column.
+ * The process is:
+ * 1. Create a new table with the latest schema and a temporary name
+ * 2. Migrate all existing rows over with 'INSERT INTO'
+ * 3. Drop the old table
+ * 4. Rename the new table to the old table name
  */
-export function performTableRebuild(db: SqliteDatabase, schema: DatabaseSchema, tableName: string) {
+export function performTableRebuild(
+  db: SqliteDatabase,
+  schema: DatabaseSchema,
+  tableName: string,
+) {
+  db.info("Starting a table rebuild");
 
-    db.info("Starting a table rebuild");
+  // Based on: https://www.sqlite.org/lang_altertable.html#otheralter
+  db.pragma("foreign_keys=OFF");
 
-    // Based on: https://www.sqlite.org/lang_altertable.html#otheralter
-    db.pragma('foreign_keys=OFF');
+  const temporaryTableName = "temp_" + tableName + "_" + randomHex(6);
 
-    const temporaryTableName = 'temp_' + tableName + '_' + randomHex(6);
+  let parsedStatements: SqlStatement[] = [];
+  let createTableSql: string;
+  let createTable: CreateTableStatement;
 
-    let parsedStatements: SqlStatement[] = [];
-    let createTableSql: string;
-    let createTable: CreateTable;
+  for (const sql of schema.statements) {
+    const parsed = parseSql(sql);
 
-    for (const sql of schema.statements) {
-        const parsed = parseSql(sql);
+    parsedStatements.push(parsed);
 
-        parsedStatements.push(parsed);
+    if (
+      !createTable &&
+      parsed.t === "create_table" &&
+      parsed.table_name === tableName
+    ) {
+      createTable = parsed;
+      createTableSql = sql;
+    }
+  }
 
-        if (!createTable && parsed.t === 'create_table' && parsed.name === tableName) {
-            createTable = parsed;
-            createTableSql = sql;
-        }
+  if (!createTable)
+    throw new Error(
+      "couldn't find a 'create table' statement in the schame for: " +
+        tableName,
+    );
+
+  // Start transaction
+  const perform = db.db.transaction(() => {
+    // Delete all existing views & indexes related to the table
+    for (const item of db.each(
+      "select type, name, sql FROM sqlite_schema where tbl_name = ?",
+      tableName,
+    )) {
+      if (item.type === "table") continue;
+
+      if (item.name.startsWith("sqlite_autoindex")) continue;
+
+      console.log("TODO: Delete existing resource", item);
     }
 
-    if (!createTable)
-        throw new Error("couldn't find a 'create table' statement in the schame for: " + tableName);
-    
-    // Start transaction
-    const perform = db.db.transaction(() => {
-        // Delete all existing views & indexes related to the table
-        for (const item of db.each('select type, name, sql FROM sqlite_schema where tbl_name = ?', tableName)) {
-            if (item.type === 'table')
-                continue;
+    //
+    // Create the new_xxx table
+    const newTableSql = createTableWithReplacedTableName(
+      createTableSql,
+      temporaryTableName,
+    );
+    db.run(newTableSql);
 
-            if (item.name.startsWith("sqlite_autoindex"))
-                continue;
+    // Copy all the rows over
+    const allColumns = createTable.columns
+      .map((column) => column.name)
+      .join(", ");
+    db.run(
+      `INSERT INTO ${temporaryTableName} SELECT ${allColumns} FROM ${tableName};`,
+    );
 
-            console.log('TODO: Delete existing resource', item);
-        }
+    // Delete the old table
+    db.run(`DROP TABLE ${tableName}`);
 
-        //
-        // Create the new_xxx table
-        const newTableSql = createTableWithReplacedTableName(createTableSql, temporaryTableName);
-        db.run(newTableSql);
+    // Rename the temp table
+    db.run(`ALTER TABLE ${temporaryTableName} RENAME TO ${tableName}`);
 
-        // Copy all the rows over
-        const allColumns = createTable.columns.map(column => column.name).join(', ');
-        db.run(`INSERT INTO ${temporaryTableName} SELECT ${allColumns} FROM ${tableName};`);
+    // Perform migration to recreate any indexes
+    db.migrateToSchema(schema, { includeDestructive: false });
 
-        // Delete the old table
-        db.run(`DROP TABLE ${tableName}`)
-        
-        // Rename the temp table
-        db.run(`ALTER TABLE ${temporaryTableName} RENAME TO ${tableName}`);
-        
-        // Perform migration to recreate any indexes
-        db.migrateToSchema(schema, { includeDestructive: false });
-        
-        db.pragma('foreign_key_check');
+    db.pragma("foreign_key_check");
+  });
+
+  try {
+    perform();
+  } catch (e) {
+    db.error({
+      errorMessage: "Tried a full migration but failed",
+      cause: captureError(e),
     });
+  }
 
-    try {
-        perform();
-    } catch (e) {
-        db.error({ errorMessage: "Tried a full migration but failed", cause: captureError(e)});
-    }
-
-    db.pragma('foreign_keys=ON');
-    db.info("Finished a full migration");
+  db.pragma("foreign_keys=ON");
+  db.info("Finished a full migration");
 }
