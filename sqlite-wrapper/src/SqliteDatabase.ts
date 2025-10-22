@@ -1,15 +1,18 @@
-
-import { Database as BetterSqliteDatabase } from 'better-sqlite3'
-import { parseSql } from './parser'
-import { runDatabaseSloppynessCheck, MigrationOptions, runMigrationForCreateStatement } from './migration'
-import { DatabaseSchema } from './DatabaseSchema'
-import { performTableRebuild } from './rebuildTable'
-import { Stream, ErrorDetails, captureError } from '@facetlayer/streams'
-import { prepareInsertStatement, prepareUpdateStatement } from './sqlStatementBuilders'
-import { runUpsert } from './sqlOperations'
-import { SingletonAccessor } from './SingletonAccessor'
-import { IncrementingIdOptions, SingletonIncrementingId } from './SingletonIncrementingId'
-import { SlowQueryWarning } from './SlowQueryWarning'
+import { ErrorDetails, Stream, captureError } from '@facetlayer/streams';
+import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
+import { DatabaseSchema } from './DatabaseSchema';
+import {
+  MigrationOptions,
+  runDatabaseSloppynessCheck,
+  runMigrationForCreateStatement,
+} from './migration';
+import { parseSql } from './parser';
+import { performTableRebuild } from './rebuildTable';
+import { SingletonAccessor } from './SingletonAccessor';
+import { IncrementingIdOptions, SingletonIncrementingId } from './SingletonIncrementingId';
+import { SlowQueryWarning } from './SlowQueryWarning';
+import { runUpsert } from './sqlOperations';
+import { prepareInsertStatement, prepareUpdateStatement } from './sqlStatementBuilders';
 
 function paramsToArray(params) {
     if (params === undefined)
@@ -22,8 +25,8 @@ function paramsToArray(params) {
 }
 
 export interface RunResult {
-    changes: number
-    lastInsertRowid: number
+  changes: number;
+  lastInsertRowid: number | bigint;
 }
 
 export class SqliteDatabase {

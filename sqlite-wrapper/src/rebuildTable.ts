@@ -1,10 +1,14 @@
 
-
-import { SqliteDatabase } from './SqliteDatabase'
-import { DatabaseSchema } from './DatabaseSchema'
-import { CreateTable, SqlStatement, parseSql, createTableWithReplacedTableName } from './parser'
-import { randomHex } from '@facetlayer/streams'
-import { captureError, ErrorDetails } from '@facetlayer/streams'
+import { captureError } from '@facetlayer/streams';
+import { randomHex } from '@facetlayer/streams';
+import { DatabaseSchema } from './DatabaseSchema';
+import {
+  CreateTableStatement,
+  createTableWithReplacedTableName,
+  parseSql,
+  SqlStatement,
+} from './parser';
+import { SqliteDatabase } from './SqliteDatabase';
 
 /*
  * Recreate a new table from scratch (using the schema) and migrate all existing rows over.
@@ -12,31 +16,30 @@ import { captureError, ErrorDetails } from '@facetlayer/streams'
  * This is required for some migrations in SQLite, such as dropping a column.
  */
 export function performTableRebuild(db: SqliteDatabase, schema: DatabaseSchema, tableName: string) {
+  db.info('Starting a table rebuild');
 
-    db.info("Starting a table rebuild");
+  // Based on: https://www.sqlite.org/lang_altertable.html#otheralter
+  db.pragma('foreign_keys=OFF');
 
-    // Based on: https://www.sqlite.org/lang_altertable.html#otheralter
-    db.pragma('foreign_keys=OFF');
+  const temporaryTableName = 'temp_' + tableName + '_' + randomHex(6);
 
-    const temporaryTableName = 'temp_' + tableName + '_' + randomHex(6);
+  let parsedStatements: SqlStatement[] = [];
+  let createTableSql: string;
+  let createTable: CreateTableStatement;
 
-    let parsedStatements: SqlStatement[] = [];
-    let createTableSql: string;
-    let createTable: CreateTable;
+  for (const sql of schema.statements) {
+    const parsed = parseSql(sql);
 
-    for (const sql of schema.statements) {
-        const parsed = parseSql(sql);
+    parsedStatements.push(parsed);
 
-        parsedStatements.push(parsed);
-
-        if (!createTable && parsed.t === 'create_table' && parsed.name === tableName) {
-            createTable = parsed;
-            createTableSql = sql;
-        }
+    if (!createTable && parsed.t === 'create_table' && parsed.table_name === tableName) {
+      createTable = parsed;
+      createTableSql = sql;
     }
+  }
 
-    if (!createTable)
-        throw new Error("couldn't find a 'create table' statement in the schame for: " + tableName);
+  if (!createTable)
+    throw new Error("couldn't find a 'create table' statement in the schame for: " + tableName);
     
     // Start transaction
     const perform = db.db.transaction(() => {

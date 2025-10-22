@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SqliteDatabase } from '../SqliteDatabase';
 import { DatabaseLoader } from '../DatabaseLoader';
+import { loadBetterSqlite } from '../BetterSqliteLoader';
 import { runUpsert } from '../sqlOperations';
 import { existsSync, unlinkSync } from 'fs';
 import { Stream } from '@facetlayer/streams';
@@ -16,7 +17,7 @@ function cleanupTestDatabase() {
 describe('SQL Operations', () => {
     let db: SqliteDatabase;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         cleanupTestDatabase();
         const loader = new DatabaseLoader({
             filename: TEST_DB_PATH,
@@ -31,7 +32,9 @@ describe('SQL Operations', () => {
                         age INTEGER
                     )`
                 ]
-            }
+            },
+            loadDatabase: await loadBetterSqlite(),
+            migrationBehavior: 'safe-upgrades'
         });
         db = loader.load();
     });

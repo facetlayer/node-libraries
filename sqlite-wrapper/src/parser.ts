@@ -1,54 +1,63 @@
-
-import { lexifyString, TokenIterator,
-    t_lparen, t_rparen, t_comma, t_semicolon, t_dot } from '@facetlayer/generic-lexer'
+import {
+  lexifyString,
+  t_comma,
+  t_dot,
+  t_lparen,
+  t_rparen,
+  t_semicolon,
+  TokenIterator,
+} from '@facetlayer/generic-lexer';
 
 export interface CreateTableColumn {
-    name: string
-    definition: string
+  name: string;
+  definition: string;
 }
 
-export interface CreateTable {
-    t: 'create_table'
-    name: string
-    columns: CreateTableColumn[]
-    references: string[]
-    uniqueConstraints: string[]
+export interface CreateTableStatement {
+  t: 'create_table';
+  sql: string;
+  table_name: string;
+  columns: CreateTableColumn[];
+  references: string[];
+  uniqueConstraints: string[];
 }
 
-export interface CreateIndex {
-    t: 'create_index'
-    index_name: string
-    references?: string[]
-    uniqueConstraints?: string[]
+export interface CreateIndexStatement {
+  t: 'create_index';
+  sql: string;
+  index_name: string;
+  references?: string[];
+  uniqueConstraints?: string[];
 }
 
 export interface InsertItem {
-    t: 'insert_item'
-    table_name: string
-    columns: string[]
-    values: string[]
+  t: 'insert_item';
+  table_name: string;
+  columns: string[];
+  values: string[];
 }
 
 export interface PragmaStatement {
-    t: 'pragma'
-    pragma_name: string
-    value?: string
+  t: 'pragma';
+  pragma_name: string;
+  value?: string;
 }
 
-export type SqlStatement = CreateTable | CreateIndex | InsertItem | PragmaStatement
+export type SqlStatement = CreateTableStatement | CreateIndexStatement | InsertItem | PragmaStatement;
 
-function createTable(it: TokenIterator): SqlStatement {
+function createTable(it: TokenIterator, sql: string): CreateTableStatement {
     it.consume(); // create
     it.consume(); // table
 
-    const name = it.consumeAsText();
-    const out: SqlStatement = {
+    const table_name = it.consumeAsText();
+    const out: CreateTableStatement = {
         t: 'create_table',
-        name,
+        sql,
+        table_name,
         columns: [],
         references: [],
         uniqueConstraints: [],
-    }
+    };
 
     it.consume(t_lparen);
 
@@ -139,7 +148,7 @@ function createTable(it: TokenIterator): SqlStatement {
     return out;
 }
 
-function createIndex(it: TokenIterator): SqlStatement {
+function createIndex(it: TokenIterator, sql: string): CreateIndexStatement {
     it.consume();
 
     if (it.nextText().toLowerCase() === 'unique')
@@ -167,8 +176,9 @@ function createIndex(it: TokenIterator): SqlStatement {
 
     return {
         t: 'create_index',
+        sql,
         index_name,
-    }
+    };
 }
 
 function insertItem(it: TokenIterator): SqlStatement {
@@ -256,21 +266,21 @@ function tokenizeSql(sql: string) {
     return it;
 }
 
-export function parseSql(sql: string) {
+export function parseSql(sql: string): SqlStatement {
 
     const it = tokenizeSql(sql);
 
     if (it.nextText(0).toLowerCase() === 'create' && it.nextText(1).toLowerCase() === 'table') {
-        const statement = createTable(it);
+        const statement = createTable(it, sql);
         return statement;
     }
 
     if (it.nextText(0).toLowerCase() === 'create' &&
         ((it.nextText(1).toLowerCase() === 'index')
-        || 
+        ||
         (it.nextText(1).toLowerCase() === 'unique' && it.nextText(2).toLowerCase() === 'index'))
     ) {
-        const statement = createIndex(it);
+        const statement = createIndex(it, sql);
         return statement;
     }
 
@@ -290,14 +300,14 @@ export function parseSql(sql: string) {
 export function parsedStatementToString(statement: SqlStatement) {
     switch (statement.t) {
     case 'create_table': {
-        statement = statement as CreateTable;
+        statement = statement as CreateTableStatement;
         let columnDefs = [];
 
         for (const column of statement.columns) {
             columnDefs.push(`${column.name} ${column.definition}`);
         }
 
-        let result = `create table ${statement.name} (${columnDefs.join(', ')});`;
+        let result = `create table ${statement.table_name} (${columnDefs.join(', ')});`;
 
         return result;
     }

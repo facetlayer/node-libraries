@@ -1,5 +1,4 @@
-
-import { SqliteDatabase } from "./SqliteDatabase";
+import { SqliteDatabase } from './SqliteDatabase';
 
 export interface IncrementingIdOptions {
     initialValue?: number;

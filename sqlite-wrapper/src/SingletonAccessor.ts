@@ -1,4 +1,4 @@
-import { SqliteDatabase } from "./SqliteDatabase";
+import { SqliteDatabase } from './SqliteDatabase';
 
 export class SingletonAccessor {
     db: SqliteDatabase;

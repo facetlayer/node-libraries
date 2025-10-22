@@ -1,49 +1,48 @@
-
-import { CreateTable, parseSql } from './parser'
-import { SqliteDatabase } from './SqliteDatabase'
-import { DatabaseSchema } from './DatabaseSchema'
+import { CreateTableStatement, parseSql } from './parser';
+import { SqliteDatabase } from './SqliteDatabase';
+import { DatabaseSchema } from './DatabaseSchema';
 
 interface Migration {
-    statements: MigrationStatement[]
-    warnings: string[]
+  statements: MigrationStatement[];
+  warnings: string[];
 }
 
 interface MigrationStatement {
-    sql: string
-    isDestructive: boolean
+  sql: string;
+  isDestructive: boolean;
 }
 
 export interface MigrationOptions {
-    includeDestructive?: boolean
+  includeDestructive?: boolean;
 }
 
-function parseCreateTable(input: CreateTable | string): CreateTable {
-    if (typeof input === 'string') {
-        const parsed = parseSql(input);
-        if (parsed.t !== 'create_table')
-            throw new Error("expected a 'create table' statement");
+function parseCreateTable(input: CreateTableStatement | string): CreateTableStatement {
+  if (typeof input === 'string') {
+    const parsed = parseSql(input);
+    if (parsed.t !== 'create_table') throw new Error("expected a 'create table' statement");
 
-        return parsed;
-    }
+    return parsed;
+  }
 
-    return input;
+  return input;
 }
 
-export function getOneTableMigration(fromTableLoose: CreateTable | string, toTableLoose: CreateTable | string): Migration {
-    const needToInsert = [];
-    const needToDelete = [];
-    const needToModify = [];
-    const warnings: string[] = [];
+export function getOneTableMigration(
+  fromTableLoose: CreateTableStatement | string,
+  toTableLoose: CreateTableStatement | string
+): Migration {
+  const needToInsert = [];
+  const needToDelete = [];
+  const needToModify = [];
+  const warnings: string[] = [];
 
-    const fromTable = parseCreateTable(fromTableLoose);
-    const toTable = parseCreateTable(toTableLoose);
+  const fromTable = parseCreateTable(fromTableLoose);
+  const toTable = parseCreateTable(toTableLoose);
 
-    function findColumn(table: CreateTable, name: string) {
-        for (const column of table.columns)
-            if (column.name === name)
-                return column;
-        return null;
-    }
+  function findColumn(table: CreateTableStatement, name: string) {
+    for (const column of table.columns) if (column.name === name) return column;
+    return null;
+  }
 
     for (const fromColumn of fromTable.columns) {
         const toColumn = findColumn(toTable, fromColumn.name);
@@ -78,18 +77,18 @@ export function getOneTableMigration(fromTableLoose: CreateTable | string, toTab
     for (const column of needToInsert) {
         let def = column.definition;
         if (def.toLowerCase().indexOf("not null") !== -1) {
-            warnings.push(`Latest schema for table '${fromTable.name}' requires a rebuild: Need to alter column ${column.name} to use 'not null'`);
+            warnings.push(`Latest schema for table '${fromTable.table_name}' requires a rebuild: Need to alter column ${column.name} to use 'not null'`);
             def = def.replace(/not null ?/i, '');
         }
 
         statements.push({
-            sql: `alter table ${fromTable.name} add column ${column.name} ${def};`,
+            sql: `alter table ${fromTable.table_name} add column ${column.name} ${def};`,
             isDestructive: false
         });
     }
 
     for (const column of needToDelete) {
-        warnings.push(`Latest schema for table '${fromTable.name}' requires a rebuild: Need to delete column '${column.name}'`);
+        warnings.push(`Latest schema for table '${fromTable.table_name}' requires a rebuild: Need to delete column '${column.name}'`);
     }
 
     return {
@@ -106,7 +105,7 @@ export async function runDatabaseSloppynessCheck(db: SqliteDatabase, schema: Dat
 
         switch (statement.t) {
         case 'create_table':
-            schemaTables.set(statement.name, statement);
+            schemaTables.set(statement.table_name, statement);
             break;
         case 'create_index':
             schemaTables.set(statement.index_name, statement);
@@ -140,8 +139,8 @@ export function runMigrationForCreateStatement(db: SqliteDatabase, createStateme
         // Ignore PRAGMA statements in migrations
         return;
     } else if (statement.t == 'create_table') {
-        const existingTable: any = db.get(`select sql from sqlite_schema where name = ?`, statement.name);
-        
+        const existingTable: any = db.get(`select sql from sqlite_schema where name = ?`, statement.table_name);
+
         if (!existingTable) {
             // Table doesn't exist yet, create it.
             db.run(createStatement);
@@ -156,12 +155,12 @@ export function runMigrationForCreateStatement(db: SqliteDatabase, createStateme
                 continue;
             }
 
-            db.info(`migrating table ${statement.name}: ${migrationStatement.sql}`)
+            db.info(`migrating table ${statement.table_name}: ${migrationStatement.sql}`)
             db.run(migrationStatement.sql);
         }
 
         for (const warning of migration.warnings)
-            db.warn(`table ${statement.name} had migration warning: ${warning}`);
+            db.warn(`table ${statement.table_name} had migration warning: ${warning}`);
 
     } else if (statement.t === 'create_index') {
         const existingIndex: any = db.get(`select sql from sqlite_schema where name = ?`, statement.index_name);

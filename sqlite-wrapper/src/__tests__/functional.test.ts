@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { DatabaseLoader, DatabaseSchema } from '..'
+import { loadBetterSqlite } from '../BetterSqliteLoader'
 import { existsSync, unlinkSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { Stream } from '@facetlayer/streams'
@@ -22,9 +23,9 @@ describe('SQLite Helper Functional Tests', () => {
         cleanupTestDatabases()
     })
 
-    it('should initialize a database with schema and verify creation', () => {
+    it('should initialize a database with schema and verify creation', async () => {
         const dbPath = join(TEST_DB_DIR, 'test1.db')
-        
+
         const schema: DatabaseSchema = {
             name: 'test_schema',
             statements: [
@@ -36,7 +37,9 @@ describe('SQLite Helper Functional Tests', () => {
         const loader = new DatabaseLoader({
             filename: dbPath,
             logs: Stream.newNullStream(),
-            schema: schema
+            schema: schema,
+            loadDatabase: await loadBetterSqlite(),
+            migrationBehavior: 'safe-upgrades'
         })
 
         const db = loader.load()
@@ -61,9 +64,9 @@ describe('SQLite Helper Functional Tests', () => {
         db.close()
     })
 
-    it('should auto-migrate database when schema changes (add column)', () => {
+    it('should auto-migrate database when schema changes (add column)', async () => {
         const dbPath = join(TEST_DB_DIR, 'test2.db')
-        
+
         // Initial schema
         const initialSchema: DatabaseSchema = {
             name: 'test_schema_v1',
@@ -76,7 +79,9 @@ describe('SQLite Helper Functional Tests', () => {
         const loader1 = new DatabaseLoader({
             filename: dbPath,
             logs: Stream.newNullStream(),
-            schema: initialSchema
+            schema: initialSchema,
+            loadDatabase: await loadBetterSqlite(),
+            migrationBehavior: 'safe-upgrades'
         })
         
         let db = loader1.load()
@@ -108,7 +113,9 @@ describe('SQLite Helper Functional Tests', () => {
         const loader2 = new DatabaseLoader({
             filename: dbPath,
             logs: Stream.newNullStream(),
-            schema: updatedSchema
+            schema: updatedSchema,
+            loadDatabase: await loadBetterSqlite(),
+            migrationBehavior: 'safe-upgrades'
         })
         
         db = loader2.load()
