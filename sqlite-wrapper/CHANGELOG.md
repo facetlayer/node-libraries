@@ -1,4 +1,7 @@
 
+# 1.2.0
+ - Adds a retry loop on schema migration, certain errors will trigger a retry.
+
 # 1.1.0
  - Adding MigrationSetting
  - Change .update() call to take `where: Record<string,any>`

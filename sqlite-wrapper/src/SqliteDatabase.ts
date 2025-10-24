@@ -4,7 +4,6 @@ import { DatabaseSchema } from "./DatabaseSchema";
 import {
   MigrationOptions,
   runDatabaseSloppynessCheck,
-  runMigrationForCreateStatement,
 } from "./migration";
 import { parseSql } from "./parser";
 import { performTableRebuild } from "./rebuildTable";
@@ -19,6 +18,7 @@ import {
   prepareInsertStatement,
   prepareUpdateStatement,
 } from "./statementBuilders";
+import { applyMigration } from "./applyMigration";
 
 function paramsToArray(params) {
   if (params === undefined) return [];
@@ -183,10 +183,6 @@ export class SqliteDatabase {
     return new SingletonIncrementingId(this, tableName, options);
   }
 
-  migrateCreateStatement(createStatement: string, options: MigrationOptions) {
-    runMigrationForCreateStatement(this, createStatement, options);
-  }
-
   setupInitialData(statement: string) {
     const parsed = parseSql(statement);
 
@@ -209,15 +205,7 @@ export class SqliteDatabase {
   }
 
   migrateToSchema(schema: DatabaseSchema, options: MigrationOptions = {}) {
-    for (const statement of schema.statements) {
-      this.migrateCreateStatement(statement, options);
-    }
-
-    for (const statement of schema.initialData || []) {
-      this.setupInitialData(statement);
-    }
-
-    // this.info('finished migrating to schema: ' + schema.name)
+    applyMigration(this, schema, options);
   }
 
   performRebuild(schema: DatabaseSchema, tableName: string) {

@@ -1,7 +1,7 @@
 import { Stream } from "@facetlayer/streams";
 import Database from "better-sqlite3";
 import { DatabaseSchema } from "./DatabaseSchema";
-import { getOneTableMigration } from "./migration";
+import { getTableDrift } from "./migration";
 import { MigrationBehavior } from "./MigrationBehavior";
 import { parseSql } from "./parser";
 import { SqliteDatabase } from "./SqliteDatabase";
@@ -134,12 +134,15 @@ export class DatabaseLoader {
 
       if (!existingTable) continue;
 
-      const migration = getOneTableMigration(existingTable.sql, statementText);
+      // Get drifts for this table
+      const drifts = getTableDrift(existingTable.sql, statementText);
 
-      const needsRebuild = migration.warnings.some(
-        (warning) =>
-          warning.includes("requires a rebuild") ||
-          warning.includes("destructive"),
+      // Check if any drift requires a rebuild
+      const needsRebuild = drifts.some(
+        (drift) =>
+          drift.type === "need_to_rebuild_table" ||
+          drift.type === "need_to_delete_column" ||
+          drift.type === "need_to_modify_column",
       );
 
       if (needsRebuild) {
