@@ -1,0 +1,31 @@
+{
+  "name": "@facetlayer/prism-framework-tools",
+  "version": "0.1.0",
+  "description": "Testing and development tools for the Prism app framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "tsc -p . --watch",
+    "prepare": "tsc -p ."
+  },
+  "keywords": [
+    "framework",
+    "testing",
+    "tools",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
