@@ -122,6 +122,19 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.13.0)
 
+  prism-framework-tools:
+    dependencies:
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+
   prism-framework-ui:
     dependencies:
       '@radix-ui/react-checkbox':

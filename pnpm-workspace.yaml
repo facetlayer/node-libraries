@@ -1,14 +1,15 @@
 packages:
-  - 'claude-code-session-history'
-  - 'csv-tool'
-  - 'fetch-sse-stream'
-  - 'generic-lexer'
-  - 'parse-stdout-lines'
-  - 'prism-framework-api'
-  - 'prism-framework-ui'
-  - 'sqlite-wrapper'
-  - 'streams'
-  - 'subprocess-wrapper'
+  - claude-code-session-history
+  - csv-tool
+  - fetch-sse-stream
+  - generic-lexer
+  - parse-stdout-lines
+  - prism-framework-api
+  - prism-framework-tools
+  - prism-framework-ui
+  - sqlite-wrapper
+  - streams
+  - subprocess-wrapper
 
 ignoredBuiltDependencies:
   - esbuild

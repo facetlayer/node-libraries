@@ -1,0 +1,35 @@
+{
+  "name": "@facetlayer/prism-framework-desktop",
+  "version": "0.1.0",
+  "description": "Electron desktop integration for Prism Framework applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+      "install": "pnpm install --ignore-workspace",
+    "build": "tsc -p .",
+    "dev": "tsc -p . --watch",
+    "prepare": "tsc -p ."
+  },
+  "keywords": [
+    "framework",
+    "electron",
+    "desktop",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "dependencies": {
+    "electron": ">=28.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+  }
+}

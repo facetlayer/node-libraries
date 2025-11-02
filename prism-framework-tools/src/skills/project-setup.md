@@ -32,6 +32,30 @@ my-project/
 └── package.json           # Root package.json
 ```
 
+## Development Modes
+
+The Prism Framework supports two distinct development modes, particularly relevant for Electron-based applications:
+
+### Local Development Mode
+
+In local development mode, the framework runs all components separately for rapid iteration:
+
+- **API Server**: Runs as an HTTP server (typically on port 3000) that the UI connects to over HTTP
+- **UI**: Runs in live development mode using Next.js dev server with hot module replacement
+- **Electron Window** (if applicable): Shows the live development server URL, allowing real-time updates
+
+This mode is optimized for developer experience with fast refresh and easy debugging.
+
+### Release Mode
+
+In release mode, the framework bundles everything for production deployment:
+
+- **API Server**: Bundled and uses IPC (Inter-Process Communication) for UI actions instead of HTTP
+- **UI**: Built as static files using `next build` for optimal performance
+- **Electron Window** (if applicable): Loads the pre-built static files directly from the filesystem
+
+This mode is optimized for performance and package size, with all components pre-compiled and integrated.
+
 ## Prerequisites
 
 - Node.js (v18 or later)
