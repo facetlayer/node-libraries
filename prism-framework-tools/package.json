@@ -4,6 +4,9 @@
   "description": "Testing and development tools for the Prism app framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "prism-run-endpoint": "dist/run-endpoint.js"
+  },
   "files": [
     "dist"
   ],
@@ -22,10 +25,15 @@
   "license": "MIT",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "@facetlayer/prism-framework-api": "0.1.0",
+    "dotenv": "^16.4.7",
+    "uuid": "^11.1.0",
+    "yargs": "18.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/uuid": "^10.0.0",
+    "@types/yargs": "17.0.34",
     "typescript": "^5.7.2"
   }
 }
