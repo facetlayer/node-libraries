@@ -1,6 +1,6 @@
 # Authorization System
 
-Spark Framework includes a flexible authorization system based on resources, credentials, and permissions.
+Prism Framework includes a flexible authorization system based on resources, credentials, and permissions.
 
 ## Core Concepts
 
@@ -48,7 +48,7 @@ interface UserPermissions {
 The `Authorization` class manages resources, credentials, and permissions:
 
 ```typescript
-import { Authorization } from '@facetlayer/spark-framework';
+import { Authorization } from '@facetlayer/prism-framework-api';
 
 const auth = new Authorization();
 
@@ -85,7 +85,7 @@ if (auth.hasPermission('write:projects')) {
 Every request has an `Authorization` instance in its context:
 
 ```typescript
-import { getCurrentRequestContext } from '@facetlayer/spark-framework';
+import { getCurrentRequestContext } from '@facetlayer/prism-framework-api';
 
 // In endpoint handler
 const context = getCurrentRequestContext();
@@ -103,7 +103,7 @@ if (!user) {
 Create middleware to populate authorization:
 
 ```typescript
-import { MiddlewareDefinition } from '@facetlayer/spark-framework';
+import { MiddlewareDefinition } from '@facetlayer/prism-framework-api';
 
 export const authMiddleware: MiddlewareDefinition = {
   path: '/api/*',
@@ -167,7 +167,7 @@ The `'authenticated-user'` requirement checks that a user resource exists in the
 Implement custom authorization logic in your handlers:
 
 ```typescript
-import { ForbiddenError } from '@facetlayer/spark-framework';
+import { ForbiddenError } from '@facetlayer/prism-framework-api';
 
 createEndpoint({
   method: 'DELETE',
@@ -222,7 +222,7 @@ Common permission naming patterns:
 Create helper functions for common authorization checks:
 
 ```typescript
-import { getCurrentRequestContext, ForbiddenError } from '@facetlayer/spark-framework';
+import { getCurrentRequestContext, ForbiddenError } from '@facetlayer/prism-framework-api';
 
 export function requirePermission(permission: string) {
   const context = getCurrentRequestContext();

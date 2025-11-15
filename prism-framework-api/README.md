@@ -5,7 +5,7 @@ A TypeScript framework for building web-based SaaS applications and desktop Elec
 ## Example
 
 ```typescript
-import { createEndpoint, ServiceDefinition, setLaunchConfig, startServer } from '@facetlayer/spark-framework';
+import { createEndpoint, ServiceDefinition, setLaunchConfig, startServer } from '@facetlayer/prism-framework-api';
 import { z } from 'zod';
 
 // Define a service

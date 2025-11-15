@@ -13,7 +13,7 @@ The `setLaunchConfig()` function centralizes this configuration and must be call
 ## Basic Setup
 
 ```typescript
-import { setLaunchConfig } from '@facetlayer/spark-framework';
+import { setLaunchConfig } from '@facetlayer/prism-framework-api';
 
 setLaunchConfig({
   logging: {
@@ -68,7 +68,7 @@ type MigrationBehavior =
 
 ```typescript
 // main.ts (backend server)
-import { setLaunchConfig, startServer } from '@facetlayer/spark-framework';
+import { setLaunchConfig, startServer } from '@facetlayer/prism-framework-api';
 import { loadBetterSqlite } from '@facetlayer/sqlite-wrapper';
 import path from 'path';
 import fs from 'fs';
@@ -110,7 +110,7 @@ main().catch(console.error);
 ```typescript
 // main.ts (Electron main process)
 import { app } from 'electron';
-import { setLaunchConfig } from '@facetlayer/spark-framework';
+import { setLaunchConfig } from '@facetlayer/prism-framework-api';
 import { getSqliteLoader } from './database-helper';
 import path from 'path';
 
@@ -153,7 +153,7 @@ import {
   getLaunchConfig,
   getDatabaseConfig,
   getLoggingConfig
-} from '@facetlayer/spark-framework';
+} from '@facetlayer/prism-framework-api';
 
 // Get full config
 const config = getLaunchConfig();
@@ -200,7 +200,7 @@ setLaunchConfig({
 The framework automatically collects SQL statements from all services:
 
 ```typescript
-import { getStatementsForDatabase } from '@facetlayer/spark-framework';
+import { getStatementsForDatabase } from '@facetlayer/prism-framework-api';
 
 const statements = getStatementsForDatabase('user', ALL_SERVICES);
 // Returns all SQL statements from services that define databases.user

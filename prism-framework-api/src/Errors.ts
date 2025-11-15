@@ -23,6 +23,20 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class SchemaValidationError extends HttpError {
+  constructor(message: string = 'Schema Validation Error', details?: any) {
+    super(422, message, details);
+    this.name = 'SchemaValidationError';
+  }
+}
+
+export class ResponseSchemaValidationError extends HttpError {
+  constructor(message: string = 'Response Schema Validation Error', details?: any) {
+    super(500, message, details);
+    this.name = 'ResponseSchemaValidationError';
+  }
+}
+
 export class UnauthorizedError extends HttpError {
   constructor(message: string = 'Unauthorized', details?: any) {
     super(401, message, details);

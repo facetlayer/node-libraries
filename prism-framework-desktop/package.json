@@ -6,10 +6,10 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "dist/preload.js"
   ],
   "scripts": {
-      "install": "pnpm install --ignore-workspace",
     "build": "tsc -p .",
     "dev": "tsc -p . --watch",
     "prepare": "tsc -p ."

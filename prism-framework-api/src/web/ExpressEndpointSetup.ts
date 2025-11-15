@@ -1,9 +1,10 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
-import { isHttpError, NotImplementedError } from '../Errors';
-import { metricHttpRequest, metricHttpResponse } from '../Metrics';
+import { isHttpError, NotFoundError } from '../Errors';
+import { recordHttpRequest, recordHttpResponse } from '../Metrics';
 import { getCurrentRequestContext } from '../RequestContext';
 import { SseResponse } from './SseResponse';
+import { App, endpointKey } from '../app/App';
 
 type EndpointRequireOption = 'authenticated-user';
 
@@ -54,77 +55,31 @@ export function setLoggers(debug: typeof logDebug, warn: typeof logWarn, error: 
   logError = error;
 }
 
-export function mountEndpoint(
-  app: express.Application,
-  endpoint: EndpointDefinition<any, any>
-): void {
-  const { method, path, handler, requestSchema, responseSchema } = endpoint;
-
-  const wrappedHandler = async (req: Request, res: Response) => {
+function getOneHandler(
+  prismApp: App,
+  endpoint: { method: string; path: string }
+) {
+  return async (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
+    const method = req.method;
+    const path = req.path;
+
     try {
-      metricHttpRequest(method, path);
+      recordHttpRequest(method, endpoint.path);
 
-      const context = getCurrentRequestContext();
-
-      // Check the .requires section.
-      for (const requirement of endpoint.requires || []) {
-        if (requirement === 'authenticated-user') {
-          // Applications should implement this check by providing their own middleware
-          // or by wrapping the handler. This is a placeholder that applications can override.
-          if (!context?.auth?.getResource('user')) {
-            return res.status(401).json({ error: 'Authentication required' });
-          }
-        }
-      }
+      // TODO: Authentication check
 
       const inputData = getRequestDataFromReq(req);
 
-      let input: any;
-      if (requestSchema) {
-        const validationResult = requestSchema.safeParse(inputData);
-        if (!validationResult.success) {
-          logWarn('Request rejected: schema validation failed');
-          return res.status(400).json({
-            error: 'Schema validation failed',
-            details: validationResult.error.issues,
-          });
-        }
-        input = validationResult.data;
-      } else {
-        input = inputData;
-      }
+      const result = await prismApp.callEndpoint({ method: endpoint.method, path: endpoint.path, input: inputData });
 
-      const result = await handler(input);
+      // TODO: Handle SSE response
 
-      // Check if result has startSse function - if so, enter SSE mode
-      if (
-        result &&
-        typeof result === 'object' &&
-        'startSse' in result &&
-        typeof result.startSse === 'function'
-      ) {
-        const sseResponse = new SseResponse(res);
-        result.startSse(sseResponse);
-        metricHttpResponse(method, path, 200, Date.now() - startTime);
-        return;
-      }
-
-      if (result && responseSchema) {
-        const validationResult = responseSchema.safeParse(result);
-        if (!validationResult.success) {
-          logWarn(`Response schema validation failed for ${method} ${path}`);
-        }
-      }
-
-      // If the handler returned a result, send it as JSON
-      if (result !== undefined) {
-        res.json(result);
-      }
-
-      logDebug(`response 200: ${method} ${path}`);
-      metricHttpResponse(method, path, 200, Date.now() - startTime);
+      res.status(200).json(result);
+      recordHttpResponse(endpoint.method, endpoint.path, 200, Date.now() - startTime);
+      return;
     } catch (error) {
+
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -174,36 +129,40 @@ export function mountEndpoint(
         });
       }
 
-      metricHttpResponse(method, path, statusCode, duration);
+      recordHttpResponse(method, endpoint.path, statusCode, duration);
     }
   };
-
-  switch (method) {
-    case 'GET':
-      app.get(path, wrappedHandler);
-      break;
-    case 'POST':
-      app.post(path, wrappedHandler);
-      break;
-    case 'PUT':
-      app.put(path, wrappedHandler);
-      break;
-    case 'DELETE':
-      app.delete(path, wrappedHandler);
-      break;
-    case 'PATCH':
-      app.patch(path, wrappedHandler);
-      break;
-    default:
-      throw new NotImplementedError(`Unsupported HTTP method: ${method}`);
-  }
 }
 
-export function mountEndpoints(
+export function mountPrismApp(
   app: express.Application,
-  endpoints: EndpointDefinition<any, any>[]
+  prismApp: App,
 ): void {
-  endpoints.forEach(endpoint => mountEndpoint(app, endpoint));
+
+  // Register each endpoint with Express to support path parameters
+  const endpoints = prismApp.listAllEndpoints();
+
+  for (const endpoint of endpoints) {
+    const handler = getOneHandler(prismApp, endpoint);
+
+    switch (endpoint.method) {
+      case 'GET':
+        app.get(endpoint.path, handler);
+        break;
+      case 'POST':
+        app.post(endpoint.path, handler);
+        break;
+      case 'PUT':
+        app.put(endpoint.path, handler);
+        break;
+      case 'DELETE':
+        app.delete(endpoint.path, handler);
+        break;
+      case 'PATCH':
+        app.patch(endpoint.path, handler);
+        break;
+    }
+  }
 }
 
 export function mountMiddleware(

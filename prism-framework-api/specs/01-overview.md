@@ -1,6 +1,6 @@
-# Spark Framework Overview
+# Prism Framework Overview
 
-Spark Framework is a TypeScript framework for building web-based SaaS applications and desktop Electron apps. It provides a unified approach to creating applications that can run in both backend (Express.js) and desktop (Electron) contexts.
+Prism Framework is a TypeScript framework for building web-based SaaS applications and desktop Electron apps. It provides a unified approach to creating applications that can run in both backend (Express.js) and desktop (Electron) contexts.
 
 ## Key Features
 
@@ -25,7 +25,7 @@ A service is a self-contained module that can include:
 - Background jobs
 
 ```typescript
-import { ServiceDefinition, createEndpoint } from '@facetlayer/spark-framework';
+import { ServiceDefinition, createEndpoint } from '@facetlayer/prism-framework-api';
 
 export const myService: ServiceDefinition = {
   name: 'my-service',
@@ -54,7 +54,7 @@ export const myService: ServiceDefinition = {
 The launch configuration system allows the same code to work in different contexts (backend server, Electron desktop app):
 
 ```typescript
-import { setLaunchConfig } from '@facetlayer/spark-framework';
+import { setLaunchConfig } from '@facetlayer/prism-framework-api';
 
 setLaunchConfig({
   logging: {
@@ -78,7 +78,7 @@ setLaunchConfig({
 Every request has an associated context that flows through all async operations:
 
 ```typescript
-import { getCurrentRequestContext } from '@facetlayer/spark-framework';
+import { getCurrentRequestContext } from '@facetlayer/prism-framework-api';
 
 const context = getCurrentRequestContext();
 // Access request ID, auth info, etc.
@@ -86,7 +86,7 @@ const context = getCurrentRequestContext();
 
 ## Project Structure
 
-A typical project using Spark Framework:
+A typical project using Prism Framework:
 
 ```
 your-app/
@@ -105,7 +105,7 @@ your-app/
 
 1. Install the framework:
 ```bash
-pnpm add @facetlayer/spark-framework
+pnpm add @facetlayer/prism-framework-api
 ```
 
 2. Create your first service (see `02-creating-services.md`)

@@ -9,6 +9,16 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
+/**
+ * Get the path to the framework's preload script.
+ * Consumer apps should use this instead of duplicating the preload script.
+ */
+export function getFrameworkPreloadPath(): string {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  return resolve(__dirname, './preload.js');
+}
+
 export interface DesktopLaunchOptions {
   /**
    * Initial path in the application to navigate to (e.g., '/', '/dashboard')
@@ -65,7 +75,7 @@ export async function desktopLaunch(options: DesktopLaunchOptions = {}): Promise
   const __dirname = dirname(__filename);
 
   // Resolve paths
-  const resolvedPreloadPath = preloadPath || resolve(__dirname, '../preload.js');
+  const resolvedPreloadPath = preloadPath || getFrameworkPreloadPath();
   const resolvedUiPath = uiBuildPath || resolve(__dirname, '../../ui/out/index.html');
 
   // Build the initial URL

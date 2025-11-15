@@ -1,5 +1,6 @@
-// Utilities
 export { cn } from './lib/utils.js';
 
-// Providers
 export { default as QueryProvider } from './providers/QueryProvider.js';
+
+export { webFetch, type ApiRequestOptions } from './webFetch.js';
+

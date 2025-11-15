@@ -5,15 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "prism-run-endpoint": "dist/run-endpoint.js"
+    "prism-endpoint": "dist/endpointTool.js"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsc -p .",
+    "build": "node build.mjs && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepare": "tsc -p ."
+    "prepare": "node build.mjs && tsc -p tsconfig.build.json"
   },
   "keywords": [
     "framework",
@@ -34,6 +32,7 @@
     "@types/node": "^22.10.2",
     "@types/uuid": "^10.0.0",
     "@types/yargs": "17.0.34",
+    "esbuild": "^0.25.12",
     "typescript": "^5.7.2"
   }
 }

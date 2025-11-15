@@ -1,11 +1,11 @@
 # Creating Services
 
-Services are the building blocks of a Spark Framework application. Each service is self-contained and can define endpoints, middleware, database schemas, and background jobs.
+Services are the building blocks of a Prism Framework application. Each service is self-contained and can define endpoints, middleware, database schemas, and background jobs.
 
 ## Basic Service Structure
 
 ```typescript
-import { ServiceDefinition, createEndpoint } from '@facetlayer/spark-framework';
+import { ServiceDefinition, createEndpoint } from '@facetlayer/prism-framework-api';
 import { z } from 'zod';
 
 export const definition: ServiceDefinition = {
@@ -190,7 +190,7 @@ export const definition: ServiceDefinition = {
 Use the built-in HTTP error classes:
 
 ```typescript
-import { NotFoundError, BadRequestError } from '@facetlayer/spark-framework';
+import { NotFoundError, BadRequestError } from '@facetlayer/prism-framework-api';
 
 handler: async (input) => {
   if (!input.userId) {

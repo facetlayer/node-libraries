@@ -1,26 +1,26 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { Server } from 'http';
-import { getEnv } from '../Env';
+import { App } from '../app/App';
 import { getMetrics } from '../Metrics';
-import { ServiceDefinition } from '../ServiceDefinition';
-import { corsMiddleware } from './corsMiddleware';
-import { mountEndpoints, mountMiddlewares, setLoggers } from './ExpressEndpointSetup';
+import { corsMiddleware, CorsConfig } from './corsMiddleware';
+import { mountPrismApp, setLoggers } from './ExpressEndpointSetup';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware';
 import { requestContextMiddleware } from './requestContextMiddleware';
 
-export interface MainSetupConfig {
+export interface ServerSetupConfig {
   port: number;
-  services: ServiceDefinition[];
+  app: App;
+  corsConfig?: CorsConfig;
   logInfo?: (message: string) => void;
   logDebug?: (message: string) => void;
   logWarn?: (message: string) => void;
   logError?: (message: string, details?: any, error?: Error) => void;
 }
 
-export function createApp(config: MainSetupConfig): express.Application {
-  const endpoints = config.services.flatMap(service => service.endpoints || []);
-  const middlewares = config.services.flatMap(service => service.middleware || []);
+export function createExpressApp(config: ServerSetupConfig): express.Application {
+  // TODO: support middleware
+  //const middlewares = config.app.listAllEndpoints().flatMap(endpoint => endpoint.middleware || []);
 
   const app = express();
 
@@ -29,16 +29,18 @@ export function createApp(config: MainSetupConfig): express.Application {
     setLoggers(config.logDebug, config.logWarn, config.logError);
   }
 
-  app.use(corsMiddleware);
+  app.use(corsMiddleware(config.corsConfig));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(requestContextMiddleware);
   app.use(cookieParser());
 
-  // Mount service-defined middleware
+  // TODO: mount service-defined middleware
+  /*
   if (middlewares) {
     mountMiddlewares(app, middlewares);
   }
+  */
 
   // Health check endpoint
   app.get('/health', localhostOnlyMiddleware, (req, res) => {
@@ -56,22 +58,15 @@ export function createApp(config: MainSetupConfig): express.Application {
     }
   });
 
-  // Endpoints
-  mountEndpoints(app, endpoints);
-
-  // General 404 handler
-  app.use((req, res) => {
-    res.status(404).json({ error: 'Not found' });
-  });
+  mountPrismApp(app, config.app);
 
   return app;
 }
 
-export async function startServer(config: MainSetupConfig): Promise<Server> {
-  const appConfig = getEnv();
-  const port = config.port || appConfig.port;
+export async function startServer(config: ServerSetupConfig): Promise<Server> {
+  const port = config.port;
 
-  const app = createApp(config);
+  const app = createExpressApp(config);
 
   const logInfo = config.logInfo || ((message: string) => console.log(`[INFO] ${message}`));
 

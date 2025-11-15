@@ -1,11 +1,11 @@
 # Server Setup
 
-This guide explains how to set up and start an Express.js server using Spark Framework.
+This guide explains how to set up and start an Express.js server using Prism Framework.
 
 ## Basic Server Setup
 
 ```typescript
-import { startServer } from '@facetlayer/spark-framework';
+import { startServer } from '@facetlayer/prism-framework-api';
 import { ALL_SERVICES } from './services';
 
 async function main() {
@@ -21,7 +21,7 @@ main().catch(console.error);
 ## Complete Example
 
 ```typescript
-import { checkEnvVars, setLaunchConfig, startServer } from '@facetlayer/spark-framework';
+import { checkEnvVars, setLaunchConfig, startServer } from '@facetlayer/prism-framework-api';
 import { loadBetterSqlite } from '@facetlayer/sqlite-wrapper';
 import fs from 'fs';
 import path from 'path';
@@ -128,7 +128,7 @@ Returns Prometheus-format metrics.
 For more control, create the Express app without starting it:
 
 ```typescript
-import { createApp } from '@facetlayer/spark-framework';
+import { createApp } from '@facetlayer/prism-framework-api';
 
 const app = createApp({
   services: ALL_SERVICES,
@@ -220,7 +220,7 @@ These loggers are used throughout the framework for:
 Every request has an associated context accessible via AsyncLocalStorage:
 
 ```typescript
-import { getCurrentRequestContext } from '@facetlayer/spark-framework';
+import { getCurrentRequestContext } from '@facetlayer/prism-framework-api';
 
 // In any async function during request handling
 const context = getCurrentRequestContext();

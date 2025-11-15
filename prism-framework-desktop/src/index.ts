@@ -8,12 +8,9 @@
  * and release modes.
  */
 
-// Export types from main.ts
-export type { ElectronDependencies, DesktopMainConfig } from './main.js';
-
 // Export types from preload.ts
 export type { ElectronAPI } from './preload.js';
 
-// Export the simplified launch function
-export { desktopLaunch } from './desktopLaunch.js';
+// Export the desktop launch function and helpers
+export { desktopLaunch, getFrameworkPreloadPath } from './desktopLaunch.js';
 export type { DesktopLaunchOptions } from './desktopLaunch.js';

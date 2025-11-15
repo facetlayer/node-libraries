@@ -13,13 +13,11 @@ export {
   isHttpError,
 } from './Errors';
 
-export type { EnvSchema } from './env/EnvSchema';
-export { checkEnvVars, getEnv } from './Env';
 
-export { createApp, startServer } from './web/ExpressAppSetup';
-export type { MainSetupConfig } from './web/ExpressAppSetup';
+export { createExpressApp, startServer } from './web/ExpressAppSetup';
+export type { ServerSetupConfig } from './web/ExpressAppSetup';
 
-export { getMetrics, metricHttpRequest, metricHttpResponse } from './Metrics';
+export { getMetrics, recordHttpRequest, recordHttpResponse } from './Metrics';
 
 export type { RequestContext } from './RequestContext';
 export { getCurrentRequestContext, withRequestContext } from './RequestContext';
@@ -33,18 +31,21 @@ export { Authorization } from './authorization';
 
 // Web framework exports
 export { corsMiddleware } from './web/corsMiddleware';
+export type { CorsConfig } from './web/corsMiddleware';
 export type { EndpointDefinition } from './web/ExpressEndpointSetup';
 export {
   createEndpoint,
   getRequestDataFromReq,
-  mountEndpoint,
-  mountEndpoints,
   mountMiddleware,
   mountMiddlewares,
+  mountPrismApp,
   setLoggers,
 } from './web/ExpressEndpointSetup';
 export { localhostOnlyMiddleware } from './web/localhostOnlyMiddleware';
 export { SseResponse } from './web/SseResponse';
+
+// App exports
+export { App } from './app/App';
 
 // Launch configuration exports
 export type { LoggingSettings, LaunchConfig } from './launch/launchConfig';
@@ -54,3 +55,7 @@ export { getDatabaseConfig, getLaunchConfig, getLoggingConfig, setLaunchConfig }
 export type { DatabaseInitializationOptions } from './databases/DatabaseInitializationOptions';
 export type { MigrationBehavior } from '@facetlayer/sqlite-wrapper';
 export { getStatementsForDatabase } from './databases/DatabaseSetup';
+
+// Endpoint calling exports
+export type { CallEndpointOptions } from './app/callEndpoint';
+export { callEndpoint } from './app/callEndpoint';

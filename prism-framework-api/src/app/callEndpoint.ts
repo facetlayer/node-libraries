@@ -1,0 +1,49 @@
+import { App } from './App';
+import { ServiceDefinition } from '../ServiceDefinition';
+import { isHttpError, ResponseSchemaValidationError, SchemaValidationError } from '../Errors';
+
+export interface CallEndpointOptions {
+  method: string;
+  path: string;
+  input?: any;
+}
+
+/**
+ * Call an endpoint programmatically without going through HTTP
+ * This is useful for testing or for calling endpoints from scripts/tools
+ */
+export async function callEndpoint(app: App, options: CallEndpointOptions) {
+    // Find the endpoint using pattern matching
+    const match = app.matchEndpoint(options.method, options.path);
+
+    if (!match) {
+      throw new Error(`Endpoint not found: ${options.method} ${options.path}`);
+    }
+
+    const { endpoint, params } = match;
+
+    // Merge path parameters with input data
+    let input = { ...params, ...(options.input || {}) };
+
+    // Validate input if schema is provided
+    if (endpoint.requestSchema) {
+      const validationResult = endpoint.requestSchema.safeParse(input);
+      if (!validationResult.success) {
+        throw new SchemaValidationError('Schema validation failed', validationResult.error.issues);
+      }
+      input = validationResult.data;
+    }
+
+    // Call the handler
+    const result = await endpoint.handler(input);
+
+    // Validate output if schema is provided
+    if (endpoint.responseSchema) {
+      const validationResult = endpoint.responseSchema.safeParse(result);
+      if (!validationResult.success) {
+        throw new ResponseSchemaValidationError('Response schema validation failed', validationResult.error.issues);
+      }
+    }
+
+    return result;
+}
