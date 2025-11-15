@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework-tools",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Testing and development tools for the Prism app framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
-    "@facetlayer/prism-framework-api": "0.1.0",
+    "@facetlayer/prism-framework-api": "0.2.0",
     "dotenv": "^16.4.7",
     "uuid": "^11.1.0",
     "yargs": "18.0.0"

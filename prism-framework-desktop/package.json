@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework-desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Electron desktop integration for Prism Framework applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,7 +29,5 @@
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
-  },
-  "peerDependencies": {
   }
 }
