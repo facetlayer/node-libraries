@@ -2,33 +2,33 @@
 
 A Node.js library for loading and parsing Claude Code session history files.
 
+Also includes a CLI tool for browsing session history using the command line.
+
 ## Installation
 
 ```bash
 npm install @facetlayer/claude-code-session-history
 ```
 
-## Usage
+## API
 
-### Get All Chat Sessions
+### List Chat Sessions for a Project
 
-Retrieve all Claude Code chat sessions from the default history location (`~/.claude/projects`):
+Retrieve all Claude Code chat sessions for a specific project:
 
 ```typescript
-import { getChatSessions } from '@facetlayer/claude-code-session-history';
+import { listChatSessions } from '@facetlayer/claude-code-session-history';
 
-const projects = await getChatSessions();
+const sessions = await listChatSessions({
+  project: 'my-project-name'
+});
 
-// Projects are sorted by most recent session
-for (const project of projects) {
-  console.log(`Project: ${project.path}`);
-
-  // Sessions within each project are also sorted by most recent
-  for (const session of project.sessions) {
-    console.log(`  Session ID: ${session.sessionId}`);
-    console.log(`  Messages: ${session.messageCount}`);
-    console.log(`  Last active: ${session.lastMessageTimestamp}`);
-  }
+// Sessions are sorted by most recent first
+for (const session of sessions) {
+  console.log(`Session ID: ${session.sessionId}`);
+  console.log(`Messages: ${session.messageCount}`);
+  console.log(`Last active: ${session.lastMessageTimestamp}`);
+  console.log(`Project: ${session.projectPath}`);
 }
 ```
 
@@ -43,87 +43,116 @@ const messages = await getSessionDetails('session-id-here', 'project-name-here')
 
 for (const message of messages) {
   console.log(`${message.type}: ${message.timestamp}`);
+
+  // Check for internal message types
+  if (message.internalMessageType === 'hook') {
+    console.log('This is a hook message');
+  } else if (message.internalMessageType === 'terminal_control') {
+    console.log('This is a terminal control message');
+  }
+
   // Access message content, tools used, etc.
+  if (message.message?.content) {
+    console.log('Content:', message.message.content);
+  }
 }
+```
+
+### Pagination
+
+List sessions with pagination:
+
+```typescript
+import { listChatSessions } from '@facetlayer/claude-code-session-history';
+
+// Get first 10 sessions
+const firstPage = await listChatSessions({
+  project: 'my-project',
+  limit: 10,
+  offset: 0
+});
+
+// Get next 10 sessions
+const secondPage = await listChatSessions({
+  project: 'my-project',
+  limit: 10,
+  offset: 10
+});
 ```
 
 ### Custom Claude Directory
 
-If your Claude history is stored in a non-standard location:
+The library will look in `~/.claude` by default but you can pass an alternate value for `claudeDir`
 
 ```typescript
-import { getChatSessions, getSessionDetails } from '@facetlayer/claude-code-session-history';
+import { listChatSessions, getSessionDetails } from '@facetlayer/claude-code-session-history';
 
-const projects = await getChatSessions({
-  claudeDir: '/custom/path/to/claude/projects',
+const sessions = await listChatSessions({
+  project: 'my-project',
+  claudeDir: '/custom/path/to/claude',  // Will look in /custom/path/to/claude/projects
   verbose: true // Enable logging
-});
-
-const messages = await getSessionDetails('session-id', 'project-name', {
-  claudeDir: '/custom/path/to/claude/projects',
-  verbose: true
 });
 ```
 
-## API
+### `listChatSessions(options)` (async)
 
-### `getChatSessions(options?)` (async)
-
-Retrieves all Claude Code chat sessions from the history files.
+Retrieves all Claude Code chat sessions for a specific project.
 
 **Parameters:**
-- `options.claudeDir` (optional): Custom path to Claude directory. Defaults to `~/.claude/projects`
+- `options.project` (required): Project path to get sessions for
+- `options.claudeDir` (optional): Custom path to Claude directory. Defaults to `~/.claude`
 - `options.verbose` (optional): Enable verbose logging. Defaults to `false`
+- `options.offset` (optional): Number of sessions to skip (for pagination). Defaults to `0`
+- `options.limit` (optional): Maximum number of sessions to return (for pagination)
 
-**Returns:** `Promise<ProjectDirectory[]>`
+**Returns:** `Promise<ChatSession[]>`
+
+Sessions are sorted by last message timestamp (most recent first).
+
+**Example:**
+```typescript
+const sessions = await listChatSessions({
+  project: 'my-project-name',
+  limit: 10,
+  offset: 0
+});
+```
 
 ### `getSessionDetails(sessionId, projectName, options?)` (async)
 
 Retrieves the details (all messages) for a specific session.
 
 **Parameters:**
-- `sessionId`: The session ID to retrieve
-- `projectName`: The project name (directory) where the session is stored
-- `options.claudeDir` (optional): Custom path to Claude directory. Defaults to `~/.claude/projects`
+- `sessionId` (required): The session ID to retrieve
+- `projectName` (required): The project name (directory) where the session is stored
+- `options.claudeDir` (optional): Custom path to Claude directory. Defaults to `~/.claude`
 - `options.verbose` (optional): Enable verbose logging. Defaults to `false`
 
 **Returns:** `Promise<ChatMessage[]>`
 
-### `annotateInternalMessages(messages)`
+Messages include an `internalMessageType` field that can be:
+- `'hook'` - PreToolUse hooks
+- `'terminal_control'` - Terminal control messages like `/clear`
+- `undefined` - Regular messages
 
-Utility function that annotates messages with internal message types (hooks, terminal control).
-
-**Parameters:**
-- `messages`: Array of `ChatMessage` objects to annotate (modifies in place)
-
-## Types
-
-### `ProjectDirectory`
-
+**Example:**
 ```typescript
-interface ProjectDirectory {
-  path: string;
-  sessions: ChatSession[];
-}
+const messages = await getSessionDetails('abc-123', 'my-project', {
+  verbose: true
+});
 ```
 
-### `ChatSession`
+## CLI tool usage
 
-```typescript
-interface ChatSession {
-  sessionId: string;
-  messages: ChatMessage[];
-  firstMessageTimestamp: string;
-  lastMessageTimestamp: string;
-  projectPath: string;
-  messageCount: number;
-}
+```bash
+# List all projects
+claude-code-session-history list-projects
+
+# List sessions for a specific project
+claude-code-session-history list-sessions --project <project-name>
+
+# Get details for a single session
+claude-code-session-history get-chat --session <session-id>
+
 ```
 
-### `ChatMessage`
-
-See the full type definition in the source code. Includes message content, metadata, tool usage, token counts, and more.
-
-## License
-
-MIT

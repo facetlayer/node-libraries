@@ -44,6 +44,19 @@ export {
 export { localhostOnlyMiddleware } from './web/localhostOnlyMiddleware';
 export { SseResponse } from './web/SseResponse';
 
+// OpenAPI exports
+export type { OpenAPIDocumentInfo, ParseExpressPathForOpenAPIResult } from './web/OpenAPI';
+export { generateOpenAPISchema, parseExpressPathForOpenAPI } from './web/OpenAPI';
+
+// Endpoint listing exports
+export { createListingEndpoints } from './web/EndpointListing';
+
+// Swagger UI exports
+export { setupSwaggerUI } from './web/SwaggerUI';
+
+// SSE Connection Management exports
+export { ConnectionManager } from './sse/ConnectionManager';
+
 // App exports
 export { App } from './app/App';
 

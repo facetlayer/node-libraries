@@ -6,11 +6,11 @@ export type {
 } from './types';
 
 // Main API functions
-export { getChatSessions } from './getChatSessions';
-export type { GetChatSessionsOptions } from './getChatSessions';
+export { listChatSessions } from './listChatSessions';
+export type { ListChatSessionsOptions } from './listChatSessions';
 
-export { getSessionDetails } from './getSessionDetails';
-export type { GetSessionDetailsOptions } from './getSessionDetails';
+export { getChatSessionDetails as getSessionDetails } from './getChatSessionDetails';
+export type { GetChatSessionDetailsOptions as GetSessionDetailsOptions } from './getChatSessionDetails';
 
 // Utility functions
 export { annotateInternalMessages } from './annotateInternalMessages';

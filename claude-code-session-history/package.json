@@ -7,8 +7,12 @@
     "url": "https://github.com/facetlayer/node-libraries"
   },
   "main": "dist/index.js",
+  "bin": {
+    "claude-code-session-history": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc -p .",
+    "typecheck": "tsc -p .",
     "tsc": "tsc",
     "test": "vitest",
     "prepare": "tsc -p ."
@@ -19,9 +23,12 @@
     "tsconfig.json",
     "README.md"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "yargs": "^17.7.2"
+  },
   "devDependencies": {
     "@types/node": "^14.14.37",
+    "@types/yargs": "^17.0.32",
     "typescript": "^4.2.4",
     "vitest": "^3.0.6"
   }

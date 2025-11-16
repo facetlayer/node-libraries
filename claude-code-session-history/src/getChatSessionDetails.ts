@@ -4,9 +4,9 @@ import * as os from 'os';
 import { ChatMessage } from './types';
 import { annotateInternalMessages } from './annotateInternalMessages';
 
-export interface GetSessionDetailsOptions {
+export interface GetChatSessionDetailsOptions {
   /**
-   * Custom path to Claude directory. Defaults to ~/.claude/projects
+   * Custom path to Claude directory. Defaults to ~/.claude
    */
   claudeDir?: string;
   /**
@@ -21,19 +21,19 @@ export interface GetSessionDetailsOptions {
  * @param projectName The project name (directory) where the session is stored
  * @returns Array of chat messages for the session
  */
-export async function getSessionDetails(
+export async function getChatSessionDetails(
   sessionId: string,
   projectName: string,
-  options: GetSessionDetailsOptions = {}
+  options: GetChatSessionDetailsOptions = {}
 ): Promise<ChatMessage[]> {
-  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
+  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude');
   const verbose = options.verbose || false;
 
   if (verbose) {
     console.log(`[getSessionDetails] Getting session details for ${sessionId} in project ${projectName}`);
   }
 
-  const sessionFilePath = path.join(claudeDir, projectName, `${sessionId}.jsonl`);
+  const sessionFilePath = path.join(claudeDir, 'projects', projectName, `${sessionId}.jsonl`);
 
   try {
     const content = await fs.readFile(sessionFilePath, 'utf-8');
