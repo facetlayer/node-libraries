@@ -8,5 +8,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "dependencies": {
+    "@facetlayer/prism-framework-api": "link:prism-framework-api"
   }
 }

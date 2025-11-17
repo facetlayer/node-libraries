@@ -6,6 +6,7 @@ export interface CallEndpointOptions {
   method: string;
   path: string;
   input?: any;
+  onResponseSchemaFail?: (error: any, result: any) => void;
 }
 
 /**
@@ -41,7 +42,12 @@ export async function callEndpoint(app: App, options: CallEndpointOptions) {
     if (endpoint.responseSchema) {
       const validationResult = endpoint.responseSchema.safeParse(result);
       if (!validationResult.success) {
-        throw new ResponseSchemaValidationError('Response schema validation failed', validationResult.error.issues);
+        const error = new ResponseSchemaValidationError('Response schema validation failed', validationResult.error.issues);
+        if (options.onResponseSchemaFail) {
+          options.onResponseSchemaFail(error, result);
+        } else {
+          throw error;
+        }
       }
     }
 

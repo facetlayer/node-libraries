@@ -6,7 +6,7 @@ export interface ChatMessage {
   sessionId: string;
   version: string;
   gitBranch?: string;
-  type: 'user' | 'assistant' | 'system';
+  type: 'user' | 'assistant' | 'system' | 'file-history-snapshot';
   message?: {
     role: 'user' | 'assistant';
     content: string | Array<{

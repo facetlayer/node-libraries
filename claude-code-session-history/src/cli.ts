@@ -118,7 +118,6 @@ async function getChat(options: GetChatOptions): Promise<void> {
 }
 
 yargs(hideBin(process.argv))
-  .scriptName('claude-code-session-history')
   .command(
     'list-projects',
     'List all projects with Claude Code sessions',

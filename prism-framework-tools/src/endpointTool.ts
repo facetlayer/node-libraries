@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { pathToFileURL } from 'url';
 import * as path from 'path';
 import * as fs from 'fs';
+import packageJson from '../package.json'
 
 /**
  * List all available endpoints from an App instance
@@ -39,7 +40,6 @@ async function findApp(cwd: string): Promise<() => any> {
         const appUrl = pathToFileURL(absolutePath).href;
         const appModule = await import(appUrl);
         if (appModule.getApp && typeof appModule.getApp === 'function') {
-          console.log(`Found getApp function in: ${absolutePath}`);
           return appModule.getApp;
         }
       } catch (error) {
@@ -123,6 +123,15 @@ async function main() {
               method: argv.method.toUpperCase(),
               path: argv.path,
               input: requestData,
+              onResponseSchemaFail: (error: any, result: any) => {
+                console.warn('\n⚠️  WARNING: Response schema validation failed');
+                console.warn('Error:', error.message);
+                if (error.details) {
+                  console.warn('Validation issues:');
+                  console.warn(JSON.stringify(error.details, null, 2));
+                }
+                console.warn('\nContinuing with actual response...\n');
+              },
             });
 
             console.log('Result:');
@@ -153,6 +162,8 @@ async function main() {
     .demandCommand(1, 'You must specify a command (list or run)')
     .help()
     .alias('help', 'h')
+    .version(packageJson.version)
+    .alias('version', 'v')
     .example([
       ['$0 list', 'List all available endpoints'],
       ['$0 run /api/users', 'Run GET /api/users'],
