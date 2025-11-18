@@ -10,6 +10,6 @@
     "url": "https://github.com/facetlayer/node-libraries"
   },
   "dependencies": {
-    "@facetlayer/prism-framework-api": "link:prism-framework-api"
+    "@facetlayer/prism-framework-api": "^0.2.0"
   }
 }
