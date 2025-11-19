@@ -43,7 +43,7 @@ export interface ChatMessage {
 export interface ChatSession {
   sessionId: string;
   messages: ChatMessage[];
-  firstMessageTimestamp: string;
+  firstMessageTimestamp?: string;
   lastMessageTimestamp: string;
   projectPath: string;
   messageCount: number;
