@@ -40,6 +40,7 @@ export class SqliteDatabase {
 
   constructor(db: BetterSqliteDatabase, logs: Stream) {
     if (!db) throw new Error("db is required");
+    if (!db.prepare) throw new Error("unexpected object for 'db' (missing .prepare): " + JSON.stringify(db));
     if (!logs) throw new Error("logs is required");
 
     this.db = db;

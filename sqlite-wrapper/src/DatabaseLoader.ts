@@ -1,12 +1,12 @@
 import { Stream } from "@facetlayer/streams";
-import Database from "better-sqlite3";
+import type { Database as BetterSqliteDatabase } from "better-sqlite3";
 import { DatabaseSchema } from "./DatabaseSchema";
 import { getTableDrift } from "./migration";
 import { MigrationBehavior } from "./MigrationBehavior";
 import { parseSql } from "./parser";
 import { SqliteDatabase } from "./SqliteDatabase";
 
-export type LoadDatabaseFn = (filename: string) => Database.Database;
+export type LoadDatabaseFn = (filename: string) => BetterSqliteDatabase;
 
 export interface DatabaseSetupOptions {
   filename: string;
