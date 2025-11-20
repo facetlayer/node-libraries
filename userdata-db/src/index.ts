@@ -2,7 +2,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
-import { DatabaseLoader, loadBetterSqlite, SqliteDatabase, DatabaseSchema } from '@facetlayer/sqlite-wrapper'
+import { DatabaseLoader, SqliteDatabase, DatabaseSchema } from '@facetlayer/sqlite-wrapper'
 import { Stream } from '@facetlayer/streams'
 import BetterSqlite3 from 'better-sqlite3'
 
@@ -85,9 +85,9 @@ export function getOrCreateStateDirectory(appName: string): string {
  * - Applies the provided schema
  * - Returns a ready-to-use database instance
  */
-export async function getUserdataDatabase(
+export function getUserdataDatabase(
   options: GetUserdataDatabaseOptions
-): Promise<SqliteDatabase> {
+): SqliteDatabase {
   const { appName, schema, migrationBehavior = 'safe-upgrades', logs = new Stream() } = options
 
   // Get or create the state directory for this app

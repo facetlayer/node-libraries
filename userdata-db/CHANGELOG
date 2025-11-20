@@ -1,0 +1,6 @@
+
+0.1.1
+ - Change getUserdataDatabase to be sync instead of async
+
+0.1.0
+ - Initial version
