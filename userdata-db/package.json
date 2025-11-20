@@ -1,0 +1,46 @@
+{
+  "name": "@facetlayer/userdata-db",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Helper library to set up a database in the user's home directory following XDG standards",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "database",
+    "sqlite",
+    "userdata",
+    "xdg",
+    "home-directory"
+  ],
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "@facetlayer/sqlite-wrapper": "^1.2.0",
+    "@facetlayer/streams": "^1.0.0",
+    "better-sqlite3": "11.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
