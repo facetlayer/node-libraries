@@ -6,9 +6,11 @@ import { listChatSessions } from './listChatSessions';
 import { ChatSession } from './types';
 import { printProjects } from './printProjects';
 import { printChatSessions } from './printChatSessions';
+import { ChatSessionMessageSchema } from './Schemas';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
+import { ZodError } from 'zod';
 
 interface GlobalOptions {
   verbose?: boolean;
@@ -17,6 +19,10 @@ interface GlobalOptions {
 
 interface GetChatOptions extends GlobalOptions {
   session: string;
+}
+
+interface CheckSchemaOptions extends GlobalOptions {
+  project?: string;
 }
 
 async function getChat(options: GetChatOptions): Promise<void> {
@@ -117,6 +123,124 @@ async function getChat(options: GetChatOptions): Promise<void> {
   }
 }
 
+async function checkSchema(options: CheckSchemaOptions): Promise<void> {
+  try {
+    const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
+    const verbose = options.verbose || false;
+
+    // Get all project directories or filter by specific project
+    let projectDirs: string[];
+    try {
+      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      projectDirs = projectDirents
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+      if (options.project) {
+        projectDirs = projectDirs.filter(dir => dir === options.project);
+        if (projectDirs.length === 0) {
+          console.error(`Project not found: ${options.project}`);
+          process.exit(1);
+        }
+      }
+    } catch (error) {
+      console.error('Claude directory does not exist');
+      process.exit(1);
+    }
+
+    let totalMessages = 0;
+    let totalErrors = 0;
+    let totalSessions = 0;
+    const errorDetails: Array<{
+      project: string;
+      session: string;
+      messageIndex: number;
+      error: ZodError;
+    }> = [];
+
+    for (const projectDir of projectDirs) {
+      const projectPath = path.join(claudeDir, projectDir);
+
+      // Get all .jsonl files in the project directory
+      const files = await fs.readdir(projectPath);
+      const sessionFiles = files.filter(f => f.endsWith('.jsonl'));
+
+      for (const sessionFile of sessionFiles) {
+        totalSessions++;
+        const sessionFilePath = path.join(projectPath, sessionFile);
+        const sessionId = sessionFile.replace('.jsonl', '');
+
+        try {
+          const content = await fs.readFile(sessionFilePath, 'utf-8');
+          const lines = content.trim().split('\n');
+
+          for (let i = 0; i < lines.length; i++) {
+            totalMessages++;
+            try {
+              const line = lines[i].trim();
+              if (line === '')
+                continue;
+
+              const message = JSON.parse(line);
+              ChatSessionMessageSchema.parse(message);
+
+              if (verbose) {
+                console.log(`✓ ${projectDir}/${sessionId} message ${i + 1}`);
+              }
+            } catch (error) {
+              totalErrors++;
+              if (error instanceof ZodError) {
+                errorDetails.push({
+                  project: projectDir,
+                  session: sessionId,
+                  messageIndex: i,
+                  error,
+                });
+
+                console.error(`\n✗ Error in ${projectDir}/${sessionId} at message ${i + 1}:`);
+                console.error(`  Message type: ${JSON.parse(lines[i]).type || 'unknown'}`);
+                console.error(`  Validation errors:`);
+                for (const issue of error.issues) {
+                  console.error(`    - ${issue.path.join('.')}: ${issue.message}`);
+                }
+
+                if (verbose) {
+                  console.error(`  Full message:`);
+                  console.error(`  ${lines[i]}`);
+                }
+              } else {
+                console.error(`\n✗ Failed to parse JSON in ${projectDir}/${sessionId} at message ${i + 1}`);
+                if (verbose) {
+                  console.error(`  ${error}`);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to read session file: ${sessionFilePath}`, error);
+        }
+      }
+    }
+
+    console.log('\n' + '='.repeat(80));
+    console.log('Schema Validation Summary');
+    console.log('='.repeat(80));
+    console.log(`Total sessions checked: ${totalSessions}`);
+    console.log(`Total messages checked: ${totalMessages}`);
+    console.log(`Total errors found: ${totalErrors}`);
+
+    if (totalErrors > 0) {
+      console.log(`\nValidation FAILED with ${totalErrors} error(s)`);
+      process.exit(1);
+    } else {
+      console.log(`\n✓ All messages conform to schema!`);
+    }
+  } catch (error) {
+    console.error('Error checking schema:', error);
+    process.exit(1);
+  }
+}
+
 yargs(hideBin(process.argv))
   .command(
     'list-projects',
@@ -203,6 +327,34 @@ yargs(hideBin(process.argv))
     (argv) => {
       getChat({
         session: argv.session,
+        claudeDir: argv['claude-dir'],
+        verbose: argv.verbose
+      }).catch(console.error);
+    }
+  )
+  .command(
+    'check-schema',
+    'Validate all chat messages against the Zod schema',
+    (yargs) => {
+      return yargs
+        .option('project', {
+          type: 'string',
+          description: 'Check only a specific project',
+          alias: 'p'
+        })
+        .option('claude-dir', {
+          type: 'string',
+          description: 'Custom path to Claude directory'
+        })
+        .option('verbose', {
+          type: 'boolean',
+          description: 'Enable verbose logging (shows all valid messages)',
+          default: false
+        });
+    },
+    (argv) => {
+      checkSchema({
+        project: argv.project,
         claudeDir: argv['claude-dir'],
         verbose: argv.verbose
       }).catch(console.error);

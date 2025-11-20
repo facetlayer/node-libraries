@@ -21,6 +21,11 @@ export function getFrameworkPreloadPath(): string {
 
 export interface DesktopLaunchOptions {
   /**
+   * Application name to display in the dock/taskbar
+   */
+  appName?: string;
+
+  /**
    * Initial path in the application to navigate to (e.g., '/', '/dashboard')
    */
   initialPath?: string;
@@ -62,6 +67,7 @@ export interface DesktopLaunchOptions {
  */
 export async function desktopLaunch(options: DesktopLaunchOptions = {}): Promise<void> {
   const {
+    appName,
     initialPath = '/',
     windowWidth = 1200,
     windowHeight = 800,
@@ -69,6 +75,11 @@ export async function desktopLaunch(options: DesktopLaunchOptions = {}): Promise
     uiBuildPath,
     preloadPath,
   } = options;
+
+  // Set the application name if provided
+  if (appName) {
+    app.setName(appName);
+  }
 
   // Determine current file location
   const __filename = fileURLToPath(import.meta.url);
