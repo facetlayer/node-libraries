@@ -1,0 +1,44 @@
+{
+  "name": "@facetlayer/env-file-rewrite",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Helper library to help make modifications to .env files",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "env",
+    "environment",
+    "dotenv",
+    "config",
+    "file"
+  ],
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
