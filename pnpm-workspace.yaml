@@ -1,17 +1,19 @@
 packages:
   - claude-code-session-history
   - csv-tool
+  - env-file-rewrite
   - fetch-sse-stream
   - generic-lexer
   - parse-stdout-lines
+  - port-assignment
   - prism-framework-api
   - prism-framework-tools
   - prism-framework-ui
   - sqlite-wrapper
   - streams
   - subprocess-wrapper
+  - userdata-db
 
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild
-

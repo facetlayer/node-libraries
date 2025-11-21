@@ -1,0 +1,49 @@
+{
+  "name": "@facetlayer/port-assignment",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Helper library to help assign unique ports for local services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "port-assignment": "./dist/cli.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "port",
+    "network",
+    "local",
+    "service",
+    "assignment"
+  ],
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "@facetlayer/userdata-db": "workspace:^",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/yargs": "^17.0.35",
+    "typescript": "^5.2.0",
+    "vitest": "1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
