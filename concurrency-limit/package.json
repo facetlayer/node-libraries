@@ -1,0 +1,44 @@
+{
+  "name": "@facetlayer/concurrency-limit",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Limit the number of concurrent async operations with a simple queue-based limiter",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "concurrency",
+    "limit",
+    "async",
+    "parallel",
+    "queue",
+    "throttle",
+    "rate-limit"
+  ],
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "3.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
