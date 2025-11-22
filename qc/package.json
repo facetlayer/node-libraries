@@ -1,0 +1,28 @@
+{
+  "name": "@facetlayer/qc",
+  "version": "0.1.0",
+  "license": "MIT",
+  "dependencies": {},
+  "main": "dist/index.js",
+  "bin": {
+    "qc-check-file": "./bin/qc-check-file"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest",
+    "prepare": "tsc -p ."
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "^3.0.6"
+  }
+}
