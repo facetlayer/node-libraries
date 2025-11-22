@@ -1,0 +1,21 @@
+{
+  "name": "@facetlayer/file-manifest",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@facetlayer/concurrency-limit": "^0.1.0",
+    "@facetlayer/qc": "^0.1.0",
+    "@facetlayer/streams": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "^3.0.6"
+  }
+}
