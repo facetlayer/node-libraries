@@ -1,0 +1,15 @@
+deploy-settings
+  project-name=basic-app
+  dest-url=http://localhost:4716
+  web-static-dir=public
+  update-in-place
+
+include package.json
+include index.js
+include public
+include README.md
+
+exclude node_modules
+exclude .git
+exclude .DS_Store
+exclude *.log

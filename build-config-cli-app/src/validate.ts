@@ -100,6 +100,89 @@ function fixTsConfig(tsconfigPath: string): string[] {
 }
 
 /**
+ * Validate package.json settings
+ */
+function validatePackageJson(packageJsonPath: string): { errors: string[], fixed: string[], modified: boolean } {
+  const errors: string[] = [];
+  const fixed: string[] = [];
+  let modified = false;
+
+  if (!existsSync(packageJsonPath)) {
+    errors.push(`package.json not found at: ${packageJsonPath}`);
+    return { errors, fixed, modified };
+  }
+
+  const content = readFileSync(packageJsonPath, 'utf-8');
+  let packageJson: any;
+
+  try {
+    packageJson = JSON.parse(content);
+  } catch (e) {
+    errors.push(`Failed to parse package.json: ${e}`);
+    return { errors, fixed, modified };
+  }
+
+  // Check type field
+  if (packageJson.type !== 'module') {
+    errors.push('package.json: "type" must be set to "module"');
+  }
+
+  // Check for source-map-support
+  const hasSourceMapSupport =
+    (packageJson.dependencies && 'source-map-support' in packageJson.dependencies) ||
+    (packageJson.devDependencies && 'source-map-support' in packageJson.devDependencies);
+
+  if (hasSourceMapSupport) {
+    errors.push('package.json: "source-map-support" must not be included as a dependency (not compatible with this build config)');
+  }
+
+  return { errors, fixed, modified };
+}
+
+/**
+ * Fix package.json settings
+ */
+function fixPackageJson(packageJsonPath: string): string[] {
+  const fixed: string[] = [];
+
+  if (!existsSync(packageJsonPath)) {
+    return fixed;
+  }
+
+  const content = readFileSync(packageJsonPath, 'utf-8');
+  let packageJson: any;
+
+  try {
+    packageJson = JSON.parse(content);
+  } catch (e) {
+    return fixed;
+  }
+
+  // Fix type field
+  if (packageJson.type !== 'module') {
+    packageJson.type = 'module';
+    fixed.push('Set "type" to "module"');
+  }
+
+  // Remove source-map-support
+  if (packageJson.dependencies && 'source-map-support' in packageJson.dependencies) {
+    delete packageJson.dependencies['source-map-support'];
+    fixed.push('Removed "source-map-support" from dependencies');
+  }
+
+  if (packageJson.devDependencies && 'source-map-support' in packageJson.devDependencies) {
+    delete packageJson.devDependencies['source-map-support'];
+    fixed.push('Removed "source-map-support" from devDependencies');
+  }
+
+  if (fixed.length > 0) {
+    writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf-8');
+  }
+
+  return fixed;
+}
+
+/**
  * Validate TypeScript imports using ESLint
  */
 async function validateImports(srcDir: string, fix: boolean): Promise<{ errors: string[], fixed: string[] }> {
@@ -172,6 +255,7 @@ async function validateImports(srcDir: string, fix: boolean): Promise<{ errors: 
 export async function runValidate(options: ValidateOptions = {}): Promise<ValidationResult> {
   const cwd = process.cwd();
   const tsconfigPath = resolve(cwd, options.tsconfigPath || './tsconfig.json');
+  const packageJsonPath = resolve(cwd, './package.json');
   const srcDir = resolve(cwd, options.srcDir || './src');
   const fix = options.fix || false;
 
@@ -179,6 +263,30 @@ export async function runValidate(options: ValidateOptions = {}): Promise<Valida
   const allFixed: string[] = [];
 
   console.log('Validating project configuration...\n');
+
+  // Validate/fix package.json
+  if (fix) {
+    console.log('Checking package.json...');
+    const packageJsonFixed = fixPackageJson(packageJsonPath);
+    if (packageJsonFixed.length > 0) {
+      console.log('Fixed package.json:');
+      packageJsonFixed.forEach(f => console.log(`  ✓ ${f}`));
+      allFixed.push(...packageJsonFixed);
+    } else {
+      console.log('  ✓ package.json is valid');
+    }
+  } else {
+    console.log('Checking package.json...');
+    const packageJsonResult = validatePackageJson(packageJsonPath);
+    if (packageJsonResult.errors.length > 0) {
+      packageJsonResult.errors.forEach(e => console.log(`  ✗ ${e}`));
+      allErrors.push(...packageJsonResult.errors);
+    } else {
+      console.log('  ✓ package.json is valid');
+    }
+  }
+
+  console.log();
 
   // Validate/fix tsconfig.json
   if (fix) {

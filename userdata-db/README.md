@@ -114,6 +114,18 @@ const db = await getUserdataDatabase({
 })
 ```
 
+## Suggestions for Testing
+
+If you're writing tests for an application that uses `userdata-db`, then you can
+take advantage of the environment variables to override the storage directory.
+
+Typical approach:
+
+1. Create a directory `./test/temp` at the start of the test suite.
+2. Delete the contents at the start of the test.
+3. Set XDG_STATE_HOME to your `./test/temp` directory.
+4. Run the application code in tests, and check the files that it saves to `./test/temp`.
+
 ## Development
 
 Scripts:

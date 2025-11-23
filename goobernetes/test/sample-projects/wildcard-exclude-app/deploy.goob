@@ -1,0 +1,13 @@
+deploy-settings
+  project-name=wildcard-exclude-app
+  dest-url=http://localhost:4716
+  update-in-place
+
+include src
+include package.json
+
+exclude node_modules
+exclude .git
+exclude src/index.test.js
+exclude src/helper.spec.js
+exclude .DS_Store

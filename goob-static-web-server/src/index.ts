@@ -1,0 +1,2 @@
+
+export { setupStaticWebEndpoints } from './endpoints'

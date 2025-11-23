@@ -1,0 +1,14 @@
+deploy-settings
+  project-name=multi-include-app
+  dest-url=http://localhost:4716
+  update-in-place
+
+include src
+include lib
+include package.json
+include README.md
+
+exclude node_modules
+exclude .git
+exclude *.log
+exclude .DS_Store

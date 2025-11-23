@@ -1,0 +1,6 @@
+{
+  "name": "multi-include-app",
+  "version": "1.0.0",
+  "description": "Test app with multiple include directories",
+  "main": "src/index.js"
+}

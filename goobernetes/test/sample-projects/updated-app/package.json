@@ -1,0 +1,14 @@
+{
+  "name": "basic-app",
+  "version": "2.0.0",
+  "description": "Updated test app for goobernetes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  },
+  "author": "Test",
+  "license": "MIT"
+}

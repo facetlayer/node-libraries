@@ -1,0 +1,46 @@
+{
+  "name": "@facetlayer/goobernetes",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "goobernetes": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"node ./dist/cli.js serve --disable-api-key-check\"",
+    "build": "pnpm run typecheck && node build.mts build",
+    "test": "vitest",
+    "serve": "node dist/cli.js serve",
+    "deploy": "node dist/cli.js deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@facetlayer/concurrency-limit": "^0.1.0",
+    "@facetlayer/file-manifest": "^0.1.0",
+    "@facetlayer/qc": "^0.1.0",
+    "@facetlayer/sqlite-wrapper": "^1.2.0",
+    "@facetlayer/streams": "^1.0.1",
+    "@facetlayer/subprocess-wrapper": "^1.1.0",
+    "@facetlayer/userdata-db": "^0.1.1",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/body-parser": "1.19.6",
+    "@types/express": "5.0.3",
+    "better-sqlite3": "^11.8.1",
+    "body-parser": "2.2.0",
+    "express": "5.1.0",
+    "json-rpc-2.0": "1.7.1",
+    "node-fetch": "^2.7.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-cli-app": "^0.1.0",
+    "@types/node": "20.12.7",
+    "@types/yargs": "^17.0.33",
+    "tsc-watch": "6.2.1",
+    "typescript": "^5.2.0",
+    "vitest": "^3.0.6"
+  }
+}

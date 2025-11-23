@@ -1,0 +1,55 @@
+{
+  "name": "@facetlayer/goob-static-web-server",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Express-based static web server for goobernetes deployments",
+  "type": "module",
+  "main": "dist/cli.js",
+  "types": "dist/cli.d.ts",
+  "bin": {
+    "goob-static-web-server": "dist/cli.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mts build",
+    "tsc": "tsc",
+    "test": "vitest",
+    "serve": "node dist/cli.js",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "static-server",
+    "express",
+    "goobernetes",
+    "deployment"
+  ],
+  "author": "",
+  "dependencies": {
+    "@facetlayer/sqlite-wrapper": "^1.2.0",
+    "@facetlayer/streams": "^1.0.1",
+    "@facetlayer/userdata-db": "^0.1.0",
+    "better-sqlite3": "11.8.1",
+    "express": "^5.1.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-cli-app": "^0.1.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^18.0.0",
+    "@types/yargs": "^17.0.33",
+    "typescript": "^5.2.0",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "express": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}

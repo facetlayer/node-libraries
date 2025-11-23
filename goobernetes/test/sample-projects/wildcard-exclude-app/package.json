@@ -1,0 +1,6 @@
+{
+  "name": "wildcard-exclude-app",
+  "version": "1.0.0",
+  "description": "Test app with wildcard exclude patterns",
+  "main": "src/index.js"
+}

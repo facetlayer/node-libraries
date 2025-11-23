@@ -1,9 +1,14 @@
 packages:
+  - build-config-cli-app
   - claude-code-session-history
+  - concurrency-limit
   - csv-tool
   - env-file-rewrite
   - fetch-sse-stream
+  - file-manifest
   - generic-lexer
+  - goob-static-web-server
+  - goobernetes
   - parse-stdout-lines
   - port-assignment
   - prism-framework-api
@@ -11,10 +16,9 @@ packages:
   - prism-framework-ui
   - react-elements
   - sqlite-wrapper
+  - sqlite-wrapper/docs-site
   - streams
   - subprocess-wrapper
+  - qc
   - userdata-db
-
-onlyBuiltDependencies:
-  - better-sqlite3
-  - esbuild
+  - userdata-db/docs-site

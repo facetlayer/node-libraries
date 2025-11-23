@@ -1,0 +1,24 @@
+deploy-settings
+  project-name=sample
+  dest-url=http://localhost:4715
+  update-in-place
+  web-static-dir=web/out
+
+before-deploy
+  shell(pnpm build)
+
+after-deploy
+  pm2-start name=SampleAPI
+    command(pnpm start)
+
+include web
+include package.json
+
+exclude web/node_modules
+exclude web/.next
+exclude web/.gitignore
+exclude web/CLAUDE.md
+exclude web/.claude
+exclude web/src
+exclude web/tsconfig.tsbuildinfo
+exclude web/candle.log

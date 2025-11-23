@@ -1,0 +1,11 @@
+{
+  "name": "basic-app",
+  "version": "1.0.0",
+  "description": "Basic test app for goobernetes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Test",
+  "license": "MIT"
+}

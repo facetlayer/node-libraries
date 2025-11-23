@@ -1,0 +1,11 @@
+{
+  "name": "ignore-rules-app",
+  "version": "1.0.0",
+  "description": "Test app for ignore rules in goobernetes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Test",
+  "license": "MIT"
+}
