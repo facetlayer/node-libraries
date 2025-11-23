@@ -10,7 +10,8 @@ export { BackpressureStop, exceptionIsBackpressureStop } from './BackpressureSto
 export { StreamDispatcher } from './StreamDispatcher';
 export { randomHex, randomAlpha } from './randomHex';
 export { ErrorDetails, ErrorWithDetails, captureError, errorAsStreamEvent,
-    startGlobalErrorListener, recordUnhandledError } from './Errors';
+    startGlobalErrorListener, recordUnhandledError, errorDetailsToString } from './Errors';
 export { StreamProtocolValidator } from './StreamProtocolValidator'
 export { dynamicOutputToStream, callbackToStream } from './dynamicOutputToStream';
 export { callbackBasedIterator } from './callbackBasedIterator';
+export { toConsoleLog } from './toConsoleLog';

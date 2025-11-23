@@ -648,6 +648,7 @@ export class Stream<ItemType = any> implements EventReceiver {
         });
     }
 
+    // Deprecated:
     logToConsole(label?: string) {
         const prefix = `${label || this.getDebugLabel()}: `;
         this.pipe(evt => {

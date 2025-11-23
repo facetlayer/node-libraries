@@ -1,4 +1,8 @@
 
+# 1.0.1
+
+ - Add toConsoleLog and errorDetailsToString
+
 # 1.0.0
 
  - Code cleanup and new repo, ready for 1.x release.
