@@ -1,0 +1,35 @@
+{
+  "name": "@facetlayer/build-config-cli-app",
+  "version": "0.1.0",
+  "description": "Shared build configuration for CLI applications using esbuild and TypeScript",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/utils": "^8.0.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.0.0",
+    "glob": "^11.0.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/yargs": "^17.0.33",
+    "typescript": "^5.2.0",
+    "vitest": "^3.0.6"
+  }
+}

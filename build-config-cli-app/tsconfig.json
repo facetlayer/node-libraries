@@ -1,0 +1,34 @@
+{
+  "include": [
+    "src/**/*ts"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "es2021"
+    ],
+    "target": "es2020",
+    "module": "esnext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "isolatedModules": false,
+    "downlevelIteration": true,
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "noLib": false,
+    "skipLibCheck": true,
+    "preserveConstEnums": true,
+    "esModuleInterop": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
