@@ -9,6 +9,7 @@ packages:
   - prism-framework-api
   - prism-framework-tools
   - prism-framework-ui
+  - react-elements
   - sqlite-wrapper
   - streams
   - subprocess-wrapper
