@@ -1,4 +1,7 @@
 
+0.1.2
+ - Always print URLs in 'list' command
+
 0.1.1
  - CLI bug fix - fix bin, add shebang
 

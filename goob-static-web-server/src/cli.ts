@@ -6,6 +6,8 @@ import { getOrCreateStateDirectory } from '@facetlayer/userdata-db'
 import { listDeployments } from './listCommand'
 import { serveCommand } from './serveCommand'
 
+const DEFAULT_PORT = 4716
+
 export interface CommonOptions {
   appName: string
   deployDir: string
@@ -39,7 +41,7 @@ async function main() {
         return addCommonOptions(yargs)
           .option('port', {
             type: 'number',
-            default: 4716,
+            default: DEFAULT_PORT,
             describe: 'Port number for the server'
           })
       },
@@ -53,10 +55,18 @@ async function main() {
     .command(
       'list',
       'List all deployments with web static directories',
-      (yargs) => addCommonOptions(yargs),
+      (yargs) => {
+        return addCommonOptions(yargs)
+          .option('port', {
+            type: 'number',
+            default: DEFAULT_PORT,
+            describe: 'Port number for the server'
+          })
+      },
       async (argv) => {
         const { appName, deployDir } = resolveCommonOptions(argv)
-        await listDeployments({ appName, deployDir })
+        const port = argv.port
+        await listDeployments({ appName, deployDir, port })
       }
     )
     .demandCommand(1, 'You must specify a command')

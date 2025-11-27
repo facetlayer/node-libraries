@@ -69,38 +69,119 @@ export class GooberneteRPCClient {
     }
 
     async createDeployment(params: CreateDeploymentParams): Promise<DeploymentCreatedEvent> {
-        return await this.client.request(RPC_METHODS.CREATE_DEPLOYMENT, params);
+        try {
+            return await this.client.request(RPC_METHODS.CREATE_DEPLOYMENT, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in createDeployment');
+            console.error('Method:', RPC_METHODS.CREATE_DEPLOYMENT);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async getNeededFiles(params: GetNeededFilesParams): Promise<NeededFileEntry[]> {
-        return await this.client.request(RPC_METHODS.GET_NEEDED_FILES, params);
+        try {
+            return await this.client.request(RPC_METHODS.GET_NEEDED_FILES, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in getNeededFiles');
+            console.error('Method:', RPC_METHODS.GET_NEEDED_FILES);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async uploadOneFile(params: UploadOneFileParams): Promise<void> {
-        await this.client.request(RPC_METHODS.UPLOAD_ONE_FILE, params);
+        try {
+            await this.client.request(RPC_METHODS.UPLOAD_ONE_FILE, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in uploadOneFile');
+            console.error('Method:', RPC_METHODS.UPLOAD_ONE_FILE);
+            console.error('Params (without content):', JSON.stringify({
+                deployName: params.deployName,
+                relPath: params.relPath,
+                contentLength: params.contentBase64?.length
+            }, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async verifyDeployment(params: VerifyDeploymentParams): Promise<VerifyDeploymentResult> {
-        return await this.client.request(RPC_METHODS.VERIFY_DEPLOYMENT, params);
+        try {
+            return await this.client.request(RPC_METHODS.VERIFY_DEPLOYMENT, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in verifyDeployment');
+            console.error('Method:', RPC_METHODS.VERIFY_DEPLOYMENT);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async activateDeployment(params: ActivateDeploymentParams): Promise<void> {
-        await this.client.request(RPC_METHODS.ACTIVATE_DEPLOYMENT, params);
+        try {
+            await this.client.request(RPC_METHODS.ACTIVATE_DEPLOYMENT, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in activateDeployment');
+            console.error('Method:', RPC_METHODS.ACTIVATE_DEPLOYMENT);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async startMultiPartUpload(params: StartMultiPartUploadParams): Promise<void> {
-        await this.client.request(RPC_METHODS.START_MULTIPART_UPLOAD, params);
+        try {
+            await this.client.request(RPC_METHODS.START_MULTIPART_UPLOAD, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in startMultiPartUpload');
+            console.error('Method:', RPC_METHODS.START_MULTIPART_UPLOAD);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async uploadFilePart(params: UploadFilePartParams): Promise<void> {
-        await this.client.request(RPC_METHODS.UPLOAD_FILE_PART, params);
+        try {
+            await this.client.request(RPC_METHODS.UPLOAD_FILE_PART, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in uploadFilePart');
+            console.error('Method:', RPC_METHODS.UPLOAD_FILE_PART);
+            console.error('Params (without content):', JSON.stringify({
+                deployName: params.deployName,
+                relPath: params.relPath,
+                chunkStartsAt: params.chunkStartsAt,
+                chunkLength: params.chunkBase64?.length
+            }, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async finishMultiPartUpload(params: FinishMultiPartUploadParams): Promise<void> {
-        await this.client.request(RPC_METHODS.FINISH_MULTIPART_UPLOAD, params);
+        try {
+            await this.client.request(RPC_METHODS.FINISH_MULTIPART_UPLOAD, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in finishMultiPartUpload');
+            console.error('Method:', RPC_METHODS.FINISH_MULTIPART_UPLOAD);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 
     async finishUploads(params: FinishUploadsParams): Promise<void> {
-        await this.client.request(RPC_METHODS.FINISH_UPLOADS, params);
+        try {
+            await this.client.request(RPC_METHODS.FINISH_UPLOADS, params);
+        } catch (error) {
+            console.error('JSON-RPC Error in finishUploads');
+            console.error('Method:', RPC_METHODS.FINISH_UPLOADS);
+            console.error('Params:', JSON.stringify(params, null, 2));
+            console.error('Error:', error);
+            throw error;
+        }
     }
 }

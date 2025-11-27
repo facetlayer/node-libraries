@@ -17,7 +17,7 @@ interface DeploymentDetails {
 }
 
 export interface ListOptions extends CommonOptions {
-  port?: number
+  port: number
 }
 
 export async function listDeployments(options: ListOptions): Promise<void> {
@@ -64,11 +64,7 @@ export async function listDeployments(options: ListOptions): Promise<void> {
     }
 
     console.log(`  ${deployment.project_name}/${deployment.deploy_name}`)
-    if (options.port) {
-      console.log(`    URL: http://localhost:${options.port}/web/${deployment.project_name}`)
-    } else {
-      console.log(`    Path: /web/${deployment.project_name}`)
-    }
+    console.log(`    URL: http://localhost:${options.port}/web/${deployment.project_name}`)
     console.log(`    Directory: ${webStaticDir}`)
     console.log('');
     countFound++;
