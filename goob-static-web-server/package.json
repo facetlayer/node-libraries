@@ -13,7 +13,6 @@
   "scripts": {
     "build": "node build.mts build",
     "tsc": "tsc",
-    "test": "vitest",
     "serve": "node dist/cli.js",
     "prepublishOnly": "pnpm run build"
   },

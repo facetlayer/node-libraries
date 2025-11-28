@@ -1,9 +1,6 @@
-name: Deploy Docs to GitHub Pages
+name: Publish sqlite-wrapper Docs to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -12,7 +9,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: 'pages-sqlite-wrapper'
   cancel-in-progress: false
 
 jobs:
@@ -30,18 +27,20 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8.15.4
+          version: 9
 
       - name: Install dependencies
-        run: pnpm install
-
-      - name: Install docs dependencies
-        run: pnpm --dir docs-site install
+        run: pnpm install --frozen-lockfile
 
       - name: Build documentation
         run: |
           export NODE_OPTIONS="--max-old-space-size=4096"
-          pnpm --dir docs-site build
+          pnpm --dir sqlite-wrapper/docs-site build
+
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p deploy/node-libraries/sqlite-wrapper
+          cp -r sqlite-wrapper/docs-site/build/* deploy/node-libraries/sqlite-wrapper/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -49,7 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs-site/build
+          path: deploy
 
   deploy:
     environment:

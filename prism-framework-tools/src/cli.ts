@@ -61,7 +61,7 @@ async function findApp(cwd: string): Promise<() => any> {
 async function main() {
   await yargs(hideBin(process.argv))
     .command(
-      'list',
+      'list-endpoints',
       'List all available endpoints',
       {},
       async () => {
@@ -159,13 +159,13 @@ async function main() {
         }
       }
     )
-    .demandCommand(1, 'You must specify a command (list or run)')
+    .demandCommand(1, 'You must specify a command')
     .help()
     .alias('help', 'h')
     .version(packageJson.version)
     .alias('version', 'v')
     .example([
-      ['$0 list', 'List all available endpoints'],
+      ['$0 list-endpoints', 'List all available endpoints'],
       ['$0 run /api/users', 'Run GET /api/users'],
       ['$0 run /api/users --method POST --name "John" --email "john@example.com"', 'Run POST with data'],
     ])

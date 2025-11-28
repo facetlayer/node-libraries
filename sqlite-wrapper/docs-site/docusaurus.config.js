@@ -8,10 +8,10 @@ const config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://facetlayer.github.io',
-  baseUrl: '/sqlite-wrapper/',
+  baseUrl: '/node-libraries/sqlite-wrapper/',
 
   organizationName: 'facetlayer',
-  projectName: 'sqlite-wrapper',
+  projectName: 'node-libraries',
 
   onBrokenLinks: 'throw',
 
@@ -34,7 +34,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '/',
-          editUrl: 'https://github.com/facetlayer/sqlite-wrapper/tree/main/docs-site/',
+          editUrl: 'https://github.com/facetlayer/node-libraries/tree/main/sqlite-wrapper/docs-site/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -56,7 +56,7 @@ const config = {
             label: 'Docs',
           },
           {
-            href: 'https://github.com/facetlayer/sqlite-wrapper',
+            href: 'https://github.com/facetlayer/node-libraries/tree/main/sqlite-wrapper',
             label: 'GitHub',
             position: 'right',
           },

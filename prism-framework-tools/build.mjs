@@ -30,8 +30,8 @@ await build({
 // Build the CLI tool entry point
 await build({
   ...commonOptions,
-  entryPoints: ['src/endpointTool.ts'],
-  outfile: 'dist/endpointTool.js',
+  entryPoints: ['src/cli.ts'],
+  outfile: 'dist/cli.js',
   format: 'cjs',
 });
 
