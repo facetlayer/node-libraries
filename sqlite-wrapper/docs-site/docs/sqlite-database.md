@@ -2,11 +2,19 @@
 
 The `SqliteDatabase` class provides a wrapper around `better-sqlite3` with convenient methods for common database operations.
 
+## Calling style
+
+All methods accept an optional `params` value. Just like in [better-sqlite3](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md), this value can be an array (for positional `?` parameters), or it can be an object (for named `?xxx` parameters).
+
 ## Query Methods
+
+These methods correspond directly to Statement methods in better-sqlite3.
 
 ### `get(sql, params?)`
 
 Runs a SELECT query and returns the first matching row, or `undefined` if no rows match.
+
+Uses [Statement.get](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#getbindparameters---row)
 
 ```typescript
 const user = db.get('select * from users where id = ?', [1]);
@@ -16,6 +24,8 @@ const user = db.get('select * from users where id = ?', [1]);
 ### `list(sql, params?)`
 
 Runs a SELECT query and returns all matching rows as an array.
+
+Uses [Statement.all](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#allbindparameters---array-of-rows)
 
 ```typescript
 const users = db.list('select * from users where active = ?', [true]);
@@ -28,7 +38,10 @@ Alias for `list()`.
 
 ### `each(sql, params?)`
 
-Returns an iterator for all matching rows. Useful for processing large result sets without loading everything into memory.
+Similar to `all()` but returns an iterator instead of a complete list.
+Useful for processing large result sets without loading everything into memory.
+
+Uses [Statement.iterate](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#iteratebindparameters---iterator)
 
 ```typescript
 for (const user of db.each('select * from users')) {
@@ -39,6 +52,8 @@ for (const user of db.each('select * from users')) {
 ### `run(sql, params?)`
 
 Executes a SQL statement (INSERT, UPDATE, DELETE, etc.) and returns the result.
+
+Uses [Statement.run](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#runbindparameters---object)
 
 ```typescript
 const result = db.run('update users set name = ? where id = ?', ['John Doe', 1]);
@@ -53,41 +68,93 @@ interface RunResult {
 }
 ```
 
-## Convenience Methods
+### `pragma(statement)`
 
-### `exists(sql, params?)`
+Executes a SQLite PRAGMA statement.
 
-Checks if any rows match the condition. The `sql` should start with `from <table> where ...`.
+```typescript
+const journalMode = db.pragma('journal_mode');
+```
+
+## Helper Methods
+
+These methods use more complex SQL query building logic, to help with common use cases.
+
+### `exists(condition: string, params?)`
+
+Checks if any rows match the condition. The incoming `condition` parameter should look like: `from <table> where ...`. 
+
+This will build a query that looks like: `select exists(select 1 {condition})`
 
 ```typescript
 const hasUsers = db.exists('from users where email = ?', ['john@example.com']);
 // Returns: true | false
 ```
 
-### `count(sql, params?)`
+### `count(condition: string, params?)`
 
-Counts matching rows. The `sql` should start with `from <table> where ...`.
+Counts matching rows. The `condition` should start with `from <table> where ...`.
+
+This will build a query that looks like: `select count(*) {condition}`
 
 ```typescript
 const userCount = db.count('from users where active = ?', [true]);
 // Returns: 42
 ```
 
-### `insert(tableName, row)`
+### `insert(tableName: string, row: Record<string, any>)`
 
 Inserts a row into the specified table.
+
+This will build a query that looks like `insert into {tableName} ({columns}) values ({parameters})`. Each name & value of the incoming object will be converted into the columns & parameters section. The names should exactly match table columns.
 
 ```typescript
 db.insert('users', {
     name: 'John Doe',
     email: 'john@example.com',
-    created_at: Date.now()
 });
 ```
 
-### `update(tableName, whereClause, row)`
+#### How 'row' objects are used
 
-Updates rows matching the where clause. The `whereClause` is an object where keys are column names.
+Each field in a 'row' object corresponds to one column.
+
+This call:
+```typescript
+db.insert('users', { name: 'John Doe', });
+```
+
+Is the same as this:
+
+```typescript
+db.run('insert into users (name) values (?)', ["John Doe"]);
+```
+
+#### Parameter Binding
+
+For object values, the builder will use `?` parameters when passing those values.
+
+But, the object field names are directly used as column names. Make sure that your objects use fixed strings for the field names.
+
+Example of what NOT to do:
+
+```typescript
+const userObject = { name: 'John Doe' };
+const targetField = ...;
+// Bad pattern: The dynamic string value for 'targetField' will be directly injected into SQL:
+userObject[targetField] = targetValue;
+db.insert('users', userObject);
+```
+
+### `update(tableName: string, whereClause: Record<string, any>, row: Record<string,any>)`
+
+Updates rows matching the where clause.
+
+This will build a query that looks like: `update {tableName} set {columns} where {conditions}`.
+
+The `whereClause` object will be converted into `{name} = {value}` conditions. The `row` object will be converted into the `SET name = value` section.
+
+See above section for "How 'row' objects are used"
 
 ```typescript
 db.update('users', { id: 1 }, {
@@ -96,9 +163,14 @@ db.update('users', { id: 1 }, {
 });
 ```
 
-### `upsert(tableName, whereClause, row)`
+### `upsert(tableName: string, whereClause: Record<string, any>, row: Record<string, any>)`
 
-Attempts an update first; if no rows are affected, performs an insert.
+Does a two-step operation:
+
+1. First, try to do `.update()` (using the .update helper above)
+2. If the database reports that zero rows were affected, then perform an `.insert()`.
+
+See the above section for "How 'row' objects are used"
 
 ```typescript
 db.upsert('users', { email: 'john@example.com' }, {
@@ -110,14 +182,6 @@ db.upsert('users', { email: 'john@example.com' }, {
 
 ## Utility Methods
 
-### `pragma(statement)`
-
-Executes a SQLite PRAGMA statement.
-
-```typescript
-const journalMode = db.pragma('journal_mode');
-```
-
 ### `close()`
 
 Closes the database connection.
@@ -125,31 +189,6 @@ Closes the database connection.
 ```typescript
 db.close();
 ```
-
-## Singleton Helpers
-
-### `singleton(tableName)`
-
-Creates a `SingletonAccessor` for tables that should only have one row.
-
-```typescript
-const config = db.singleton('app_config');
-const settings = config.get();
-config.set({ theme: 'dark', language: 'en' });
-```
-
-See [SingletonAccessor](./singleton-accessor.md) for more details.
-
-### `incrementingId(tableName, options?)`
-
-Creates a `SingletonIncrementingId` for generating sequential IDs.
-
-```typescript
-const invoiceIds = db.incrementingId('invoice_counter', { initialValue: 1000 });
-const nextId = invoiceIds.take(); // Returns 1000, then 1001, etc.
-```
-
-See [SingletonIncrementingId](./singleton-incrementing-id.md) for more details.
 
 ## Schema Management
 

@@ -2,15 +2,15 @@
 
 The `MigrationBehavior` type controls how schema migrations are handled when the database is loaded.
 
-## Available Modes
+## Available Options
 
 ### `strict`
 
 **Recommended for: Production**
 
-- Does not perform any automatic migrations
-- Throws an error on startup if the existing database schema doesn't match the expected schema
-- Any schema migrations must be done manually, in a separate step
+- Does not perform any migrations.
+- Throws an error on startup if the existing database schema doesn't match the expected schema.
+- You'll need to take care of database migrations in some other way.
 
 ```typescript
 const loader = new DatabaseLoader({
@@ -69,44 +69,12 @@ Use this mode when you want the database to always match your schema exactly, ty
 - No migration or checks performed
 - The database is used as-is
 
+
+**Recommended for: Tools that access the database**
+
 ```typescript
 const loader = new DatabaseLoader({
     // ...
     migrationBehavior: 'ignore',
-});
-```
-
-## Choosing the Right Mode
-
-| Environment | Recommended Mode | Reason |
-|-------------|------------------|--------|
-| Production | `strict` | Prevents accidental schema changes |
-| Staging/Preprod | `safe-upgrades` | Allows safe additions, prevents data loss |
-| Development | `full-destructive-updates` | Always matches current schema |
-| Testing | `full-destructive-updates` | Fresh schema for each test run |
-| Read-only access | `ignore` | No modifications needed |
-
-## Example: Environment-Based Configuration
-
-```typescript
-import { MigrationBehavior } from '@facetlayer/sqlite-wrapper';
-
-function getMigrationBehavior(): MigrationBehavior {
-    switch (process.env.NODE_ENV) {
-        case 'production':
-            return 'strict';
-        case 'staging':
-            return 'safe-upgrades';
-        default:
-            return 'full-destructive-updates';
-    }
-}
-
-const loader = new DatabaseLoader({
-    filename: './database.sqlite',
-    loadDatabase: await loadBetterSqlite(),
-    logs,
-    migrationBehavior: getMigrationBehavior(),
-    schema,
 });
 ```

@@ -26,33 +26,13 @@ const sidebars = {
     },
     {
       type: 'doc',
-      id: 'database-loader',
-      label: 'DatabaseLoader',
-    },
-    {
-      type: 'doc',
-      id: 'sqlite-database',
-      label: 'SqliteDatabase',
-    },
-    {
-      type: 'doc',
       id: 'migration-behavior',
       label: 'Migration Behavior',
     },
     {
       type: 'doc',
-      id: 'schema',
-      label: 'Database Schema',
-    },
-    {
-      type: 'doc',
-      id: 'singleton-accessor',
-      label: 'SingletonAccessor',
-    },
-    {
-      type: 'doc',
-      id: 'singleton-incrementing-id',
-      label: 'SingletonIncrementingId',
+      id: 'sqlite-database',
+      label: 'SqliteDatabase',
     },
   ],
 };

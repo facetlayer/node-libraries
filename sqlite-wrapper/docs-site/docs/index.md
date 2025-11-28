@@ -77,6 +77,5 @@ const user = db.get(`select * from user_table where user_id = ?`, [userId]);
 ## Next Steps
 
 - **[Getting Started Guide](./getting-started.md)** - Complete setup instructions and basic usage patterns
-- **[DatabaseLoader](./database-loader.md)** - Learn about database initialization and schema management
-- **[SqliteDatabase](./sqlite-database.md)** - Explore all database operations
 - **[Migration Behavior](./migration-behavior.md)** - Understand migration options
+- **[SqliteDatabase](./sqlite-database.md)** - Helper class for using the database

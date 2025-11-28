@@ -12,11 +12,16 @@ The library uses `better-sqlite3` as the underlying SQLite driver. You'll also n
 pnpm add better-sqlite3 @facetlayer/streams
 ```
 
-## Basic Setup
+## Initializing the Database
 
 ### 1. Define Your Schema
 
-Create a schema object that describes your database tables:
+Create a schema object with a list of statements that defines your database.
+This should include `create table` and `create index` statements.
+
+Don't use `if not exists` clauses here. The library will parse these statements and will take care of migration.
+
+Example:
 
 ```typescript
 import { DatabaseSchema } from '@facetlayer/sqlite-wrapper';
@@ -44,19 +49,34 @@ const schema: DatabaseSchema = {
 
 ### 2. Create the Database Loader
 
+The DatabaseLoader defines the database's configuration. Once this is set up, you can
+call `DatabaseLoader.load()` to get the actual database instance.
+
+Parameters:
+
+| name | description |
+| - | - |
+| filename | The filename of the SQLite database file. Will be created if it doens't exist |
+| loadDatabase | This is a dependency-injection callback for loading the 'better-sqlite' library. |
+| migrationBehavior | See [Migration Behavior](./migration-behavior.md) |
+| schema | The schema definition from above. |
+| logs | A `Stream` object from `@facetlayer/streams` which receives log messages related to the database, including migration events or errors. |
+
+Example:
+
 ```typescript
 import { DatabaseLoader, SqliteDatabase } from '@facetlayer/sqlite-wrapper';
-import { loadBetterSqlite } from '@facetlayer/sqlite-wrapper';
-import { Stream } from '@facetlayer/streams';
+import { toConsoleLog } from '@facetlayer/streams';
+import BetterSqliteDatabase from "better-sqlite3";
 
 const logs = new Stream();
 
 const loader = new DatabaseLoader({
-    filename: './myapp.sqlite',
-    loadDatabase: await loadBetterSqlite(),
-    logs,
+    filename: './db.sqlite',
+    loadDatabase: (filename) => new BetterSqliteDatabase(filename),
     migrationBehavior: 'safe-upgrades',
     schema,
+    logs: toConsoleLog("[database]"),
 });
 
 // Get the database instance
@@ -64,6 +84,8 @@ const db = loader.load();
 ```
 
 ### 3. Use the Database
+
+The `load()` function will give you a [SqliteDatabase](./sqlite-database.md) object that you can use.
 
 ```typescript
 // Insert a user
@@ -86,49 +108,8 @@ const count = db.count('from users');
 const exists = db.exists('from users where email = ?', ['john@example.com']);
 ```
 
-## Singleton Pattern
-
-A common pattern is to create a singleton accessor for your database:
-
-```typescript
-import { DatabaseLoader, SqliteDatabase } from '@facetlayer/sqlite-wrapper';
-import { loadBetterSqlite } from '@facetlayer/sqlite-wrapper';
-import { Stream } from '@facetlayer/streams';
-
-let _loader: DatabaseLoader | null = null;
-
-export async function getDatabase(): Promise<SqliteDatabase> {
-    if (!_loader) {
-        const logs = new Stream();
-        _loader = new DatabaseLoader({
-            filename: './myapp.sqlite',
-            loadDatabase: await loadBetterSqlite(),
-            logs,
-            migrationBehavior: 'safe-upgrades',
-            schema: {
-                name: 'MyAppDatabase',
-                statements: [
-                    // Your schema here
-                ]
-            }
-        });
-    }
-    return _loader.load();
-}
-```
-
-## Migration Behavior
-
-The library supports different migration behaviors depending on your environment:
-
-- **`strict`** - No automatic migrations, throws on schema mismatch (production)
-- **`safe-upgrades`** - Only safe migrations like adding tables/columns (preprod)
-- **`full-destructive-updates`** - Full sync including destructive changes (development)
-
-See [Migration Behavior](./migration-behavior.md) for more details.
 
 ## Next Steps
 
 - Learn about all [SqliteDatabase](./sqlite-database.md) operations
 - Understand [Migration Behavior](./migration-behavior.md) options
-- Explore [DatabaseLoader](./database-loader.md) configuration
