@@ -18,9 +18,9 @@ export interface MiddlewareDefinition {
 
 export interface ServiceDefinition {
   name: string;
-  
+
   // API endpoints
-  endpoints?: EndpointDefinition<any, any>[];
+  endpoints?: EndpointDefinition[];
 
   // Middleware
   middleware?: MiddlewareDefinition[];

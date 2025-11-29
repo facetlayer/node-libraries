@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Response } from 'express';
 
-export function createListingEndpoints(endpoints: EndpointDefinition<any, any>[]) {
+export function createListingEndpoints(endpoints: EndpointDefinition[]) {
   return [
     createEndpoint({
       method: 'GET',
@@ -68,7 +68,7 @@ export function createListingEndpoints(endpoints: EndpointDefinition<any, any>[]
   ];
 }
 
-function generateEndpointsHTML(endpoints: EndpointDefinition<any, any>[]): string {
+function generateEndpointsHTML(endpoints: EndpointDefinition[]): string {
   const endpointRows = endpoints
     .map(
       endpoint => `

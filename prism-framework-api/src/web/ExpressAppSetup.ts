@@ -1,16 +1,18 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { Server } from 'http';
-import { App } from '../app/App';
+import { PrismApp } from '../app/PrismApp';
 import { getMetrics } from '../Metrics';
 import { corsMiddleware, CorsConfig } from './corsMiddleware';
 import { mountPrismApp, setLoggers } from './ExpressEndpointSetup';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware';
 import { requestContextMiddleware } from './requestContextMiddleware';
+import { mountOpenAPIEndpoints, OpenAPIConfig } from './OpenAPI';
 
 export interface ServerSetupConfig {
   port: number;
-  app: App;
+  app: PrismApp;
+  openapiConfig?: OpenAPIConfig;
   corsConfig?: CorsConfig;
   logInfo?: (message: string) => void;
   logDebug?: (message: string) => void;
@@ -19,9 +21,6 @@ export interface ServerSetupConfig {
 }
 
 export function createExpressApp(config: ServerSetupConfig): express.Application {
-  // TODO: support middleware
-  //const middlewares = config.app.listAllEndpoints().flatMap(endpoint => endpoint.middleware || []);
-
   const app = express();
 
   // Set up logging if provided
@@ -34,13 +33,6 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
   app.use(express.urlencoded({ extended: true }));
   app.use(requestContextMiddleware);
   app.use(cookieParser());
-
-  // TODO: mount service-defined middleware
-  /*
-  if (middlewares) {
-    mountMiddlewares(app, middlewares);
-  }
-  */
 
   // Health check endpoint
   app.get('/health', localhostOnlyMiddleware, (req, res) => {
@@ -57,6 +49,10 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
       res.status(500).json({ error: 'Failed to retrieve metrics' });
     }
   });
+
+  if (config.openapiConfig) {
+    mountOpenAPIEndpoints(config.openapiConfig, app, config.app);
+  }
 
   mountPrismApp(app, config.app);
 

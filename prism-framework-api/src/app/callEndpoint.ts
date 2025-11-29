@@ -1,4 +1,4 @@
-import { App } from './App';
+import { PrismApp } from './PrismApp';
 import { ServiceDefinition } from '../ServiceDefinition';
 import { isHttpError, ResponseSchemaValidationError, SchemaValidationError } from '../Errors';
 
@@ -13,7 +13,7 @@ export interface CallEndpointOptions {
  * Call an endpoint programmatically without going through HTTP
  * This is useful for testing or for calling endpoints from scripts/tools
  */
-export async function callEndpoint(app: App, options: CallEndpointOptions) {
+export async function callEndpoint(app: PrismApp, options: CallEndpointOptions) {
     // Find the endpoint using pattern matching
     const match = app.matchEndpoint(options.method, options.path);
 

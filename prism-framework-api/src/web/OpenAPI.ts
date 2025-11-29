@@ -11,11 +11,19 @@ import {
   RouteConfig,
   extendZodWithOpenApi,
 } from '@asteasolutions/zod-to-openapi';
+import swaggerUi from 'swagger-ui-express';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import z from 'zod';
 import { ServiceDefinition } from '../ServiceDefinition';
+import { PrismApp } from '../app/PrismApp';
+import express, { Request, Response } from 'express';
 
 type RequestConfig = RouteConfig['request'];
+
+export interface OpenAPIConfig {
+  enable: boolean
+  enableSwagger?: boolean
+}
 
 export type ParseExpressPathForOpenAPIResult = {
   openApiPath: string;
@@ -100,12 +108,12 @@ export function generateOpenAPISchema(
           },
         };
       }
-      // TODO: specify query parameters: Handle query parameter specification.
 
       registry.registerPath({
         method: endpoint.method.toLowerCase() as any,
         path: openApiPath,
         description: endpoint.description || `${endpoint.method} ${endpoint.path}`,
+        operationId: endpoint.handler.name,
         request: requestConfig,
         responses: {
           200: {
@@ -116,6 +124,7 @@ export function generateOpenAPISchema(
               },
             },
           },
+          /*
           400: {
             description: 'Bad Request - Schema validation failed',
             content: {
@@ -148,13 +157,17 @@ export function generateOpenAPISchema(
               },
             },
           },
+          */
         },
       });
     }
   }
 
   const generator: OpenApiGeneratorV31 = new OpenApiGeneratorV31(
-    registry.definitions.concat([
+    registry.definitions
+    
+    /*
+    .concat([
       {
         type: 'component',
         componentType: 'securitySchemes',
@@ -166,6 +179,7 @@ export function generateOpenAPISchema(
         },
       },
     ])
+      */
   );
 
   return generator.generateDocument({
@@ -181,4 +195,40 @@ export function generateOpenAPISchema(
       },
     ],
   });
+}
+
+export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express.Application, prismApp: PrismApp): void {
+
+  console.log('Mounting OpenAPI endpoints', config);
+
+  expressApp.get('/openapi.json', (req: Request, res: Response) => {
+    res.json(generateOpenAPISchema(prismApp.getAllServices(), {
+      version: '1.0.0',
+      title: prismApp.name,
+      description: prismApp.description,
+    }));
+  });
+
+  if (config.enableSwagger) {
+    setupSwaggerUI(expressApp);
+  }
+}
+
+/**
+ * Sets up Swagger UI to serve interactive API documentation
+ *
+ * @param app - Express application instance
+ * @param openApiJsonPath - Path where the OpenAPI JSON schema is served (default: '/openapi.json')
+ */
+export function setupSwaggerUI(app: express.Application, openApiJsonPath: string = '/openapi.json'): void {
+  // Serve Swagger UI on /swagger
+  app.use(
+    '/swagger',
+    swaggerUi.serve,
+    swaggerUi.setup(null, {
+      swaggerOptions: {
+        url: openApiJsonPath,
+      },
+    })
+  );
 }

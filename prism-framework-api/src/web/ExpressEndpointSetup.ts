@@ -4,16 +4,16 @@ import { isHttpError, NotFoundError } from '../Errors';
 import { recordHttpRequest, recordHttpResponse } from '../Metrics';
 import { getCurrentRequestContext } from '../RequestContext';
 import { SseResponse } from './SseResponse';
-import { App, endpointKey } from '../app/App';
+import { PrismApp, endpointKey } from '../app/PrismApp';
 
 type EndpointRequireOption = 'authenticated-user';
 
-export interface EndpointDefinition<TRequest, TResponse> {
+export interface EndpointDefinition {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   path: string;
-  handler: (input: TRequest) => Promise<TResponse> | TResponse;
-  requestSchema?: z.ZodSchema<TRequest>;
-  responseSchema?: z.ZodSchema<TResponse>;
+  handler: (input: any) => Promise<any> | any;
+  requestSchema?: z.ZodSchema;
+  responseSchema?: z.ZodSchema;
   description?: string;
   requires?: EndpointRequireOption[];
 }
@@ -36,9 +36,9 @@ export function getRequestDataFromReq(req: Request): any {
   return result;
 }
 
-export function createEndpoint<TRequest, TResponse>(
-  definition: EndpointDefinition<TRequest, TResponse>
-): EndpointDefinition<TRequest, TResponse> {
+export function createEndpoint(
+  definition: EndpointDefinition
+): EndpointDefinition {
   return definition;
 }
 
@@ -56,7 +56,7 @@ export function setLoggers(debug: typeof logDebug, warn: typeof logWarn, error: 
 }
 
 function getOneHandler(
-  prismApp: App,
+  prismApp: PrismApp,
   endpoint: { method: string; path: string }
 ) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -136,7 +136,7 @@ function getOneHandler(
 
 export function mountPrismApp(
   app: express.Application,
-  prismApp: App,
+  prismApp: PrismApp,
 ): void {
 
   // Register each endpoint with Express to support path parameters

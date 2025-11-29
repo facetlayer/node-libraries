@@ -6,6 +6,7 @@ import packageJson from '../package.json';
 import { loadEnv } from './loadEnv';
 import { callEndpoint } from './call-command';
 import { listEndpoints } from './list-endpoints-command';
+import { generateApiClients } from './generate-api-clients';
 
 async function main() {
   await yargs(hideBin(process.argv))
@@ -80,6 +81,27 @@ async function main() {
         }
       }
     )
+    .command(
+      'generate-api-clients',
+      'Generate TypeScript API client types from OpenAPI schema',
+      {},
+      async () => {
+        try {
+          const cwd = process.cwd();
+          const config = loadEnv(cwd);
+          console.log(`Using API server at: ${config.baseUrl}\n`);
+          await generateApiClients(config.baseUrl);
+        } catch (error) {
+          if (error instanceof Error && error.stack) {
+            console.error(error.stack);
+          } else {
+            console.error('Error:', error instanceof Error ? error.message : String(error));
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .strictCommands()
     .demandCommand(1, 'You must specify a command')
     .help()
     .alias('help', 'h')
@@ -90,7 +112,7 @@ async function main() {
       ['$0 call /api/users', 'Call GET /api/users'],
       ['$0 call POST /api/users --name "John" --email "john@example.com"', 'call POST with data'],
     ])
-    .argv;
+    .parse();
 }
 
 main();

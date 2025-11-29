@@ -1,15 +1,15 @@
 {
   "name": "@facetlayer/prism-framework-api",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "API component of the Prism app framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "node build.mjs && tsc -p tsconfig.build.json",
+    "build": "node build.mts build",
     "typecheck": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepare": "node build.mjs && tsc -p tsconfig.build.json",
+    "prepare": "node build.mts build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -37,6 +37,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@facetlayer/build-config-cli-app": "^0.1.0",
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",

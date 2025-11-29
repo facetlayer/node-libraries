@@ -6,10 +6,14 @@ export function endpointKey(method: string, path: string): string {
   return `${method} ${path}`;
 }
 
-export class App {
-  private endpointMap: Map<string, EndpointDefinition<any, any>>;
+export class PrismApp {
+  endpointMap: Map<string, EndpointDefinition>;
+  services: ServiceDefinition[];
+  name?: string;
+  description?: string;
 
   constructor(services: ServiceDefinition[]) {
+    this.services = services;
     this.endpointMap = new Map();
 
     // Create a lookup map of all endpoints
@@ -23,12 +27,16 @@ export class App {
     }
   }
 
-  getEndpoint(method: string, path: string): EndpointDefinition<any, any> | undefined {
+  getAllServices(): ServiceDefinition[] {
+    return this.services;
+  }
+
+  getEndpoint(method: string, path: string): EndpointDefinition | undefined {
     const key = endpointKey(method, path);
     return this.endpointMap.get(key);
   }
 
-  matchEndpoint(method: string, path: string): { endpoint: EndpointDefinition<any, any>; params: Record<string, string> } | undefined {
+  matchEndpoint(method: string, path: string): { endpoint: EndpointDefinition; params: Record<string, string> } | undefined {
     // First try exact match
     const key = endpointKey(method, path);
     const exactMatch = this.endpointMap.get(key);
@@ -79,7 +87,7 @@ export class App {
     return params;
   }
 
-  listAllEndpoints(): EndpointDefinition<any, any>[] {
+  listAllEndpoints(): EndpointDefinition[] {
     return Array.from(this.endpointMap.values());
   }
 

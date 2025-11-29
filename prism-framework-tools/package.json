@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework-tools",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Testing and development tools for the Prism app framework",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
@@ -11,7 +11,8 @@
     "build": "node build.mjs && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepare": "node build.mjs && tsc -p tsconfig.build.json"
+    "prepare": "node build.mjs && tsc -p tsconfig.build.json",
+    "test": "vitest"
   },
   "keywords": [
     "framework",
@@ -33,6 +34,7 @@
     "@types/uuid": "^10.0.0",
     "@types/yargs": "17.0.34",
     "esbuild": "^0.25.12",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
   }
 }

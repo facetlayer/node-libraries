@@ -51,14 +51,11 @@ export { generateOpenAPISchema, parseExpressPathForOpenAPI } from './web/OpenAPI
 // Endpoint listing exports
 export { createListingEndpoints } from './web/EndpointListing';
 
-// Swagger UI exports
-export { setupSwaggerUI } from './web/SwaggerUI';
-
 // SSE Connection Management exports
 export { ConnectionManager } from './sse/ConnectionManager';
 
 // App exports
-export { App } from './app/App';
+export { PrismApp as App } from './app/PrismApp';
 
 // Launch configuration exports
 export type { LoggingSettings, LaunchConfig } from './launch/launchConfig';
