@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/port-assignment",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "Helper library to help assign unique ports for local services",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
   },
   "homepage": "",
   "dependencies": {
-    "@facetlayer/userdata-db": "workspace:^",
+    "@facetlayer/userdata-db": "^0.1.1",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
