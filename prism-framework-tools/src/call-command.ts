@@ -35,6 +35,11 @@ function parseOptions(looseOptions: CallEndpointLooseOptions): CallEndpointOptio
       continue;
     }
 
+    if (positional.startsWith("http:") || positional.startsWith("https:")) {
+      result.baseUrl = positional;
+      continue;
+    }
+
     throw new Error("unrecognized positional arg:" + positional);
   }
 
