@@ -453,16 +453,6 @@ importers:
         specifier: ^5.7.2
         version: 5.7.3
 
-<<<<<<< HEAD
-  react-elements:
-    devDependencies:
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      typescript:
-        specifier: ^5.2.2
-        version: 5.7.3
-=======
   qc:
     devDependencies:
       '@types/node':
@@ -474,7 +464,15 @@ importers:
       vitest:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
+
+  react-elements:
+    devDependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      typescript:
+        specifier: ^5.2.2
+        version: 5.7.3
 
   sqlite-wrapper:
     dependencies:
@@ -4777,8 +4775,6 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-<<<<<<< HEAD
-=======
   isobject@3.0.1:
     resolution: {integrity: sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==}
     engines: {node: '>=0.10.0'}
@@ -4806,7 +4802,6 @@ packages:
   joi@17.13.3:
     resolution: {integrity: sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==}
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -4900,15 +4895,10 @@ packages:
     resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
     engines: {node: '>=14'}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
   locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
 
->>>>>>> cf4a7c1 (checkpoint on goobernetes)
   locate-path@7.2.0:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -4931,7 +4921,6 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -6121,8 +6110,6 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-<<<<<<< HEAD
-=======
   react-json-view-lite@2.5.0:
     resolution: {integrity: sha512-tk7o7QG9oYyELWHL8xiMQ8x4WzjCzbWNyig3uexmkLb54r8jO0yH3WCWx8UZS0c49eSA4QUmG5caiRJ8fAn58g==}
     engines: {node: '>=18'}
@@ -6152,7 +6139,6 @@ packages:
     peerDependencies:
       react: '>=15'
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
@@ -12571,8 +12557,6 @@ snapshots:
 
   isexe@2.0.0: {}
 
-<<<<<<< HEAD
-=======
   isobject@3.0.1: {}
 
   jackspeak@4.1.1:
@@ -12611,7 +12595,6 @@ snapshots:
       '@sideway/formula': 3.0.1
       '@sideway/pinpoint': 2.0.0
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   js-tokens@4.0.0: {}
 
   js-tokens@9.0.1: {}
@@ -12690,15 +12673,10 @@ snapshots:
       mlly: 1.8.0
       pkg-types: 1.3.1
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
 
->>>>>>> cf4a7c1 (checkpoint on goobernetes)
   locate-path@7.2.0:
     dependencies:
       p-locate: 6.0.0
@@ -12715,7 +12693,6 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
@@ -14208,8 +14185,6 @@ snapshots:
 
   react-is@18.3.1: {}
 
-<<<<<<< HEAD
-=======
   react-json-view-lite@2.5.0(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -14250,7 +14225,6 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
->>>>>>> ba77ad9 (add: goobernetes and goob-static-web-server 0.1.0)
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0

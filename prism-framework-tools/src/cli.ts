@@ -2,61 +2,10 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { pathToFileURL } from 'url';
-import * as path from 'path';
-import * as fs from 'fs';
-import packageJson from '../package.json'
-
-/**
- * List all available endpoints from an App instance
- */
-function listEndpointsFromApp(app: any): void {
-  console.log('Available endpoints:\n');
-  const endpoints = app.listAllEndpoints();
-  for (const endpoint of endpoints) {
-    const fullPath = `${endpoint.method} ${endpoint.path}`;
-    console.log(`  ${fullPath}`);
-    if (endpoint.description) {
-      console.log(`    ${endpoint.description}`);
-    }
-  }
-}
-
-/**
- * Find and load the local getApp function from src/_main/app.ts
- * Returns the getApp function
- * @throws Error if getApp function is not found
- */
-async function findApp(cwd: string): Promise<() => any> {
-  const commonPaths = [
-    './src/_main/app.ts',
-    './src/app.ts',
-  ];
-
-  for (const commonPath of commonPaths) {
-    const absolutePath = path.resolve(cwd, commonPath);
-    if (fs.existsSync(absolutePath)) {
-      try {
-        const appUrl = pathToFileURL(absolutePath).href;
-        const appModule = await import(appUrl);
-        if (appModule.getApp && typeof appModule.getApp === 'function') {
-          return appModule.getApp;
-        }
-      } catch (error) {
-        console.error(error)
-        // Continue searching if this file doesn't work
-      }
-    }
-  }
-
-  throw new Error(
-    'Could not find getApp function. Please create src/_main/app.ts with a getApp() export.\n' +
-    'Example:\n' +
-    '  export function getApp(): App {\n' +
-    '    return new App(ALL_SERVICES);\n' +
-    '  }'
-  );
-}
+import packageJson from '../package.json';
+import { loadEnv } from './loadEnv';
+import { callEndpoint } from './call-command';
+import { listEndpoints } from './list-endpoints-command';
 
 async function main() {
   await yargs(hideBin(process.argv))
@@ -67,9 +16,9 @@ async function main() {
       async () => {
         try {
           const cwd = process.cwd();
-          const getApp = await findApp(cwd);
-          const app = await getApp();
-          listEndpointsFromApp(app);
+          const config = loadEnv(cwd);
+          console.log(`Using API server at: ${config.baseUrl}\n`);
+          await listEndpoints(config.baseUrl);
         } catch (error) {
           if (error instanceof Error && error.stack) {
             console.error(error.stack);
@@ -81,61 +30,33 @@ async function main() {
       }
     )
     .command(
-      'run <path>',
-      'Run an endpoint',
+      'call <positionals...>',
+      'Call an endpoint',
       (yargs) => {
         return yargs
-          .positional('path', {
-            type: 'string',
-            description: 'Endpoint path (e.g., /api/users)',
-            demandOption: true,
-          })
-          .option('method', {
-            type: 'string',
-            description: 'HTTP method (GET, POST, PUT, DELETE, PATCH)',
-            default: 'GET',
-          });
       },
       async (argv) => {
         try {
           const cwd = process.cwd();
-          const getApp = await findApp(cwd);
-          const app = await getApp();
+          const config = loadEnv(cwd);
 
           // Collect all other arguments as request body data
           const requestData: Record<string, any> = {};
           for (const [key, value] of Object.entries(argv)) {
+
             // Skip known options
-            if (['path', 'method', '_', '$0'].includes(key)) {
+            if (['positionals', '_', '$0'].includes(key)) {
               continue;
             }
             requestData[key] = value;
           }
 
-          console.log(`Running: ${argv.method} ${argv.path}`);
-          if (Object.keys(requestData).length > 0) {
-            console.log('Request data:', JSON.stringify(requestData, null, 2));
-          }
-          console.log();
-
           try {
-            const result = await app.callEndpoint({
-              method: argv.method.toUpperCase(),
-              path: argv.path,
-              input: requestData,
-              onResponseSchemaFail: (error: any, result: any) => {
-                console.warn('\n⚠️  WARNING: Response schema validation failed');
-                console.warn('Error:', error.message);
-                if (error.details) {
-                  console.warn('Validation issues:');
-                  console.warn(JSON.stringify(error.details, null, 2));
-                }
-                console.warn('\nContinuing with actual response...\n');
-              },
+            const result = await callEndpoint({
+              baseUrl: config.baseUrl,
+              positionalArgs: argv.positionals as string[],
+              namedArgs: requestData,
             });
-
-            console.log('Result:');
-            console.log(JSON.stringify(result, null, 2));
           } catch (error) {
             console.error('Error calling endpoint:');
             if (error instanceof Error) {
@@ -166,8 +87,8 @@ async function main() {
     .alias('version', 'v')
     .example([
       ['$0 list-endpoints', 'List all available endpoints'],
-      ['$0 run /api/users', 'Run GET /api/users'],
-      ['$0 run /api/users --method POST --name "John" --email "john@example.com"', 'Run POST with data'],
+      ['$0 call /api/users', 'Call GET /api/users'],
+      ['$0 call POST /api/users --name "John" --email "john@example.com"', 'call POST with data'],
     ])
     .argv;
 }

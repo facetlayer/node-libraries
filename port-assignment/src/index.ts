@@ -15,7 +15,7 @@ const PORT_ASSIGNMENT_SCHEMA = {
       port INTEGER PRIMARY KEY,
       assigned_at INTEGER NOT NULL,
       cwd TEXT NOT NULL,
-      service_name TEXT
+      name TEXT
     )`,
     `CREATE INDEX idx_port_assignments_assigned_at
      ON port_assignments(assigned_at)`,
@@ -30,19 +30,18 @@ export interface PortAssignment {
   port: number
   assigned_at: number
   cwd: string
-  service_name?: string
+  name?: string
 }
 
 export interface AssignPortOptions {
   port: number
   cwd: string
-  serviceName?: string
+  name?: string
 }
 
 export interface ClaimPortOptions {
-  startPort?: number
   cwd?: string
-  serviceName?: string
+  name?: string
 }
 
 let _db: SqliteDatabase | null = null
@@ -120,43 +119,6 @@ export async function isPortActuallyAvailable(port: number): Promise<boolean> {
 }
 
 /**
- * Find the next available port starting from a given port
- * Checks both the database and actual port availability
- */
-export async function findNextAvailablePort(startPort: number = 3001): Promise<number> {
-  let port = startPort
-
-  while (port < 65535) {
-    const available = await isPortActuallyAvailable(port)
-    if (available) {
-      return port
-    }
-    port++
-  }
-
-  throw new Error('No available ports found')
-}
-
-/**
- * Get the next available port from the database
- * Only checks the database, not actual system availability
- */
-export async function getNextAvailablePort(startPort: number = 3001): Promise<number> {
-  const db = await getDatabase()
-  let port = startPort
-
-  while (port < 65535) {
-    const row = db.get('SELECT port FROM port_assignments WHERE port = ?', port)
-    if (!row) {
-      return port
-    }
-    port++
-  }
-
-  throw new Error('No available ports found in database')
-}
-
-/**
  * Assign a port in the database
  */
 export async function assignPort(options: AssignPortOptions): Promise<void> {
@@ -165,7 +127,7 @@ export async function assignPort(options: AssignPortOptions): Promise<void> {
     port: options.port,
     assigned_at: Date.now(),
     cwd: options.cwd,
-    service_name: options.serviceName || null
+    name: options.name || null
   })
 }
 
@@ -217,7 +179,7 @@ export async function releasePort(port: number): Promise<void> {
  * @returns The claimed port number
  */
 export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<number> {
-  const { cwd = process.cwd(), serviceName } = options
+  const { cwd = process.cwd(), name } = options
   const maxAttempts = MAX_PORT - MIN_PORT + 1
   const maxRetries = 10
 
@@ -238,7 +200,7 @@ export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<n
       // Try to assign the port with retry logic for race conditions
       for (let retry = 0; retry < maxRetries; retry++) {
         try {
-          await assignPort({ port, cwd, serviceName })
+          await assignPort({ port, cwd, name })
           return port
         } catch (error: any) {
           // Check if it's a unique constraint error

@@ -19,14 +19,6 @@ const commonOptions = {
   logLevel: 'info',
 };
 
-// Build the library entry point
-await build({
-  ...commonOptions,
-  entryPoints: ['src/index.ts'],
-  outfile: 'dist/index.js',
-  format: 'cjs',
-});
-
 // Build the CLI tool entry point
 await build({
   ...commonOptions,

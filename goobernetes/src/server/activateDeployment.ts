@@ -15,7 +15,7 @@ type AfterDeployAction =
     | { type: 'pm2-start'; pm2: Pm2StartAction };
 
 async function executeShellCommand(command: string, workingDir: string, hookType: string) {
-    console.log(`Running ${hookType} command:`, command);
+    console.log(`Running ${hookType} command (cwd: ${workingDir}):`, command);
     const result = await runShellCommand(command, [], {
         cwd: workingDir,
         shell: true,

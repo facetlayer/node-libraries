@@ -15,31 +15,25 @@ async function main() {
   await yargs(hideBin(process.argv))
     .scriptName('port-assignment')
     .command(
-      'claim [startPort]',
+      'claim',
       'Claim the next available port',
       (yargs) => {
         return yargs
-          .positional('startPort', {
-            describe: 'Starting port number to begin searching from',
-            type: 'number',
-            default: 3001
-          })
           .option('cwd', {
             describe: 'Working directory to associate with this port',
             type: 'string',
             default: process.cwd()
           })
-          .option('service-name', {
-            describe: 'Optional service name to associate with this port',
+          .option('name', {
+            describe: 'Optional name to associate with this port',
             type: 'string'
           })
       },
       async (argv) => {
         try {
           const port = await claimUnusedPort({
-            startPort: argv.startPort,
             cwd: argv.cwd,
-            serviceName: argv['service-name']
+            name: argv.name
           })
           console.log(port)
         } catch (error) {
@@ -67,8 +61,8 @@ async function main() {
             console.log(`Port: ${assignment.port}`)
             console.log(`  Assigned: ${date}`)
             console.log(`  CWD: ${assignment.cwd}`)
-            if (assignment.service_name) {
-              console.log(`  Service: ${assignment.service_name}`)
+            if (assignment.name) {
+              console.log(`  Name: ${assignment.name}`)
             }
             console.log()
           }
