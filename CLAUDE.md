@@ -21,6 +21,8 @@ Checklist for adding a new library here:
 
 Use Vitest for all tests.
 
+Test files should be stored in `__tests__` directories next to the code.
+
 When possible, prefer to write tests that work with real files. Prefer to use
 little to no mock functions if possible.
 

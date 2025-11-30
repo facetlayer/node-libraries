@@ -198,9 +198,6 @@ export function generateOpenAPISchema(
 }
 
 export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express.Application, prismApp: PrismApp): void {
-
-  console.log('Mounting OpenAPI endpoints', config);
-
   expressApp.get('/openapi.json', (req: Request, res: Response) => {
     res.json(generateOpenAPISchema(prismApp.getAllServices(), {
       version: '1.0.0',
