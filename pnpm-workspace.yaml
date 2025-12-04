@@ -15,6 +15,7 @@ packages:
   - prism-framework-tools
   - prism-framework-ui
   - react-elements
+  - sqlite-migration
   - sqlite-wrapper
   - sqlite-wrapper/docs-site
   - streams

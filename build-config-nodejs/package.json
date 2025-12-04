@@ -1,7 +1,7 @@
 {
-  "name": "@facetlayer/build-config-cli-app",
-  "version": "0.1.0",
-  "description": "Shared build configuration for CLI applications using esbuild and TypeScript",
+  "name": "@facetlayer/build-config-nodejs",
+  "version": "0.3.0",
+  "description": "Shared build configuration for Node.js libraries using ESBuild and TypeScript",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,16 +1,34 @@
-# @facetlayer/build-config-cli-app
+# @facetlayer/build-config-nodejs
 
-Shared build configuration for CLI applications using esbuild and TypeScript.
+Shared build configuration for Node.js based libraries using ESBuild and TypeScript.
+
+Rename: This library was previously named `build-config-cli-app`
 
 ## Features
 
-- Bundles 'dist' code using esbuild with helpful defaults.
-- Generates TypeScript declaration files
+ - Bundles 'dist' code using esbuild with helpful defaults.
+ - Generates TypeScript declaration files
+
+## Importing .ts filenames
+
+This is an opinionated library and it will enforce a style of using ".ts" filenames in imports.
+
+This means:
+
+ - All relative-path import filenames in your code must end in ".ts" to exactly match the filename.
+ - The tsconfig.json file must have noEmit enabled.
+ - The package.json must have type=module.
+ - For developing, you can directly run a .ts file in Node v24 and above, thanks to builtin type stripping.
+   - There are a few Typescript features such as `enum` which will not work in this mode.
+   - Don't use those features.
+ - For publishing, this library uses ESbuild to produce ESM compatible bundles that use a .js extension.
+
+The above requirements will be checked by the `validate` and `validate --fix` commands.
 
 ## Installation
 
 ```bash
-pnpm add -D @facetlayer/build-config-cli-app
+pnpm add -D @facetlayer/build-config-nodejs
 ```
 
 ## Usage
@@ -18,7 +36,9 @@ pnpm add -D @facetlayer/build-config-cli-app
 Create a `build.mts` file in your project root:
 
 ```typescript
-import { runBuildTool } from '@facetlayer/build-config-cli-app';
+#! /usr/bin/env node
+
+import { runBuildTool } from '@facetlayer/build-config-nodejs';
 
 await runBuildTool({
   entryPoints: ['src/cli.ts'],
@@ -35,7 +55,7 @@ node build.mts build
 
 ### `build`
 
-Build the project using esbuild and generate TypeScript declarations.
+Build the project using ESBuild and generate TypeScript declarations.
 
 ```bash
 node build.mts build
@@ -54,13 +74,7 @@ Options:
 - `--tsconfig <path>`: Path to tsconfig.json (default: `./tsconfig.json`)
 - `--src <path>`: Source directory (default: `./src`)
 
-The validate command checks:
-1. **tsconfig.json settings**:
-   - `noEmit` must be set to `true`
-   - `allowImportingTsExtensions` must be set to `true`
-
-2. **TypeScript imports**:
-   - All local imports (starting with `./` or `../`) must include the `.ts` extension
+The validate command checks various settings in the code and in the project level configuration.
 
 Example with auto-fix:
 
@@ -122,7 +136,9 @@ The `runBuildTool` function accepts a configuration object with the following op
 ## Example with Overrides
 
 ```typescript
-import { runBuildTool } from '@facetlayer/build-config-cli-app';
+#! /usr/bin/env node
+
+import { runBuildTool } from '@facetlayer/build-config-nodejs';
 
 await runBuildTool({
   entryPoints: ['src/cli.ts', 'src/api.ts'],

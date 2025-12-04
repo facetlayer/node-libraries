@@ -1,0 +1,41 @@
+{
+  "name": "@facetlayer/sqlite-migration",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest",
+    "build": "node build.mts build",
+    "prepare": "node build.mts build",
+    "prepublishOnly": "node build.mts validate",
+    "validate": "node build.mts validate"
+  },
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@facetlayer/generic-lexer": "^1.0.0",
+    "@facetlayer/build-config-nodejs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.0",
+    "better-sqlite3": "11.8.1",
+    "typescript": "5.7.3",
+    "vitest": "^3.0.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "type": "module"
+}

@@ -8,8 +8,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/facetlayer/node-libraries"
-  },
-  "dependencies": {
-    "@facetlayer/build-config-cli-app": "link:build-config-cli-app"
   }
 }
