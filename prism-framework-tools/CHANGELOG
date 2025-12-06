@@ -1,4 +1,7 @@
 
+0.2.4
+ - Handle JSONish params in 'call' command
+ 
 0.2.3
  - Fix for list-endpoints
 

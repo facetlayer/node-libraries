@@ -40,7 +40,7 @@ async function main() {
     )
     .command(
       'call <positionals...>',
-      'Call an endpoint',
+      'Call an endpoint. Named args starting with { } or [ ] are parsed as JSON.',
       (yargs) => {
         return yargs
       },
@@ -119,6 +119,7 @@ async function main() {
       ['$0 list-endpoints', 'List all available endpoints'],
       ['$0 call /api/users', 'Call GET /api/users'],
       ['$0 call POST /api/users --name "John" --email "john@example.com"', 'call POST with data'],
+      ['$0 call POST /api/users --config \'{"timeout":30}\'', 'pass JSON objects as args'],
     ])
     .parse();
 }

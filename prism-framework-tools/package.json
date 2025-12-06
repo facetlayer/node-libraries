@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework-tools",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Testing and development tools for the Prism app framework",
   "type": "module",
   "main": "dist/cli.js",

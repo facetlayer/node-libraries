@@ -6,6 +6,7 @@ export interface CallEndpointLooseOptions {
   baseUrl: string
   positionalArgs: string[]
   namedArgs: Record<string,any>
+  quiet?: boolean
 }
 
 interface CallEndpointOptions {
@@ -15,12 +16,46 @@ interface CallEndpointOptions {
   requestBody: null | Record<string, any>
 }
 
+function parseValue(value: any): any {
+  if (typeof value === 'string') {
+    // Special case: If the string value looks like {..} or [..], then
+    // parse it as JSON. This way we can use object-based endpoints
+    // using CLI parameters.
+    const trimmed = value.trim();
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+        (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        // If JSON parsing fails, keep the original string
+        return value;
+      }
+    }
+  } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    // Recursively parse nested objects (yargs creates these from dot notation)
+    const result: Record<string, any> = {};
+    for (const [k, v] of Object.entries(value)) {
+      result[k] = parseValue(v);
+    }
+    return result;
+  }
+  return value;
+}
+
+export function parseNamedArgs(namedArgs: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(namedArgs)) {
+    result[key] = parseValue(value);
+  }
+  return result;
+}
+
 function parseOptions(looseOptions: CallEndpointLooseOptions): CallEndpointOptions {
   const result: CallEndpointOptions = {
     baseUrl: looseOptions.baseUrl,
     method: 'GET',
     path: '/',
-    requestBody: looseOptions.namedArgs,
+    requestBody: parseNamedArgs(looseOptions.namedArgs),
   };
 
   // Look at the positional args and figure out what they mean.
@@ -71,11 +106,14 @@ export async function callEndpoint(looseOptions: CallEndpointLooseOptions) {
   try {
     const response = await fetch(url, requestOptions);
 
-    console.log('Response status: ' + response.status);
+    if (!looseOptions.quiet)
+      console.log('Response status: ' + response.status);
 
     // Get the response text first
     const responseText = await response.text();
-    console.log('Response: ', responseText);
+
+    if (!looseOptions.quiet)
+      console.log('Response: ', responseText);
 
     // Try to parse as JSON
     let responseData;

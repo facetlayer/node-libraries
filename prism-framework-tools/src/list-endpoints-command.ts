@@ -1,17 +1,17 @@
 import { callEndpoint } from './call-command.ts';
 
 /**
- * List all available endpoints by calling the introspection endpoint
+ * List all available endpoints by calling /endpoints.json
  */
 export async function listEndpoints(baseUrl: string): Promise<void> {
   try {
-    // Try to call a list endpoints API if it exists
-    // This is optional - the server may not have this endpoint
     const response = await callEndpoint({
       baseUrl,
       positionalArgs: ['GET', '/endpoints.json'],
       namedArgs: {},
+      quiet: true,
     });
+
     const endpoints = response.endpoints;
 
     console.log('Available endpoints:\n');
