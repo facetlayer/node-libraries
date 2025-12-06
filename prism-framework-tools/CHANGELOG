@@ -1,6 +1,7 @@
 
 0.2.4
  - Handle JSONish params in 'call' command
+ - generate-api-clients now uses --out param
  
 0.2.3
  - Fix for list-endpoints

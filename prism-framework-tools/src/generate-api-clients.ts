@@ -89,7 +89,13 @@ function schemaToTypeScript(schema: any, components?: Record<string, any>, inden
   }
 }
 
-export async function generateApiClients(baseUrl: string): Promise<void> {
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
+
+export async function generateApiClients(baseUrl: string, outputFiles: string[]): Promise<void> {
+  if (outputFiles.length === 0) {
+    throw new Error('At least one --out file must be specified');
+  }
 
   try {
     // Fetch the OpenAPI schema from the server
@@ -166,8 +172,14 @@ export async function generateApiClients(baseUrl: string): Promise<void> {
 
 `;
 
-    // Print output to stdout
-    console.log(header + output);
+    const content = header + output;
+
+    // Write to each output file
+    for (const outputFile of outputFiles) {
+      const resolvedPath = resolve(outputFile);
+      writeFileSync(resolvedPath, content, 'utf-8');
+      console.log(`Written: ${resolvedPath}`);
+    }
   } catch (error) {
     console.error('❌ Error generating client:', error);
     throw error;

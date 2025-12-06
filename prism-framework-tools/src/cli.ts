@@ -92,13 +92,20 @@ async function main() {
     .command(
       'generate-api-clients',
       'Generate TypeScript API client types from OpenAPI schema',
-      {},
-      async () => {
+      (yargs) => {
+        return yargs.option('out', {
+          type: 'string',
+          array: true,
+          demandOption: true,
+          describe: 'Output file path(s) to write generated types to',
+        });
+      },
+      async (argv) => {
         try {
           const cwd = process.cwd();
           const config = loadEnv(cwd);
           console.log(`Using API server at: ${config.baseUrl}\n`);
-          await generateApiClients(config.baseUrl);
+          await generateApiClients(config.baseUrl, argv.out);
         } catch (error) {
           if (error instanceof Error && error.stack) {
             console.error(error.stack);
@@ -120,6 +127,8 @@ async function main() {
       ['$0 call /api/users', 'Call GET /api/users'],
       ['$0 call POST /api/users --name "John" --email "john@example.com"', 'call POST with data'],
       ['$0 call POST /api/users --config \'{"timeout":30}\'', 'pass JSON objects as args'],
+      ['$0 generate-api-clients --out ./api-types.ts', 'Generate API client types to a file'],
+      ['$0 generate-api-clients --out ./types.ts --out ./backup/types.ts', 'Write to multiple files'],
     ])
     .parse();
 }
