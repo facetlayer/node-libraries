@@ -1,12 +1,20 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import packageJson from '../package.json';
-import { loadEnv } from './loadEnv';
-import { callEndpoint } from './call-command';
-import { listEndpoints } from './list-endpoints-command';
-import { generateApiClients } from './generate-api-clients';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { loadEnv } from './loadEnv.ts';
+import { callEndpoint } from './call-command.ts';
+import { listEndpoints } from './list-endpoints-command.ts';
+import { generateApiClients } from './generate-api-clients.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+);
 
 async function main() {
   await yargs(hideBin(process.argv))

@@ -1,0 +1,10 @@
+
+0.2.3
+ - Fix for list-endpoints
+
+0.2.1
+ - Add list-endpoints command
+ - Call endpoint - don't fail on response schema failure
+
+0.1.0
+ - initial version

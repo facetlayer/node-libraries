@@ -8,6 +8,7 @@ import { mountPrismApp, setLoggers } from './ExpressEndpointSetup';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware';
 import { requestContextMiddleware } from './requestContextMiddleware';
 import { mountOpenAPIEndpoints, OpenAPIConfig } from './OpenAPI';
+import { createListingEndpoints } from './EndpointListing';
 
 export interface ServerSetupConfig {
   port: number;
@@ -54,7 +55,34 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
     mountOpenAPIEndpoints(config.openapiConfig, app, config.app);
   }
 
+  // Mount endpoint listing endpoints
+  const allEndpoints = config.app.listAllEndpoints();
+  const listingEndpoints = createListingEndpoints(allEndpoints);
+  for (const endpoint of listingEndpoints) {
+    const handler = async (req: express.Request, res: express.Response) => {
+      try {
+        const result = await endpoint.handler({});
+        if (result.sendHttpResponse) {
+          result.sendHttpResponse(res);
+        } else {
+          res.json(result);
+        }
+      } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    };
+    if (endpoint.method === 'GET') {
+      app.get(endpoint.path, handler);
+    }
+  }
+
   mountPrismApp(app, config.app);
+
+  // 404 handling
+  app.use((req, res) => {
+      res.status(404);
+      res.json({ error: "Not found" });
+  });
 
   return app;
 }

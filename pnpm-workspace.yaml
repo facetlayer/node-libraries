@@ -1,5 +1,5 @@
 packages:
-  - build-config-cli-app
+  - build-config-nodejs
   - claude-code-session-history
   - concurrency-limit
   - csv-tool

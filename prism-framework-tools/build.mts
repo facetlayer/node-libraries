@@ -1,0 +1,7 @@
+#! /usr/bin/env node
+
+import { runBuildTool } from '@facetlayer/build-config-nodejs';
+
+await runBuildTool({
+  entryPoints: ['src/cli.ts'],
+});
