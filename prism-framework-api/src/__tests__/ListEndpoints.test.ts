@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { execSync } from 'child_process';
-import { mkdirSync, writeFileSync, rmSync } from 'fs';
+import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { Server } from 'http';
 import { App, createEndpoint, createExpressApp, startServer } from '../index';
@@ -12,6 +12,7 @@ describe('prism list-endpoints', () => {
 
   beforeAll(async () => {
     // Create temp directory with .env file for prism CLI
+    console.log('Creating temp directory:', tempDir);
     mkdirSync(tempDir, { recursive: true });
     writeFileSync(join(tempDir, '.env'), `PRISM_API_PORT=${port}`);
 
@@ -62,24 +63,15 @@ describe('prism list-endpoints', () => {
         else resolve();
       });
     });
-
-    // Clean up temp directory
-    rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it(`temp disabled - need to use latest 'prism' command for this to work`, () => {
-    expect(true).toBe(true);
-  });
-
-  // temp disabled - need to use latest 'prism' command for this to work
-  return;
-
-  it('should list endpoints from the running server', () => {
+  it('should list endpoints from the running server', async () => {
     // Run the prism list-endpoints command from the temp directory
-    const output = execSync('prism list-endpoints', {
-      encoding: 'utf-8',
+    const result = await runShellCommand('prism', ['list-endpoints'], {
       cwd: tempDir,
     });
+
+    const output = result.stdout!.join('\n');
 
     // Verify the output contains our endpoints
     expect(output).toContain('Available endpoints');

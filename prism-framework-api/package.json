@@ -38,8 +38,9 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@facetlayer/build-config-cli-app": "^0.1.0",
-    "@facetlayer/prism-framework-tools": "^0.2.2",
+    "@facetlayer/build-config-nodejs": "^0.3.0",
+    "@facetlayer/prism-framework-tools": "^0.2.3",
+    "@facetlayer/subprocess-wrapper": "^1.1.0",
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
