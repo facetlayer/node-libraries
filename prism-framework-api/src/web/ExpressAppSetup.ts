@@ -1,14 +1,14 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { Server } from 'http';
-import { PrismApp } from '../app/PrismApp';
-import { getMetrics } from '../Metrics';
-import { corsMiddleware, CorsConfig } from './corsMiddleware';
-import { mountPrismApp, setLoggers } from './ExpressEndpointSetup';
-import { localhostOnlyMiddleware } from './localhostOnlyMiddleware';
-import { requestContextMiddleware } from './requestContextMiddleware';
-import { mountOpenAPIEndpoints, OpenAPIConfig } from './OpenAPI';
-import { createListingEndpoints } from './EndpointListing';
+import { PrismApp } from '../app/PrismApp.ts';
+import { getMetrics } from '../Metrics.ts';
+import { corsMiddleware, CorsConfig } from './corsMiddleware.ts';
+import { mountPrismApp, setLoggers } from './ExpressEndpointSetup.ts';
+import { localhostOnlyMiddleware } from './localhostOnlyMiddleware.ts';
+import { requestContextMiddleware } from './requestContextMiddleware.ts';
+import { mountOpenAPIEndpoints, OpenAPIConfig } from './OpenAPI.ts';
+import { createListingEndpoints } from './EndpointListing.ts';
 
 export interface ServerSetupConfig {
   port: number;

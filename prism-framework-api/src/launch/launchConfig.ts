@@ -1,4 +1,4 @@
-import type { DatabaseInitializationOptions } from '../databases/DatabaseInitializationOptions';
+import type { DatabaseInitializationOptions } from '../databases/DatabaseInitializationOptions.ts';
 import type { LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
 
 /*

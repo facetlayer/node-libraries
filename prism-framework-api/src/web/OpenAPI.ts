@@ -14,8 +14,8 @@ import {
 import swaggerUi from 'swagger-ui-express';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import z from 'zod';
-import { ServiceDefinition } from '../ServiceDefinition';
-import { PrismApp } from '../app/PrismApp';
+import { ServiceDefinition } from '../ServiceDefinition.ts';
+import { PrismApp } from '../app/PrismApp.ts';
 import express, { Request, Response } from 'express';
 
 type RequestConfig = RouteConfig['request'];

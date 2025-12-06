@@ -1,4 +1,4 @@
-export { Authorization } from './Authorization';
-export type { Permission, UserPermissions } from './Authorization';
-export type { CookieAuthSource, AuthSource } from './AuthSource';
-export type { Resource } from './Resource';
+export { Authorization } from './Authorization.ts';
+export type { Permission, UserPermissions } from './Authorization.ts';
+export type { CookieAuthSource, AuthSource } from './AuthSource.ts';
+export type { Resource } from './Resource.ts';

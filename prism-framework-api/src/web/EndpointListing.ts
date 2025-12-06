@@ -1,4 +1,4 @@
-import { createEndpoint, EndpointDefinition } from './ExpressEndpointSetup';
+import { createEndpoint, EndpointDefinition } from './ExpressEndpointSetup.ts';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Response } from 'express';

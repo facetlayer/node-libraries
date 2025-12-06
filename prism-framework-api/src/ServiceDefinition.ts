@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { EndpointDefinition } from './web/ExpressEndpointSetup';
+import { EndpointDefinition } from './web/ExpressEndpointSetup.ts';
 
 export interface MiddlewareDefinition {
   path: string;

@@ -1,6 +1,6 @@
-import { EndpointDefinition } from '../web/ExpressEndpointSetup';
-import { ServiceDefinition } from '../ServiceDefinition';
-import { callEndpoint, CallEndpointOptions } from './callEndpoint';
+import { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
+import { ServiceDefinition } from '../ServiceDefinition.ts';
+import { callEndpoint, CallEndpointOptions } from './callEndpoint.ts';
 
 export function endpointKey(method: string, path: string): string {
   return `${method} ${path}`;

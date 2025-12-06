@@ -1,6 +1,6 @@
-import { PrismApp } from './PrismApp';
-import { ServiceDefinition } from '../ServiceDefinition';
-import { isHttpError, ResponseSchemaValidationError, SchemaValidationError } from '../Errors';
+import { PrismApp } from './PrismApp.ts';
+import { ServiceDefinition } from '../ServiceDefinition.ts';
+import { isHttpError, ResponseSchemaValidationError, SchemaValidationError } from '../Errors.ts';
 
 export interface CallEndpointOptions {
   method: string;

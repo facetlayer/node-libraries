@@ -2,8 +2,8 @@ import {
   RequestContext,
   withRequestContext,
   getCurrentRequestContext,
-} from '../RequestContext';
-import { Authorization } from '../authorization/Authorization';
+} from '../RequestContext.ts';
+import { Authorization } from '../authorization/Authorization.ts';
 import { describe, expect, it, beforeEach } from 'vitest';
 
 describe('RequestContext', () => {

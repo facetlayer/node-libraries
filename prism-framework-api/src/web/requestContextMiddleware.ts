@@ -1,9 +1,9 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Authorization } from '../authorization/Authorization';
-import { RequestContext } from '../RequestContext';
-import { requestContextStorage } from '../RequestContext';
+import { Authorization } from '../authorization/Authorization.ts';
+import { RequestContext } from '../RequestContext.ts';
+import { requestContextStorage } from '../RequestContext.ts';
 
 export function requestContextMiddleware(req: Request, res: Response, next: NextFunction): void {
     const requestId = uuidv4();

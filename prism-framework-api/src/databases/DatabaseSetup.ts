@@ -1,4 +1,4 @@
-import type { ServiceDefinition } from '../ServiceDefinition';
+import type { ServiceDefinition } from '../ServiceDefinition.ts';
 import type { LoadDatabaseFn, MigrationBehavior } from '@facetlayer/sqlite-wrapper';
 
 /*

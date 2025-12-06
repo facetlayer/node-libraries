@@ -1,4 +1,4 @@
-import { SseResponse } from '../web/SseResponse';
+import { SseResponse } from '../web/SseResponse.ts';
 
 interface SetupOptions {
   managerName: string;

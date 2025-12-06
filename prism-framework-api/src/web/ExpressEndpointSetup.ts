@@ -1,10 +1,10 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
-import { isHttpError, NotFoundError } from '../Errors';
-import { recordHttpRequest, recordHttpResponse } from '../Metrics';
-import { getCurrentRequestContext } from '../RequestContext';
-import { SseResponse } from './SseResponse';
-import { PrismApp, endpointKey } from '../app/PrismApp';
+import { isHttpError, NotFoundError } from '../Errors.ts';
+import { recordHttpRequest, recordHttpResponse } from '../Metrics.ts';
+import { getCurrentRequestContext } from '../RequestContext.ts';
+import { SseResponse } from './SseResponse.ts';
+import { PrismApp, endpointKey } from '../app/PrismApp.ts';
 
 type EndpointRequireOption = 'authenticated-user';
 

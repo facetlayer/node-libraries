@@ -1,6 +1,6 @@
-import { Authorization } from '../authorization/Authorization';
-import { Resource } from '../authorization/Resource';
-import { AuthSource, CookieAuthSource } from '../authorization/AuthSource';
+import { Authorization } from '../authorization/Authorization.ts';
+import { Resource } from '../authorization/Resource.ts';
+import { AuthSource, CookieAuthSource } from '../authorization/AuthSource.ts';
 import { describe, expect, it } from 'vitest';
 
 describe('Authorization', () => {

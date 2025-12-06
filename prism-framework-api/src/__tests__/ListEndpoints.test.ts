@@ -3,7 +3,7 @@ import { runShellCommand } from '@facetlayer/subprocess-wrapper';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { Server } from 'http';
-import { App, createEndpoint, createExpressApp, startServer } from '../index';
+import { App, createEndpoint, createExpressApp, startServer } from '../index.ts';
 
 describe('prism list-endpoints', () => {
   let server: Server;

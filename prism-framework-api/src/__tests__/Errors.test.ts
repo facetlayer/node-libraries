@@ -12,7 +12,7 @@ import {
   ResponseSchemaValidationError,
   createErrorFromStatus,
   isHttpError,
-} from '../Errors';
+} from '../Errors.ts';
 import { describe, expect, it } from 'vitest';
 
 describe('HttpError', () => {

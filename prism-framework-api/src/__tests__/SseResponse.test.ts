@@ -1,4 +1,4 @@
-import { SseResponse } from '../web/SseResponse';
+import { SseResponse } from '../web/SseResponse.ts';
 import { Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
