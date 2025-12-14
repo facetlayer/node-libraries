@@ -51,6 +51,15 @@ Then run the build:
 node build.mts build
 ```
 
+Tips: If you make the file `chmod` executable, then you can run it directly (thanks to
+the auto-typestripping mode in Node.js 24.x+):
+
+Example:
+
+```bash
+./build.mts build
+```
+
 ## Commands
 
 ### `build`

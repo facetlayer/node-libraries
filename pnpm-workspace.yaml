@@ -1,6 +1,8 @@
 packages:
   - build-config-nodejs
   - claude-code-session-history
+  - claude-settings-tidier
+  - claude-worktree-helper
   - concurrency-limit
   - csv-tool
   - env-file-rewrite

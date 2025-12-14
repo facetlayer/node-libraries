@@ -1,0 +1,49 @@
+{
+  "name": "@facetlayer/claude-worktree-helper",
+  "version": "0.1.0",
+  "description": "CLI tool for running Claude tasks in git worktrees",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "claude-worktree": "dist/cli.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mts build",
+    "test": "vitest",
+    "prepublishOnly": "node build.mts validate",
+    "prepare": "node build.mts build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "^17.0.34",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.6"
+  }
+}
