@@ -1,0 +1,43 @@
+{
+  "name": "@facetlayer/lsp-dev-tools",
+  "version": "0.1.0",
+  "description": "CLI tool using LSP (Language Server Protocol) for code analysis tasks",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "lsp-dev-tools": "dist/cli.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mts build",
+    "test": "vitest",
+    "prepublishOnly": "node build.mts build && node build.mts validate"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "dependencies": {
+    "typescript": "^5.7.2",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "^17.0.34",
+    "vitest": "^3.0.6"
+  }
+}
