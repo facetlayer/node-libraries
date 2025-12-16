@@ -211,7 +211,7 @@ function consumeNext(input: LexContext) {
     return input.consume(t_unrecognized, 1);
 }
 
-export function lexTextToTokenList(text: string, settings: LexerSettings = {}): Token[] {
+function lexTextToTokenList(text: string, settings: LexerSettings = {}): Token[] {
     const context = new LexContext(text, settings);
 
     while (!context.finished()) {

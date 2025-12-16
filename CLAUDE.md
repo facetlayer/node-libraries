@@ -16,6 +16,17 @@ Checklist for adding a new library here:
 3. Set the package.json "name" to "@facetlayer/<library name>"
 4. Set the initial package version to 0.1.0
 5. Copy the style of the other libraries.
+6. Use @facetlayer/build-config-nodejs as the build tool. (see ./build-config-nodejs/README.md for docs)
+
+### Package.json setup
+
+The 'scripts' section often will look like this:
+
+    "scripts": {
+      "build": "node build.mts build",
+      "test": "vitest",
+      "prepublishOnly": "node build.mts build && node build.mts validate"
+    },
 
 ## Testing
 

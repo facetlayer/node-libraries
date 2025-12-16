@@ -1,5 +1,5 @@
 {
-  "name": "@facetlayer/claude-settings-tidier",
+  "name": "@facetlayer/claude-code-settings-cleanup",
   "version": "0.1.0",
   "description": "CLI tool to analyze and suggest cleanups for Claude Code settings files",
   "type": "module",
@@ -36,6 +36,7 @@
   },
   "homepage": "",
   "dependencies": {
+    "@facetlayer/claude-code-headless": "workspace:*",
     "@anthropic-ai/sdk": "^0.71.2",
     "ink": "^5.0.1",
     "ink-spinner": "^5.0.0",

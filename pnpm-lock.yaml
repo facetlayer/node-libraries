@@ -8,6 +8,34 @@ importers:
 
   .: {}
 
+  agent-hint-tool:
+    dependencies:
+      '@facetlayer/subprocess-wrapper':
+        specifier: workspace:*
+        version: link:../subprocess-wrapper
+      gray-matter:
+        specifier: ^4.0.3
+        version: 4.0.3
+      yargs:
+        specifier: ^18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: workspace:*
+        version: link:../build-config-nodejs
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: ^17.0.34
+        version: 17.0.35
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.6
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+
   build-config-nodejs:
     dependencies:
       '@typescript-eslint/parser':
@@ -42,6 +70,25 @@ importers:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
+  claude-code-headless:
+    dependencies:
+      node-pty:
+        specifier: ^1.0.0
+        version: 1.0.0
+      strip-ansi:
+        specifier: ^7.1.0
+        version: 7.1.2
+    devDependencies:
+      '@types/node':
+        specifier: ^20.12.7
+        version: 20.12.7
+      typescript:
+        specifier: ^5.7.3
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+
   claude-code-session-history:
     dependencies:
       yargs:
@@ -69,6 +116,9 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.71.2
         version: 0.71.2(zod@4.1.12)
+      '@facetlayer/claude-code-headless':
+        specifier: workspace:*
+        version: link:../claude-code-headless
       ink:
         specifier: ^5.0.1
         version: 5.2.1(@types/react@18.3.27)(react@18.3.1)
@@ -326,6 +376,28 @@ importers:
       vitest:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+
+  lsp-dev-tools:
+    dependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      yargs:
+        specifier: ^18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: workspace:*
+        version: link:../build-config-nodejs
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: ^17.0.34
+        version: 17.0.35
+      vitest:
+        specifier: ^3.0.6
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   parse-stdout-lines:
     devDependencies:
@@ -5484,6 +5556,9 @@ packages:
     resolution: {integrity: sha512-2eznPJP8z2BFLX50tf0LuODrpINqP1RVIm/CObbTcBRITQgmC/TjcREF1NeTBzIcR5XO/ukWo+YHOjBbFwIupg==}
     hasBin: true
 
+  nan@2.24.0:
+    resolution: {integrity: sha512-Vpf9qnVW1RaDkoNKFUvfxqAbtI8ncb8OJlqZ9wwpXzWPEsvsB1nvdUi6oYrHIkQ1Y/tMDnr1h4nczS0VB9Xykg==}
+
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -5536,6 +5611,9 @@ packages:
   node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
     engines: {node: '>= 6.13.0'}
+
+  node-pty@1.0.0:
+    resolution: {integrity: sha512-wtBMWWS7dFZm/VgqElrTvtfMq4GzJ6+edFI0Y0zyzygUSZMgZdraDUMUhCIvkjhJjme15qWmbyJbtAx4ot4uZA==}
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
@@ -13690,6 +13768,8 @@ snapshots:
       dns-packet: 5.6.1
       thunky: 1.1.0
 
+  nan@2.24.0: {}
+
   nanoid@3.3.11: {}
 
   napi-build-utils@2.0.0: {}
@@ -13727,6 +13807,10 @@ snapshots:
       whatwg-url: 5.0.0
 
   node-forge@1.3.1: {}
+
+  node-pty@1.0.0:
+    dependencies:
+      nan: 2.24.0
 
   node-releases@2.0.27: {}
 
