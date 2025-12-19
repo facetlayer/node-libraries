@@ -7,10 +7,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "node build.mts build",
-    "prepublishOnly": "node build.mts validate",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
     "typecheck": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepare": "node build.mts build",
     "test": "vitest run",
     "test:watch": "vitest"
   },

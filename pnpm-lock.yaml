@@ -4,9 +4,20 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@facetlayer/build-config-nodejs': link:build-config-nodejs
+  '@facetlayer/doc-files-helper': link:doc-files-helper
+
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: link:build-config-nodejs
+        version: link:build-config-nodejs
+      '@facetlayer/doc-files-helper':
+        specifier: link:doc-files-helper
+        version: link:doc-files-helper
 
   agent-hint-tool:
     dependencies:
@@ -18,7 +29,7 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: workspace:*
+        specifier: link:../build-config-nodejs
         version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
@@ -55,8 +66,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@types/node':
-        specifier: ^20.12.7
-        version: 20.12.7
+        specifier: ^20.19.0
+        version: 20.19.23
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.35
@@ -65,7 +76,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   claude-code-headless:
     dependencies:
@@ -77,14 +88,14 @@ importers:
         version: 7.1.2
     devDependencies:
       '@types/node':
-        specifier: ^20.12.7
-        version: 20.12.7
+        specifier: ^20.19.0
+        version: 20.19.23
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   claude-code-session-history:
     dependencies:
@@ -115,7 +126,7 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: workspace:*
+        specifier: link:../build-config-nodejs
         version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
@@ -157,6 +168,31 @@ importers:
       vitest:
         specifier: 1.6.0
         version: 1.6.0(@types/node@18.19.130)(terser@5.44.1)
+
+  doc-files-helper:
+    dependencies:
+      yargs:
+        specifier: 18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: link:../build-config-nodejs
+        version: link:../build-config-nodejs
+      '@facetlayer/subprocess-wrapper':
+        specifier: ^1.1.0
+        version: 1.1.0
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: 17.0.34
+        version: 17.0.34
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   env-file-rewrite:
     dependencies:
@@ -215,14 +251,14 @@ importers:
   generic-lexer:
     devDependencies:
       '@types/node':
-        specifier: ^14.14.37
-        version: 14.18.63
+        specifier: ^20.19.0
+        version: 20.19.23
       typescript:
         specifier: ^4.2.4
         version: 4.9.5
       vitest:
         specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   goob-static-web-server:
     dependencies:
@@ -252,8 +288,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.3
       '@types/node':
-        specifier: ^18.0.0
-        version: 18.19.130
+        specifier: ^20.19.0
+        version: 20.19.23
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.35
@@ -262,7 +298,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   goobernetes:
     dependencies:
@@ -319,8 +355,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(jiti@1.21.7)(typescript@5.7.3)
       '@types/node':
-        specifier: 20.12.7
-        version: 20.12.7
+        specifier: ^20.19.0
+        version: 20.19.23
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.35
@@ -332,7 +368,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   lsp-dev-tools:
     dependencies:
@@ -344,7 +380,7 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: workspace:*
+        specifier: link:../build-config-nodejs
         version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
@@ -359,14 +395,14 @@ importers:
   parse-stdout-lines:
     devDependencies:
       '@types/node':
-        specifier: ^14.14.37
-        version: 14.18.63
+        specifier: ^20.19.0
+        version: 20.19.23
       typescript:
         specifier: ^4.2.4
         version: 4.9.5
       vitest:
         specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   port-assignment:
     dependencies:
@@ -427,8 +463,8 @@ importers:
         version: 4.1.12
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.0
-        version: 0.3.0(jiti@1.21.7)(typescript@5.7.3)
+        specifier: link:../build-config-nodejs
+        version: link:../build-config-nodejs
       '@facetlayer/prism-framework-tools':
         specifier: ^0.2.3
         version: 0.2.3
@@ -462,12 +498,12 @@ importers:
 
   prism-framework-tools:
     dependencies:
+      '@facetlayer/doc-files-helper':
+        specifier: 0.1.1
+        version: 0.1.1
       '@facetlayer/prism-framework-api':
         specifier: 0.2.0
         version: 0.2.0
-      '@facetlayer/spec-files-helper':
-        specifier: ^0.1.2
-        version: 0.1.2
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
@@ -479,8 +515,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.0
-        version: 0.3.0(jiti@1.21.7)(typescript@5.7.3)
+        specifier: link:../build-config-nodejs
+        version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
         version: 22.13.0
@@ -558,14 +594,14 @@ importers:
   qc:
     devDependencies:
       '@types/node':
-        specifier: ^20.0.0
-        version: 20.12.7
+        specifier: ^20.19.0
+        version: 20.19.23
       typescript:
         specifier: ^5.2.0
         version: 5.7.3
       vitest:
         specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   react-elements:
     devDependencies:
@@ -576,28 +612,6 @@ importers:
         specifier: ^5.2.2
         version: 5.7.3
 
-  spec-files-helper:
-    dependencies:
-      yargs:
-        specifier: 18.0.0
-        version: 18.0.0
-    devDependencies:
-      '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.0
-        version: 0.3.0(jiti@1.21.7)(typescript@5.7.3)
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.13.0
-      '@types/yargs':
-        specifier: 17.0.34
-        version: 17.0.34
-      typescript:
-        specifier: ^5.7.2
-        version: 5.7.3
-      vitest:
-        specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-
   sqlite-migration:
     dependencies:
       '@facetlayer/generic-lexer':
@@ -605,8 +619,8 @@ importers:
         version: 1.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.0
-        version: 0.3.0(jiti@1.21.7)(typescript@5.7.3)
+        specifier: link:../build-config-nodejs
+        version: link:../build-config-nodejs
       '@types/node':
         specifier: 22.13.0
         version: 22.13.0
@@ -2254,11 +2268,12 @@ packages:
   '@facetlayer/build-config-cli-app@0.1.0':
     resolution: {integrity: sha512-gcmmSQevHjJjrD3urM00IT5IY1oY6zCwDLyzf+JIKYj/AAAGmikgZocXNypB4mhMrAZM8HT9cfJdRUx4T/5SeA==}
 
-  '@facetlayer/build-config-nodejs@0.3.0':
-    resolution: {integrity: sha512-CMm3ojqMWI1hcXytnUu4VFE0zDY3Ba9kAgb602h+w335fo6xYzFkpBvgwbOjAtxeoPROGtvpbvxboXrKQHKEmA==}
-
   '@facetlayer/concurrency-limit@0.1.0':
     resolution: {integrity: sha512-3DG8yo6UzlDUzcmRxD7WFzVEv2PxDFDaP7Hv8eAnhhHEBkzxr6Umd1acbH4BlvtxndCATL52gsxTwedka/7Flw==}
+
+  '@facetlayer/doc-files-helper@0.1.1':
+    resolution: {integrity: sha512-T7MXxXxYYDhhNfGt0NGws/7/Y4IgG5dwT0eQHh5S7KHzORaY2v00kCKPSjEV4ab8GdC5VnXIGqQKXyPuSGXWlw==}
+    hasBin: true
 
   '@facetlayer/file-manifest@0.1.0':
     resolution: {integrity: sha512-HANDkHs5RjnK0xm97RB2QuI22IWVC20kd69Qs5n3MpQcf1PMSQYscrHuLdbR9HNqlPzIXItbsTd6/LDmeaAvLA==}
@@ -2278,10 +2293,6 @@ packages:
 
   '@facetlayer/qc@0.1.0':
     resolution: {integrity: sha512-zJ7dfWepReatNzwaTizhzeD5l5xsjmr8YU19cPEq6rTylrZOKSm+fAUGVC+0CVpNDmf/jdP4kwfnConDwmKsvw==}
-    hasBin: true
-
-  '@facetlayer/spec-files-helper@0.1.2':
-    resolution: {integrity: sha512-fWAaXImXBe2sxd9hOBLySZYTYSvPV/jNxfFWwroXkKmmckD3TrQFwGtigPSAjAO+5C6vIu93YFn2CH1Ty8w4bQ==}
     hasBin: true
 
   '@facetlayer/sqlite-wrapper@1.2.0':
@@ -2955,9 +2966,6 @@ packages:
 
   '@types/node-forge@1.3.14':
     resolution: {integrity: sha512-mhVF2BnD4BO+jtOp7z1CdzaK4mbuK0LLQYAvdOLqHTavxFNq4zA1EmYkpnFjP8HOUzedfQkRnp0E2ulSAYSzAw==}
-
-  '@types/node@14.18.63':
-    resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
@@ -9686,20 +9694,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@facetlayer/build-config-nodejs@0.3.0(jiti@1.21.7)(typescript@5.7.3)':
-    dependencies:
-      '@typescript-eslint/parser': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
-      '@typescript-eslint/utils': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
-      esbuild: 0.25.12
-      eslint: 9.39.1(jiti@1.21.7)
-      glob: 11.1.0
-      yargs: 18.0.0
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - typescript
-
   '@facetlayer/concurrency-limit@0.1.0': {}
+
+  '@facetlayer/doc-files-helper@0.1.1':
+    dependencies:
+      yargs: 18.0.0
 
   '@facetlayer/file-manifest@0.1.0':
     dependencies:
@@ -9734,10 +9733,6 @@ snapshots:
       - supports-color
 
   '@facetlayer/qc@0.1.0': {}
-
-  '@facetlayer/spec-files-helper@0.1.2':
-    dependencies:
-      yargs: 18.0.0
 
   '@facetlayer/sqlite-wrapper@1.2.0':
     dependencies:
@@ -9801,7 +9796,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -10285,16 +10280,16 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/chai@5.2.3':
     dependencies:
@@ -10304,11 +10299,11 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 5.1.0
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/cookie-parser@1.4.10(@types/express@5.0.5)':
     dependencies:
@@ -10338,14 +10333,14 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.7':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
   '@types/express-serve-static-core@5.1.0':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -10385,7 +10380,7 @@ snapshots:
 
   '@types/http-proxy@1.17.17':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -10411,9 +10406,7 @@ snapshots:
 
   '@types/node-forge@1.3.14':
     dependencies:
-      '@types/node': 20.12.7
-
-  '@types/node@14.18.63': {}
+      '@types/node': 20.19.23
 
   '@types/node@17.0.45': {}
 
@@ -10468,16 +10461,16 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/serve-index@1.9.4':
     dependencies:
@@ -10486,12 +10479,12 @@ snapshots:
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       '@types/send': 0.17.6
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/swagger-ui-express@4.1.8':
     dependencies:
@@ -10506,7 +10499,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -10628,30 +10621,6 @@ snapshots:
       magic-string: 0.30.19
     optionalDependencies:
       vite: 5.4.21(@types/node@20.12.7)(terser@5.44.1)
-
-  '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.19
-    optionalDependencies:
-      vite: 7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-
-  '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.19
-    optionalDependencies:
-      vite: 7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-
-  '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.19
-    optionalDependencies:
-      vite: 7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))':
     dependencies:
@@ -11986,7 +11955,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       require-like: 0.1.2
 
   event-stream@3.3.4:
@@ -12755,7 +12724,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -12763,13 +12732,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 20.12.7
+      '@types/node': 20.19.23
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -15452,69 +15421,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@3.2.4(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vite-node@3.2.4(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vite-node@3.2.4(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: 7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   vite-node@3.2.4(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
     dependencies:
       cac: 6.7.14
@@ -15596,51 +15502,6 @@ snapshots:
       '@types/node': 22.13.0
       fsevents: 2.3.3
       terser: 5.44.1
-
-  vite@7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.52.5
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 14.18.63
-      fsevents: 2.3.3
-      jiti: 1.21.7
-      terser: 5.44.1
-      yaml: 2.8.1
-
-  vite@7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.52.5
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 18.19.130
-      fsevents: 2.3.3
-      jiti: 1.21.7
-      terser: 5.44.1
-      yaml: 2.8.1
-
-  vite@7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.52.5
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 20.12.7
-      fsevents: 2.3.3
-      jiti: 1.21.7
-      terser: 5.44.1
-      yaml: 2.8.1
 
   vite@7.1.11(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
     dependencies:
@@ -15845,132 +15706,6 @@ snapshots:
       - sugarss
       - supports-color
       - terser
-
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3
-      expect-type: 1.2.2
-      magic-string: 0.30.19
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.10.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: 7.1.11(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      vite-node: 3.2.4(@types/node@14.18.63)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/debug': 4.1.12
-      '@types/node': 14.18.63
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3
-      expect-type: 1.2.2
-      magic-string: 0.30.19
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.10.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: 7.1.11(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      vite-node: 3.2.4(@types/node@18.19.130)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/debug': 4.1.12
-      '@types/node': 18.19.130
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3
-      expect-type: 1.2.2
-      magic-string: 0.30.19
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.10.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: 7.1.11(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      vite-node: 3.2.4(@types/node@20.12.7)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/debug': 4.1.12
-      '@types/node': 20.12.7
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
 
   vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1):
     dependencies:

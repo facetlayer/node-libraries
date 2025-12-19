@@ -1,13 +1,13 @@
 packages:
   - agent-hint-tool
   - build-config-nodejs
-  - spec-files-helper
   - claude-code-headless
   - claude-code-session-history
   - claude-settings-tidier
   - claude-worktree-helper
   - concurrency-limit
   - csv-tool
+  - doc-files-helper
   - env-file-rewrite
   - fetch-sse-stream
   - file-manifest
@@ -33,3 +33,7 @@ packages:
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild
+
+overrides:
+  '@facetlayer/build-config-nodejs': link:build-config-nodejs
+  '@facetlayer/doc-files-helper': link:doc-files-helper

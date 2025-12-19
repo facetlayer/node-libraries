@@ -13,7 +13,8 @@
     "test": "vitest",
     "serve": "node dist/cli.js serve",
     "deploy": "node dist/cli.js deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "node build.mts validate && node build.mts build"
   },
   "author": "",
   "license": "ISC",
@@ -37,7 +38,7 @@
   },
   "devDependencies": {
     "@facetlayer/build-config-cli-app": "^0.1.0",
-    "@types/node": "20.12.7",
+    "@types/node": "^20.19.0",
     "@types/yargs": "^17.0.33",
     "tsc-watch": "6.2.1",
     "typescript": "^5.2.0",

@@ -4,7 +4,8 @@
   "description": "Convenience React.js components for using atomic CSS",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "prepublishOnly": "pnpm run build"
   },
   "author": "andyfischer",
   "license": "ISC",

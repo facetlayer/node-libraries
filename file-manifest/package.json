@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc -p .",
     "tsc": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@facetlayer/concurrency-limit": "^0.1.0",

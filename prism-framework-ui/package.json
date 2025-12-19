@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepublishOnly": "tsc -p .",
+    "prepublishOnly": "pnpm run build",
     "test": "vitest"
   },
   "keywords": [

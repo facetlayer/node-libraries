@@ -15,7 +15,7 @@
     "typecheck": "tsc -p .",
     "tsc": "tsc",
     "test": "vitest",
-    "prepare": "tsc -p ."
+    "prepublishOnly": "pnpm run build"
   },
   "files": [
     "src",

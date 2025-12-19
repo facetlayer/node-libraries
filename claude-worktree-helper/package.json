@@ -18,8 +18,7 @@
   "scripts": {
     "build": "node build.mts build",
     "test": "vitest",
-    "prepublishOnly": "node build.mts validate",
-    "prepare": "node build.mts build"
+    "prepublishOnly": "node build.mts validate && node build.mts build"
   },
   "files": [
     "src",

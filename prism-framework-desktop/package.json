@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p .",
     "dev": "tsc -p . --watch",
-    "prepare": "tsc -p ."
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "framework",

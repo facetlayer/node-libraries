@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "pnpm build"
+    "prepublishOnly": "pnpm run build"
   },
   "files": [
     "src",
