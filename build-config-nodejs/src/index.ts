@@ -1,10 +1,9 @@
 import { build, BuildOptions } from 'esbuild';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve, relative } from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
 import { runValidate } from './validate.js';
 
 // Re-export validate for programmatic use
@@ -115,23 +114,23 @@ async function runEsbuild(config: BuildConfig, cwd: string): Promise<void> {
     entryPoints,
   };
 
-  console.log('Running esbuild...');
+  let plural = (entryPoints.length > 1) ? 's' : '';
+  console.log(`Building ESBuild bundle${plural} for: ${entryPoints.join(', ')} (destination: ${relative(cwd,commonConfig.outdir)})`);
   await build(finalConfig);
-  console.log('esbuild completed successfully');
 }
 
 /**
  * Generate TypeScript declaration files
  */
 function generateTypes(config: BuildConfig, cwd: string): void {
-  const tsconfigPath = resolve(cwd, config.tsconfigPath || './tsconfig.json');
+  const tsconfigPath = relative(cwd, resolve(cwd, config.tsconfigPath || './tsconfig.json'));
 
   if (!existsSync(tsconfigPath)) {
     console.warn(`Warning: tsconfig.json not found at ${tsconfigPath}, skipping type generation`);
     return;
   }
 
-  console.log('Generating TypeScript declaration files...');
+  console.log(`Building TypeScript declaration files using: ${tsconfigPath}`);
 
   const typeConfig = config.typeGenConfig || {};
   const outDir = typeConfig.outDir || config.outDir || 'dist';
@@ -150,7 +149,6 @@ function generateTypes(config: BuildConfig, cwd: string): void {
       cwd,
       stdio: 'inherit'
     });
-    console.log('TypeScript declarations generated successfully');
   } catch (error) {
     console.error('Type generation failed:', error);
     process.exit(1);
@@ -166,7 +164,7 @@ async function runBuild(config: BuildConfig): Promise<void> {
   try {
     await runEsbuild(config, cwd);
     generateTypes(config, cwd);
-    console.log('Build completed successfully');
+    console.log('Build completed successfully.');
   } catch (error) {
     console.error('Build failed:', error);
     process.exit(1);
