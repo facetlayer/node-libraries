@@ -21,6 +21,7 @@ export interface SpecInfo {
 export interface SpecContent extends SpecInfo {
   content: string;
   rawContent: string;
+  fullPath: string;
 }
 
 export interface SpecFilesHelperOptions {
@@ -144,6 +145,7 @@ export class SpecFilesHelper {
         filename,
         content,
         rawContent,
+        fullPath,
       };
     }
 
@@ -177,6 +179,7 @@ export class SpecFilesHelper {
       filename: matchedFilename,
       content,
       rawContent,
+      fullPath: matchedPath,
     };
   }
 
@@ -204,6 +207,7 @@ export class SpecFilesHelper {
     try {
       const spec = this.getSpec(name);
       console.log(spec.rawContent);
+      console.log(`\n(Source: ${spec.fullPath})`);
     } catch {
       console.error(`Spec file not found: ${name}`);
       console.error('Use "list-specs" to see available specs.');
