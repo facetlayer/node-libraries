@@ -1,0 +1,43 @@
+{
+  "name": "@facetlayer/doc-files-helper",
+  "version": "0.1.1",
+  "description": "Helper library for managing doc files in a CLI tool",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "doc-files": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "node build.mts build",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "typecheck": "tsc -p .",
+    "test": "vitest"
+  },
+  "keywords": [
+    "doc",
+    "frontmatter",
+    "markdown",
+    "documentation"
+  ],
+  "author": "andyfischer",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "yargs": "18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "0.3.1",
+    "@facetlayer/subprocess-wrapper": "^1.1.0",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "17.0.34",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
+  }
+}
