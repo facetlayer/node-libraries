@@ -24,7 +24,10 @@ export interface SpecContent extends SpecInfo {
 }
 
 export interface SpecFilesHelperOptions {
-  specsDir: string;
+  /** List of directories to search for .md files */
+  dirs?: string[];
+  /** List of specific files to include */
+  files?: string[];
 }
 
 /**
@@ -61,13 +64,33 @@ export function parseFrontmatter(text: string): ParsedDocument {
 }
 
 /**
- * Helper class for working with spec files in a directory.
+ * Helper class for working with spec files.
  */
 export class SpecFilesHelper {
-  private specsDir: string;
+  /** Map of base filename (without directory) -> full file path */
+  private fileMap: Map<string, string>;
 
   constructor(options: SpecFilesHelperOptions) {
-    this.specsDir = options.specsDir;
+    this.fileMap = new Map();
+
+    // Add files from directories
+    if (options.dirs) {
+      for (const dir of options.dirs) {
+        const files = readdirSync(dir);
+        for (const file of files) {
+          if (!file.endsWith('.md')) continue;
+          this.fileMap.set(file, join(dir, file));
+        }
+      }
+    }
+
+    // Add specific files
+    if (options.files) {
+      for (const filePath of options.files) {
+        const baseFilename = basename(filePath);
+        this.fileMap.set(baseFilename, filePath);
+      }
+    }
   }
 
   formatGetSpecCommand(filename: string): string {
@@ -75,23 +98,19 @@ export class SpecFilesHelper {
   }
 
   /**
-   * List all spec files in the directory, returning their metadata from frontmatter.
+   * List all spec files, returning their metadata from frontmatter.
    */
   listSpecs(): SpecInfo[] {
-    const files = readdirSync(this.specsDir);
     const specs: SpecInfo[] = [];
 
-    for (const file of files) {
-      if (!file.endsWith('.md')) continue;
-
-      const filePath = join(this.specsDir, file);
-      const rawContent = readFileSync(filePath, 'utf-8');
+    for (const [baseFilename, fullPath] of this.fileMap) {
+      const rawContent = readFileSync(fullPath, 'utf-8');
       const { frontmatter } = parseFrontmatter(rawContent);
 
       specs.push({
-        name: frontmatter.name || basename(file, '.md'),
+        name: frontmatter.name || basename(baseFilename, '.md'),
         description: frontmatter.description || '',
-        filename: file,
+        filename: baseFilename,
       });
     }
 
@@ -105,43 +124,51 @@ export class SpecFilesHelper {
    */
   getSpec(name: string): SpecContent {
     const baseName = name.endsWith('.md') ? name.slice(0, -3) : name;
-    const specPath = join(this.specsDir, `${baseName}.md`);
+    const filename = `${baseName}.md`;
 
-    let rawContent: string;
-    let filename = `${baseName}.md`;
+    // Try exact match first
+    const fullPath = this.fileMap.get(filename);
+    if (fullPath) {
+      const rawContent = readFileSync(fullPath, 'utf-8');
+      const { frontmatter, content } = parseFrontmatter(rawContent);
 
-    try {
-      rawContent = readFileSync(specPath, 'utf-8');
-    } catch {
-      // Fall back to partial matching on filename or frontmatter name
-      const specs = this.listSpecs();
-      const matches = specs.filter(
-        (spec) =>
-          spec.filename.toLowerCase().includes(baseName.toLowerCase()) ||
-          spec.name.toLowerCase().includes(baseName.toLowerCase())
-      );
-
-      if (matches.length === 0) {
-        throw new Error(`Spec file not found: ${baseName}`);
-      }
-
-      if (matches.length > 1) {
-        const matchNames = matches.map((m) => m.filename).join(', ');
-        throw new Error(
-          `Multiple specs match "${baseName}": ${matchNames}. Please be more specific.`
-        );
-      }
-
-      filename = matches[0].filename;
-      rawContent = readFileSync(join(this.specsDir, filename), 'utf-8');
+      return {
+        name: frontmatter.name || baseName,
+        description: frontmatter.description || '',
+        filename,
+        content,
+        rawContent,
+      };
     }
 
+    // Fall back to partial matching on filename or frontmatter name
+    const specs = this.listSpecs();
+    const matches = specs.filter(
+      (spec) =>
+        spec.filename.toLowerCase().includes(baseName.toLowerCase()) ||
+        spec.name.toLowerCase().includes(baseName.toLowerCase())
+    );
+
+    if (matches.length === 0) {
+      throw new Error(`Spec file not found: ${baseName}`);
+    }
+
+    if (matches.length > 1) {
+      const matchNames = matches.map((m) => m.filename).join(', ');
+      throw new Error(
+        `Multiple specs match "${baseName}": ${matchNames}. Please be more specific.`
+      );
+    }
+
+    const matchedFilename = matches[0].filename;
+    const matchedPath = this.fileMap.get(matchedFilename)!;
+    const rawContent = readFileSync(matchedPath, 'utf-8');
     const { frontmatter, content } = parseFrontmatter(rawContent);
 
     return {
-      name: frontmatter.name || basename(filename, '.md'),
+      name: frontmatter.name || basename(matchedFilename, '.md'),
       description: frontmatter.description || '',
-      filename,
+      filename: matchedFilename,
       content,
       rawContent,
     };
@@ -164,7 +191,7 @@ export class SpecFilesHelper {
 
   /**
    * Print the raw contents of a specific spec file to stdout.
-   * 
+   *
    * Used by the 'get-spec' command.
    */
   printSpecFileContents(name: string): void {

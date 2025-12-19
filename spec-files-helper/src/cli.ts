@@ -26,7 +26,7 @@ async function main() {
         });
       },
       async (argv) => {
-        const helper = new SpecFilesHelper({ specsDir: argv.specsDir as string });
+        const helper = new SpecFilesHelper({ dirs: [argv.specsDir as string] });
         helper.printSpecFileList();
       }
     )
@@ -47,7 +47,7 @@ async function main() {
           });
       },
       async (argv) => {
-        const helper = new SpecFilesHelper({ specsDir: argv.specsDir as string });
+        const helper = new SpecFilesHelper({ dirs: [argv.specsDir as string] });
         helper.printSpecFileContents(argv.name as string);
       }
     )

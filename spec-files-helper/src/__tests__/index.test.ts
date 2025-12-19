@@ -85,10 +85,12 @@ name: empty
 
 describe('SpecFilesHelper', () => {
   const testDir = join(import.meta.dirname, '../../test/temp/specs');
-  let helper: SpecFilesHelper;
+  const extraDir = join(import.meta.dirname, '../../test/temp/extra');
+  const standaloneFile = join(import.meta.dirname, '../../test/temp/standalone.md');
 
   beforeAll(() => {
     mkdirSync(testDir, { recursive: true });
+    mkdirSync(extraDir, { recursive: true });
 
     writeFileSync(
       join(testDir, 'first-spec.md'),
@@ -124,83 +126,191 @@ Just content without frontmatter.`
     // Non-md file should be ignored
     writeFileSync(join(testDir, 'ignored.txt'), 'This should be ignored');
 
-    helper = new SpecFilesHelper({ specsDir: testDir });
+    // File in extra directory
+    writeFileSync(
+      join(extraDir, 'extra-spec.md'),
+      `---
+name: extra-spec
+description: An extra spec file
+---
+
+# Extra Spec
+
+Content of extra spec.`
+    );
+
+    // Standalone file outside of directories
+    writeFileSync(
+      standaloneFile,
+      `---
+name: standalone
+description: A standalone file
+---
+
+# Standalone
+
+Standalone content.`
+    );
   });
 
   afterAll(() => {
-    rmSync(testDir, { recursive: true, force: true });
+    rmSync(join(import.meta.dirname, '../../test/temp'), { recursive: true, force: true });
   });
 
-  describe('listSpecs', () => {
-    it('should list all spec files with their metadata', () => {
-      const specs = helper.listSpecs();
+  describe('with dirs option', () => {
+    let helper: SpecFilesHelper;
 
-      expect(specs).toHaveLength(3);
-
-      const firstSpec = specs.find((s) => s.name === 'first-spec');
-      expect(firstSpec).toBeDefined();
-      expect(firstSpec?.description).toBe('The first test spec');
-      expect(firstSpec?.filename).toBe('first-spec.md');
-
-      const secondSpec = specs.find((s) => s.name === 'second-spec');
-      expect(secondSpec).toBeDefined();
-      expect(secondSpec?.description).toBe('The second test spec');
+    beforeAll(() => {
+      helper = new SpecFilesHelper({ dirs: [testDir] });
     });
 
-    it('should use filename as name when frontmatter has no name', () => {
-      const specs = helper.listSpecs();
+    describe('listSpecs', () => {
+      it('should list all spec files with their metadata', () => {
+        const specs = helper.listSpecs();
 
-      const noFrontmatter = specs.find((s) => s.filename === 'no-frontmatter.md');
-      expect(noFrontmatter?.name).toBe('no-frontmatter');
-      expect(noFrontmatter?.description).toBe('');
+        expect(specs).toHaveLength(3);
+
+        const firstSpec = specs.find((s) => s.name === 'first-spec');
+        expect(firstSpec).toBeDefined();
+        expect(firstSpec?.description).toBe('The first test spec');
+        expect(firstSpec?.filename).toBe('first-spec.md');
+
+        const secondSpec = specs.find((s) => s.name === 'second-spec');
+        expect(secondSpec).toBeDefined();
+        expect(secondSpec?.description).toBe('The second test spec');
+      });
+
+      it('should use filename as name when frontmatter has no name', () => {
+        const specs = helper.listSpecs();
+
+        const noFrontmatter = specs.find((s) => s.filename === 'no-frontmatter.md');
+        expect(noFrontmatter?.name).toBe('no-frontmatter');
+        expect(noFrontmatter?.description).toBe('');
+      });
+
+      it('should ignore non-md files', () => {
+        const specs = helper.listSpecs();
+
+        const txtFile = specs.find((s) => s.filename === 'ignored.txt');
+        expect(txtFile).toBeUndefined();
+      });
     });
 
-    it('should ignore non-md files', () => {
-      const specs = helper.listSpecs();
+    describe('getSpec', () => {
+      it('should return spec content by name', () => {
+        const spec = helper.getSpec('first-spec');
 
-      const txtFile = specs.find((s) => s.filename === 'ignored.txt');
-      expect(txtFile).toBeUndefined();
+        expect(spec.name).toBe('first-spec');
+        expect(spec.description).toBe('The first test spec');
+        expect(spec.content).toBe('# First Spec\n\nContent of first spec.');
+        expect(spec.rawContent).toContain('---');
+      });
+
+      it('should throw error for non-existent spec', () => {
+        expect(() => helper.getSpec('nonexistent')).toThrow('Spec file not found: nonexistent');
+      });
+
+      it('should handle spec without frontmatter', () => {
+        const spec = helper.getSpec('no-frontmatter');
+
+        expect(spec.name).toBe('no-frontmatter');
+        expect(spec.description).toBe('');
+        expect(spec.content).toContain('# No Frontmatter');
+      });
+
+      it('should handle name with .md extension', () => {
+        const spec = helper.getSpec('first-spec.md');
+
+        expect(spec.name).toBe('first-spec');
+        expect(spec.filename).toBe('first-spec.md');
+      });
+
+      it('should find spec by partial match', () => {
+        const spec = helper.getSpec('first');
+
+        expect(spec.name).toBe('first-spec');
+        expect(spec.filename).toBe('first-spec.md');
+      });
+
+      it('should throw error when multiple specs match', () => {
+        expect(() => helper.getSpec('spec')).toThrow(/Multiple specs match/);
+      });
     });
   });
 
-  describe('getSpec', () => {
-    it('should return spec content by name', () => {
+  describe('with multiple dirs', () => {
+    let helper: SpecFilesHelper;
+
+    beforeAll(() => {
+      helper = new SpecFilesHelper({ dirs: [testDir, extraDir] });
+    });
+
+    it('should list specs from all directories', () => {
+      const specs = helper.listSpecs();
+
+      expect(specs).toHaveLength(4);
+      expect(specs.find((s) => s.name === 'first-spec')).toBeDefined();
+      expect(specs.find((s) => s.name === 'extra-spec')).toBeDefined();
+    });
+
+    it('should get spec from any directory', () => {
+      const spec = helper.getSpec('extra-spec');
+
+      expect(spec.name).toBe('extra-spec');
+      expect(spec.description).toBe('An extra spec file');
+    });
+  });
+
+  describe('with files option', () => {
+    let helper: SpecFilesHelper;
+
+    beforeAll(() => {
+      helper = new SpecFilesHelper({ files: [standaloneFile] });
+    });
+
+    it('should list standalone files', () => {
+      const specs = helper.listSpecs();
+
+      expect(specs).toHaveLength(1);
+      expect(specs[0].name).toBe('standalone');
+      expect(specs[0].filename).toBe('standalone.md');
+    });
+
+    it('should get standalone file by base filename', () => {
+      const spec = helper.getSpec('standalone');
+
+      expect(spec.name).toBe('standalone');
+      expect(spec.description).toBe('A standalone file');
+      expect(spec.content).toBe('# Standalone\n\nStandalone content.');
+    });
+  });
+
+  describe('with both dirs and files', () => {
+    let helper: SpecFilesHelper;
+
+    beforeAll(() => {
+      helper = new SpecFilesHelper({
+        dirs: [testDir],
+        files: [standaloneFile],
+      });
+    });
+
+    it('should list specs from both dirs and files', () => {
+      const specs = helper.listSpecs();
+
+      expect(specs).toHaveLength(4);
+      expect(specs.find((s) => s.name === 'first-spec')).toBeDefined();
+      expect(specs.find((s) => s.name === 'standalone')).toBeDefined();
+    });
+
+    it('should get spec from dirs', () => {
       const spec = helper.getSpec('first-spec');
-
       expect(spec.name).toBe('first-spec');
-      expect(spec.description).toBe('The first test spec');
-      expect(spec.content).toBe('# First Spec\n\nContent of first spec.');
-      expect(spec.rawContent).toContain('---');
     });
 
-    it('should throw error for non-existent spec', () => {
-      expect(() => helper.getSpec('nonexistent')).toThrow('Spec file not found: nonexistent');
-    });
-
-    it('should handle spec without frontmatter', () => {
-      const spec = helper.getSpec('no-frontmatter');
-
-      expect(spec.name).toBe('no-frontmatter');
-      expect(spec.description).toBe('');
-      expect(spec.content).toContain('# No Frontmatter');
-    });
-
-    it('should handle name with .md extension', () => {
-      const spec = helper.getSpec('first-spec.md');
-
-      expect(spec.name).toBe('first-spec');
-      expect(spec.filename).toBe('first-spec.md');
-    });
-
-    it('should find spec by partial match', () => {
-      const spec = helper.getSpec('first');
-
-      expect(spec.name).toBe('first-spec');
-      expect(spec.filename).toBe('first-spec.md');
-    });
-
-    it('should throw error when multiple specs match', () => {
-      expect(() => helper.getSpec('spec')).toThrow(/Multiple specs match/);
+    it('should get spec from files', () => {
+      const spec = helper.getSpec('standalone');
+      expect(spec.name).toBe('standalone');
     });
   });
 });
