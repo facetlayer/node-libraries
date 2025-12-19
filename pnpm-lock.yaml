@@ -466,8 +466,8 @@ importers:
         specifier: 0.2.0
         version: 0.2.0
       '@facetlayer/spec-files-helper':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
@@ -2280,8 +2280,8 @@ packages:
     resolution: {integrity: sha512-zJ7dfWepReatNzwaTizhzeD5l5xsjmr8YU19cPEq6rTylrZOKSm+fAUGVC+0CVpNDmf/jdP4kwfnConDwmKsvw==}
     hasBin: true
 
-  '@facetlayer/spec-files-helper@0.1.1':
-    resolution: {integrity: sha512-Ds+hy81CVPkuMQaqbRM+oLPHLDV8aYH/tF2PzpzrtG0rcj8NZhRFYlf7u+trPMXGuAt/AQNSYPpUmy7JVCvCEw==}
+  '@facetlayer/spec-files-helper@0.1.2':
+    resolution: {integrity: sha512-fWAaXImXBe2sxd9hOBLySZYTYSvPV/jNxfFWwroXkKmmckD3TrQFwGtigPSAjAO+5C6vIu93YFn2CH1Ty8w4bQ==}
     hasBin: true
 
   '@facetlayer/sqlite-wrapper@1.2.0':
@@ -9735,7 +9735,7 @@ snapshots:
 
   '@facetlayer/qc@0.1.0': {}
 
-  '@facetlayer/spec-files-helper@0.1.1':
+  '@facetlayer/spec-files-helper@0.1.2':
     dependencies:
       yargs: 18.0.0
 

@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 const packageJson = JSON.parse(
   readFileSync(join(__dirname, '../package.json'), 'utf-8')
 );
-const SpecFilesDir = join(__dirname, 'specs');
+const SpecFilesDir = join(__dirname, '../src/specs');
 const specFilesHelper = new SpecFilesHelper({ dirs: [SpecFilesDir] });
 
 async function main() {

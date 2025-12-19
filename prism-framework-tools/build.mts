@@ -6,6 +6,3 @@ import { cpSync } from 'fs';
 await runBuildTool({
   entryPoints: ['src/cli.ts'],
 });
-
-// Copy specs folder to dist
-cpSync('src/specs', 'dist/specs', { recursive: true });

@@ -94,7 +94,13 @@ export class SpecFilesHelper {
   }
 
   formatGetSpecCommand(filename: string): string {
-    return `${process.argv[0]} get-spec ${filename}`;
+    const script = process.argv[1];
+    const binName = basename(script);
+    // Handle cases like 'node .' or 'node dist/cli.js'
+    if (binName === '.' || binName.endsWith('.js') || binName.endsWith('.mjs')) {
+      return `node ${script} get-spec ${filename}`;
+    }
+    return `${binName} get-spec ${filename}`;
   }
 
   /**

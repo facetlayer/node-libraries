@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/spec-files-helper",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Helper library for managing spec files in a CLI tool",
   "type": "module",
   "main": "dist/index.js",
