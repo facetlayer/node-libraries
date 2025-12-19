@@ -1,3 +1,8 @@
+---
+name: getting-started
+description: Guide for setting up a new Prism Framework project with type-safe API and frontend client generation
+---
+
 # Prism Framework Project Setup Guide
 
 This guide walks through setting up a new project using the Prism Framework, which provides a type-safe API framework with automatic frontend client generation.

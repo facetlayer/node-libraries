@@ -10,9 +10,8 @@
   },
   "scripts": {
     "build": "node build.mts build",
-    "prepublishOnly": "node build.mts validate",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
     "typecheck": "tsc -p .",
-    "prepare": "node build.mts build",
     "test": "vitest"
   },
   "keywords": [
@@ -26,6 +25,7 @@
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
     "@facetlayer/prism-framework-api": "0.2.0",
+    "@facetlayer/spec-files-helper": "^0.1.1",
     "dotenv": "^16.4.7",
     "uuid": "^11.1.0",
     "yargs": "18.0.0"

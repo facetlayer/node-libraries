@@ -1,3 +1,8 @@
+---
+name: services-setup
+description: Service-based architecture pattern using ALL_SERVICES registry for endpoints, schemas, and jobs
+---
+
 # Service Architecture Pattern: ALL_SERVICES
 
 ## Overview

@@ -1,3 +1,8 @@
+---
+name: run-endpoint-tool
+description: CLI tool for executing API endpoints locally without starting an Express server
+---
+
 # Run Endpoint Tool
 
 The `prism-run-endpoint` CLI tool allows you to execute API endpoints locally without starting an Express.js server. This is useful for:
