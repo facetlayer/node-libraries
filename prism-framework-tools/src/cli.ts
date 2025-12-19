@@ -9,18 +9,22 @@ import { loadEnv } from './loadEnv.ts';
 import { callEndpoint } from './call-command.ts';
 import { listEndpoints } from './list-endpoints-command.ts';
 import { generateApiClients } from './generate-api-clients.ts';
-import { SpecFilesHelper } from '@facetlayer/spec-files-helper';
+import { DocFilesHelper } from '@facetlayer/doc-files-helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const __packageRoot = join(__dirname, '..');
 const packageJson = JSON.parse(
-  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+  readFileSync(join(__packageRoot, 'package.json'), 'utf-8')
 );
-const SpecFilesDir = join(__dirname, '../src/specs');
-const specFilesHelper = new SpecFilesHelper({ dirs: [SpecFilesDir] });
+const docFiles = new DocFilesHelper({
+    dirs: [join( __packageRoot, 'docs')],
+    files: [join(__packageRoot, 'README.md')],
+});
 
 async function main() {
-  await yargs(hideBin(process.argv))
+
+  const args = yargs(hideBin(process.argv))
     .command(
       'list-endpoints',
       'List all available endpoints',
@@ -118,25 +122,11 @@ async function main() {
           process.exit(1);
         }
       }
-    )
-    .command(
-      'list-specs',
-      'List available spec files for documentation',
-      {},
-      async () => specFilesHelper.printSpecFileList(),
-    )
-    .command(
-      'get-spec <name>',
-      'Display the contents of a spec file',
-      (yargs) => {
-        return yargs.positional('name', {
-          type: 'string',
-          describe: 'Name of the spec file (without .md extension)',
-          demandOption: true,
-        });
-      },
-      async (argv) => specFilesHelper.printSpecFileContents(argv.name as string),
-    )
+    );
+
+    docFiles.yargsSetup(args);
+
+    args
     .strictCommands()
     .demandCommand(1, 'You must specify a command')
     .help()
@@ -150,8 +140,6 @@ async function main() {
       ['$0 call POST /api/users --config \'{"timeout":30}\'', 'pass JSON objects as args'],
       ['$0 generate-api-clients --out ./api-types.ts', 'Generate API client types to a file'],
       ['$0 generate-api-clients --out ./types.ts --out ./backup/types.ts', 'Write to multiple files'],
-      ['$0 list-specs', 'List available spec files'],
-      ['$0 get-spec project-setup', 'Display the project-setup spec'],
     ])
     .parse();
 }

@@ -1,4 +1,7 @@
 
+0.2.5
+ - Add list-docs and get-doc (with doc-files-helper)
+ 
 0.2.4
  - Handle JSONish params in 'call' command
  - generate-api-clients now uses --out param
