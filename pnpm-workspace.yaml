@@ -33,7 +33,3 @@ packages:
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild
-
-overrides:
-  '@facetlayer/build-config-nodejs': link:build-config-nodejs
-  '@facetlayer/doc-files-helper': link:doc-files-helper

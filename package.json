@@ -8,9 +8,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/facetlayer/node-libraries"
-  },
-  "dependencies": {
-    "@facetlayer/build-config-nodejs": "link:build-config-nodejs",
-    "@facetlayer/doc-files-helper": "link:doc-files-helper"
   }
 }

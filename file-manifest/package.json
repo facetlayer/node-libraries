@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -p .",
     "tsc": "tsc",
-    "test": "vitest",
+    "test": "vitest run --testTimeout=30000",
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {

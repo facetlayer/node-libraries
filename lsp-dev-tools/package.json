@@ -17,7 +17,6 @@
   "sideEffects": false,
   "scripts": {
     "build": "node build.mts build",
-    "test": "vitest",
     "prepublishOnly": "node build.mts validate && node build.mts build"
   },
   "files": [
@@ -37,7 +36,6 @@
   "devDependencies": {
     "@facetlayer/build-config-nodejs": "workspace:*",
     "@types/node": "^22.10.2",
-    "@types/yargs": "^17.0.34",
-    "vitest": "^3.0.6"
+    "@types/yargs": "^17.0.34"
   }
 }

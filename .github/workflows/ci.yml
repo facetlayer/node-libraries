@@ -22,11 +22,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.x'
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build goobernetes (required for its tests)
+        run: pnpm --filter @facetlayer/goobernetes build
 
       - name: Run tests
         run: pnpm test

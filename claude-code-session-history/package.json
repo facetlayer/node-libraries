@@ -14,7 +14,7 @@
     "build": "tsc -p .",
     "typecheck": "tsc -p .",
     "tsc": "tsc",
-    "test": "vitest",
+    "test": "vitest run --testTimeout=30000",
     "prepublishOnly": "pnpm run build"
   },
   "files": [

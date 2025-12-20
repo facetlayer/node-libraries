@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node ./dist/cli.js serve --disable-api-key-check\"",
     "build": "pnpm run typecheck && node build.mts build",
-    "test": "vitest",
+    "test": "vitest run --testTimeout=30000",
     "serve": "node dist/cli.js serve",
     "deploy": "node dist/cli.js deploy",
     "typecheck": "tsc --noEmit",

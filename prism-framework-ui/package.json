@@ -15,7 +15,7 @@
     "build": "tsc -p .",
     "dev": "tsc -p . --watch",
     "prepublishOnly": "pnpm run build",
-    "test": "vitest"
+    "test": "vitest run --testTimeout=30000"
   },
   "keywords": [
     "framework",

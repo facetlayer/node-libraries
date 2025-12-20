@@ -4,20 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@facetlayer/build-config-nodejs': link:build-config-nodejs
-  '@facetlayer/doc-files-helper': link:doc-files-helper
-
 importers:
 
-  .:
-    dependencies:
-      '@facetlayer/build-config-nodejs':
-        specifier: link:build-config-nodejs
-        version: link:build-config-nodejs
-      '@facetlayer/doc-files-helper':
-        specifier: link:doc-files-helper
-        version: link:doc-files-helper
+  .: {}
 
   agent-hint-tool:
     dependencies:
@@ -29,8 +18,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
-        version: link:../build-config-nodejs
+        specifier: ^0.3.1
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
       '@types/node':
         specifier: ^22.10.2
         version: 22.13.0
@@ -40,9 +29,6 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
-      vitest:
-        specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   build-config-nodejs:
     dependencies:
@@ -126,7 +112,7 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
+        specifier: workspace:*
         version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
@@ -137,9 +123,6 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
-      vitest:
-        specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   concurrency-limit:
     devDependencies:
@@ -176,8 +159,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
-        version: link:../build-config-nodejs
+        specifier: 0.3.1
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
       '@facetlayer/subprocess-wrapper':
         specifier: ^1.1.0
         version: 1.1.0
@@ -380,7 +363,7 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
+        specifier: workspace:*
         version: link:../build-config-nodejs
       '@types/node':
         specifier: ^22.10.2
@@ -388,9 +371,6 @@ importers:
       '@types/yargs':
         specifier: ^17.0.34
         version: 17.0.35
-      vitest:
-        specifier: ^3.0.6
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   parse-stdout-lines:
     devDependencies:
@@ -463,8 +443,8 @@ importers:
         version: 4.1.12
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
-        version: link:../build-config-nodejs
+        specifier: ^0.3.0
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
       '@facetlayer/prism-framework-tools':
         specifier: ^0.2.3
         version: 0.2.3
@@ -515,8 +495,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
-        version: link:../build-config-nodejs
+        specifier: ^0.3.0
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
       '@types/node':
         specifier: ^22.10.2
         version: 22.13.0
@@ -619,8 +599,8 @@ importers:
         version: 1.0.0
     devDependencies:
       '@facetlayer/build-config-nodejs':
-        specifier: link:../build-config-nodejs
-        version: link:../build-config-nodejs
+        specifier: ^0.3.0
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
       '@types/node':
         specifier: 22.13.0
         version: 22.13.0
@@ -2267,6 +2247,9 @@ packages:
 
   '@facetlayer/build-config-cli-app@0.1.0':
     resolution: {integrity: sha512-gcmmSQevHjJjrD3urM00IT5IY1oY6zCwDLyzf+JIKYj/AAAGmikgZocXNypB4mhMrAZM8HT9cfJdRUx4T/5SeA==}
+
+  '@facetlayer/build-config-nodejs@0.3.1':
+    resolution: {integrity: sha512-Cph1fKx6Xw3NGDmN3m2/gP7xzHdhrWrDHb9prYzsUWd9H8uzmUSAwdMfaoNWVumXNASzVFN1MLl1xC6672VXiw==}
 
   '@facetlayer/concurrency-limit@0.1.0':
     resolution: {integrity: sha512-3DG8yo6UzlDUzcmRxD7WFzVEv2PxDFDaP7Hv8eAnhhHEBkzxr6Umd1acbH4BlvtxndCATL52gsxTwedka/7Flw==}
@@ -9682,6 +9665,19 @@ snapshots:
       levn: 0.4.1
 
   '@facetlayer/build-config-cli-app@0.1.0(jiti@1.21.7)(typescript@5.7.3)':
+    dependencies:
+      '@typescript-eslint/parser': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
+      '@typescript-eslint/utils': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
+      esbuild: 0.25.12
+      eslint: 9.39.1(jiti@1.21.7)
+      glob: 11.1.0
+      yargs: 18.0.0
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - typescript
+
+  '@facetlayer/build-config-nodejs@0.3.1(jiti@1.21.7)(typescript@5.7.3)':
     dependencies:
       '@typescript-eslint/parser': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
       '@typescript-eslint/utils': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)

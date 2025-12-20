@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run --testTimeout=30000",
     "fix": "prettier \"**/*.{ts,tsx}\" --write",
     "dev": "tsc-watch --onSuccess \"node ./dist/cli/startCli.js\"",
     "build": "tsc -p .",

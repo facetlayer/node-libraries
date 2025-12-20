@@ -16,7 +16,8 @@ const packageJson = JSON.parse(
 );
 
 const docFiles = new DocFilesHelper({
-    files: [ Path.join(__packageRoot, 'README.md')] ,
+    dirs: [Path.join(__packageRoot, 'docs')],
+    files: [Path.join(__packageRoot, 'README.md')],
 });
 
 async function main() {

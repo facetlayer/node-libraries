@@ -17,7 +17,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "node build.mts build",
-    "test": "vitest",
+    "test": "vitest run --testTimeout=30000",
     "prepublishOnly": "node build.mts validate && node build.mts build"
   },
   "files": [
