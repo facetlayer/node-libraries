@@ -10,7 +10,7 @@ import {
   resetPortAssignments,
   isPortActuallyAvailable,
   _resetDatabaseForTesting
-} from '../src/index'
+} from '../src/index.ts'
 
 // Set XDG_STATE_HOME to use our test temp directory
 const TEST_TEMP_DIR = join(__dirname, 'temp')

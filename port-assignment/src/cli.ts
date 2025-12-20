@@ -2,6 +2,9 @@
 
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
+import { DocFilesHelper } from '@facetlayer/doc-files-helper'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import {
   claimUnusedPort,
   getPortAssignments,
@@ -9,10 +12,19 @@ import {
   resetPortAssignments,
   isPortAssigned,
   isPortActuallyAvailable
-} from './index.js'
+} from './index.ts'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const __packageRoot = join(__dirname, '..')
+
+const docFiles = new DocFilesHelper({
+  dirs: [join(__packageRoot, 'docs')],
+  files: [join(__packageRoot, 'README.md')],
+})
 
 async function main() {
-  await yargs(hideBin(process.argv))
+  const args = yargs(hideBin(process.argv))
     .scriptName('port-assignment')
     .command(
       'claim',
@@ -135,7 +147,10 @@ async function main() {
     .alias('h', 'help')
     .alias('v', 'version')
     .strict()
-    .parse()
+
+  docFiles.yargsSetup(args)
+
+  args.parse()
 }
 
 main()

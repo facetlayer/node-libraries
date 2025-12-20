@@ -8,16 +8,17 @@
   "bin": {
     "port-assignment": "./dist/cli.js"
   },
+  "type": "module",
   "sideEffects": false,
   "scripts": {
-    "build": "tsc -p .",
-    "tsc": "tsc",
+    "build": "node build.mts build",
     "test": "vitest run --testTimeout=30000",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "node build.mts build && node build.mts validate"
   },
   "files": [
     "src",
     "dist",
+    "docs",
     "README.md"
   ],
   "keywords": [
@@ -33,10 +34,12 @@
   },
   "homepage": "",
   "dependencies": {
+    "@facetlayer/doc-files-helper": "0.1.1",
     "@facetlayer/userdata-db": "^0.1.1",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.1",
     "@types/node": "^18.0.0",
     "@types/yargs": "^17.0.35",
     "typescript": "^5.2.0",

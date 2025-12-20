@@ -55,7 +55,7 @@ const __packageRoot = join(__dirname, '..');
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],
-  files: [join(__packageRoot, 'README.md')],  // Optional: include README
+  files: [join(__packageRoot, 'README.md')],
 });
 ```
 
