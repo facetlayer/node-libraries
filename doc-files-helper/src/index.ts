@@ -210,9 +210,11 @@ export class DocFilesHelper {
     const docs = this.listDocs();
     console.log('Available doc files:\n');
     for (const doc of docs) {
-      console.log(`  ${doc.name} (${this.formatGetDocCommand(doc.filename)}):`);
       if (doc.description) {
+        console.log(`  ${doc.name} (${this.formatGetDocCommand(doc.filename)}):`);
         console.log(`    ${doc.description}\n`);
+      } else {
+        console.log(`  ${doc.name} (${this.formatGetDocCommand(doc.filename)})\n`);
       }
     }
   }
