@@ -1,3 +1,8 @@
+---
+name: creating-services
+description: How to create services with endpoints, middleware, and database schemas
+---
+
 # Creating Services
 
 Services are the building blocks of a Prism Framework application. Each service is self-contained and can define endpoints, middleware, database schemas, and background jobs.

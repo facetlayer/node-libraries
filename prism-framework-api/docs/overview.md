@@ -1,3 +1,8 @@
+---
+name: overview
+description: Introduction to Prism Framework and its core concepts
+---
+
 # Prism Framework Overview
 
 Prism Framework is a TypeScript framework for building web-based SaaS applications and desktop Electron apps. It provides a unified approach to creating applications that can run in both backend (Express.js) and desktop (Electron) contexts.
@@ -108,6 +113,6 @@ your-app/
 pnpm add @facetlayer/prism-framework-api
 ```
 
-2. Create your first service (see `02-creating-services.md`)
-3. Set up the launch configuration (see `03-launch-configuration.md`)
-4. Start the server (see `04-server-setup.md`)
+2. Create your first service (see creating-services doc)
+3. Set up the launch configuration (see launch-configuration doc)
+4. Start the server (see server-setup doc)

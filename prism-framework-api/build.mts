@@ -3,5 +3,5 @@
 import { runBuildTool } from '@facetlayer/build-config-nodejs';
 
 await runBuildTool({
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/index.ts', 'src/cli.ts'],
 });

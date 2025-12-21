@@ -1,3 +1,8 @@
+---
+name: authorization
+description: Authorization system with resources, credentials, and permissions
+---
+
 # Authorization System
 
 Prism Framework includes a flexible authorization system based on resources, credentials, and permissions.

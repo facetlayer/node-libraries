@@ -1,3 +1,8 @@
+---
+name: launch-configuration
+description: How to configure Prism Framework for different execution contexts
+---
+
 # Launch Configuration
 
 The launch configuration system is a crucial feature that allows the same code to work in both backend (Express.js) and desktop (Electron) contexts.
