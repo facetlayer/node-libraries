@@ -19,7 +19,8 @@
     "typecheck": "tsc -p .",
     "dev": "tsc -p . --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "local-install": "pnpm build && npm i -g ."
   },
   "keywords": [
     "framework",

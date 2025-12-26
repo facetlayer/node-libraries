@@ -12,7 +12,8 @@
     "build": "node build.mts build",
     "prepublishOnly": "node build.mts validate && node build.mts build",
     "typecheck": "tsc -p .",
-    "test": "vitest run --testTimeout=30000"
+    "test": "vitest run --testTimeout=30000",
+    "local-install": "pnpm build && npm i -g ."
   },
   "keywords": [
     "framework",
