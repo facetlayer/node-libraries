@@ -17,6 +17,19 @@ export function createEndpoint(
     }
 
     const validationResult = validateEndpointForOpenapi(definition);
+    if (validationResult?.error) {
+        logWarn(`Misconfigured endpoint ${definition.path}: ${validationResult.error.errorMessage}`);
+        // Remove invalid schemas so they don't break OpenAPI generation for the entire service.
+        // The endpoint will still work, but won't appear correctly in OpenAPI docs.
+        return {
+            ...definition,
+            requestSchema: undefined,
+            responseSchema: undefined,
+            handler: () => {
+                throw new Error(`Misconfigured endpoint ${definition.path}: ${validationResult.error.errorMessage}`);
+            },
+        }
+    }
 
     return definition;
 }

@@ -55,6 +55,7 @@ export { ConnectionManager } from './sse/ConnectionManager.ts';
 
 // App exports
 export { PrismApp as App } from './app/PrismApp.ts';
+export type { PrismAppConfig as AppConfig } from './app/PrismApp.ts';
 
 // Launch configuration exports
 export type { LoggingSettings, LaunchConfig } from './launch/launchConfig.ts';

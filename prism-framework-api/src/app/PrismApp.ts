@@ -2,6 +2,12 @@ import { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
 import { ServiceDefinition } from '../ServiceDefinition.ts';
 import { callEndpoint, CallEndpointOptions } from './callEndpoint.ts';
 
+export interface PrismAppConfig {
+  name?: string;
+  description?: string;
+  services?: ServiceDefinition[];
+}
+
 export function endpointKey(method: string, path: string): string {
   return `${method} ${path}`;
 }
@@ -9,20 +15,34 @@ export function endpointKey(method: string, path: string): string {
 export class PrismApp {
   endpointMap: Map<string, EndpointDefinition>;
   services: ServiceDefinition[];
-  name?: string;
-  description?: string;
+  name: string;
+  description: string;
 
-  constructor(services: ServiceDefinition[]) {
-    this.services = services;
+  constructor(config: PrismAppConfig = {}) {
+    this.name = config.name ?? 'Prism App';
+    this.description = config.description ?? '';
+    this.services = [];
     this.endpointMap = new Map();
 
-    // Create a lookup map of all endpoints
-    for (const service of services) {
-      if (service.endpoints) {
-        for (const endpoint of service.endpoints) {
-          const key = endpointKey(endpoint.method, endpoint.path);
-          this.endpointMap.set(key, endpoint);
-        }
+    // Register initial services if provided
+    if (config.services) {
+      for (const service of config.services) {
+        this.addService(service);
+      }
+    }
+  }
+
+  /**
+   * Add a service to the app. Endpoints from the service will be registered
+   * and available for routing.
+   */
+  addService(service: ServiceDefinition): void {
+    this.services.push(service);
+
+    if (service.endpoints) {
+      for (const endpoint of service.endpoints) {
+        const key = endpointKey(endpoint.method, endpoint.path);
+        this.endpointMap.set(key, endpoint);
       }
     }
   }

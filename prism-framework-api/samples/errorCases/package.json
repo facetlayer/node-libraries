@@ -1,0 +1,15 @@
+{
+  "name": "error-cases-sample",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "npx tsx index.ts"
+  },
+  "dependencies": {
+    "@facetlayer/prism-framework-api": "file:../..",
+    "express": "^4.21.1",
+    "zod": "^4.1.12",
+    "tsx": "^4.7.0"
+  }
+}

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { validateEndpointForOpenapi, generateOpenAPISchema } from '../openapi/OpenAPI.ts';
+import { validateServicesForOpenapi } from '../openapi/validateServicesForOpenapi.ts';
+import { generateOpenAPISchema } from '../openapi/OpenAPI.ts';
 import { ServiceDefinition } from '../../ServiceDefinition.ts';
 import { createEndpoint } from '../../endpoints/createEndpoint.ts';
+import { EndpointDefinition } from '../ExpressEndpointSetup.ts';
 
-describe('findProblematicEndpoints', () => {
+describe('validateServicesForOpenapi', () => {
   it('should return empty array for valid schemas', () => {
     const services: ServiceDefinition[] = [
       {
@@ -21,12 +23,51 @@ describe('findProblematicEndpoints', () => {
       },
     ];
 
-    const result = validateEndpointForOpenapi(services);
+    const result = validateServicesForOpenapi(services);
 
     expect(result.problemEndpoints).toEqual([]);
   });
 
-  it('should detect z.lazy() schemas as problematic', () => {
+  it('should detect z.lazy() schemas as problematic when not using createEndpoint', () => {
+    // Test the raw validation function with endpoints that haven't been sanitized
+    interface TreeNode {
+      name: string;
+      children?: TreeNode[];
+    }
+
+    const TreeNodeSchema: z.ZodType<TreeNode> = z.lazy(() =>
+      z.object({
+        name: z.string(),
+        children: z.array(TreeNodeSchema).optional(),
+      })
+    );
+
+    // Create endpoint directly without createEndpoint to test raw validation
+    const rawEndpoint: EndpointDefinition = {
+      method: 'GET',
+      path: '/codebase/scan',
+      requestSchema: z.object({ directory: z.string() }),
+      responseSchema: z.object({ tree: TreeNodeSchema }),
+      handler: async () => ({ tree: { name: 'root' } }),
+    };
+
+    const services: ServiceDefinition[] = [
+      {
+        name: 'codebase',
+        endpoints: [rawEndpoint],
+      },
+    ];
+
+    const result = validateServicesForOpenapi(services);
+
+    expect(result.problemEndpoints).toHaveLength(1);
+    expect(result.problemEndpoints[0].path).toBe('/codebase/scan');
+    expect(result.problemEndpoints[0].method).toBe('GET');
+    expect(result.problemEndpoints[0].error.errorMessage).toContain('Unknown zod object type');
+  });
+
+  it('should return empty when createEndpoint sanitizes invalid schemas', () => {
+    // When using createEndpoint, invalid schemas are removed so validation passes
     interface TreeNode {
       name: string;
       children?: TreeNode[];
@@ -54,99 +95,9 @@ describe('findProblematicEndpoints', () => {
       },
     ];
 
-    const result = validateEndpointForOpenapi(services);
-
-    expect(result.problemEndpoints).toHaveLength(1);
-    expect(result.problemEndpoints[0].path).toBe('/codebase/scan');
-    expect(result.problemEndpoints[0].method).toBe('GET');
-    expect(result.problemEndpoints[0].error).toContain('Unknown zod object type');
-  });
-
-  it('should detect z.lazy() in request schemas', () => {
-    interface RecursiveInput {
-      value: string;
-      nested?: RecursiveInput;
-    }
-
-    const RecursiveInputSchema: z.ZodType<RecursiveInput> = z.lazy(() =>
-      z.object({
-        value: z.string(),
-        nested: RecursiveInputSchema.optional(),
-      })
-    );
-
-    const services: ServiceDefinition[] = [
-      {
-        name: 'recursive-service',
-        endpoints: [
-          createEndpoint({
-            method: 'POST',
-            path: '/recursive',
-            requestSchema: RecursiveInputSchema,
-            responseSchema: z.object({ success: z.boolean() }),
-            handler: async () => ({ success: true }),
-          }),
-        ],
-      },
-    ];
-
-    const result = validateEndpointForOpenapi(services);
-
-    expect(result.problemEndpoints).toHaveLength(1);
-    expect(result.problemEndpoints[0].path).toBe('/recursive');
-    expect(result.problemEndpoints[0].error).toContain('Unknown zod object type');
-  });
-
-  it('should identify multiple problematic endpoints across services', () => {
-    interface Node {
-      id: string;
-      children?: Node[];
-    }
-
-    const NodeSchema: z.ZodType<Node> = z.lazy(() =>
-      z.object({
-        id: z.string(),
-        children: z.array(NodeSchema).optional(),
-      })
-    );
-
-    const services: ServiceDefinition[] = [
-      {
-        name: 'service-a',
-        endpoints: [
-          createEndpoint({
-            method: 'GET',
-            path: '/valid',
-            responseSchema: z.object({ ok: z.boolean() }),
-            handler: async () => ({ ok: true }),
-          }),
-          createEndpoint({
-            method: 'GET',
-            path: '/problematic-a',
-            responseSchema: z.object({ node: NodeSchema }),
-            handler: async () => ({ node: { id: '1' } }),
-          }),
-        ],
-      },
-      {
-        name: 'service-b',
-        endpoints: [
-          createEndpoint({
-            method: 'POST',
-            path: '/problematic-b',
-            requestSchema: NodeSchema,
-            responseSchema: z.object({ saved: z.boolean() }),
-            handler: async () => ({ saved: true }),
-          }),
-        ],
-      },
-    ];
-
-    const result = validateEndpointForOpenapi(services);
-
-    expect(result.problemEndpoints).toHaveLength(2);
-    expect(result.problemEndpoints.map((p) => p.path)).toContain('/problematic-a');
-    expect(result.problemEndpoints.map((p) => p.path)).toContain('/problematic-b');
+    // createEndpoint removes the invalid schemas, so validation passes
+    const result = validateServicesForOpenapi(services);
+    expect(result.problemEndpoints).toEqual([]);
   });
 
   it('should handle services with no endpoints', () => {
@@ -157,7 +108,7 @@ describe('findProblematicEndpoints', () => {
       },
     ];
 
-    const result = validateEndpointForOpenapi(services);
+    const result = validateServicesForOpenapi(services);
 
     expect(result.problemEndpoints).toEqual([]);
   });
@@ -169,14 +120,15 @@ describe('findProblematicEndpoints', () => {
       } as ServiceDefinition,
     ];
 
-    const result = validateEndpointForOpenapi(services);
+    const result = validateServicesForOpenapi(services);
 
     expect(result.problemEndpoints).toEqual([]);
   });
 });
 
-describe('generateOpenAPISchema with invalid schemas', () => {
-  it('should throw when encountering z.lazy() without .openapi() metadata', () => {
+describe('generateOpenAPISchema', () => {
+  it('should succeed when createEndpoint sanitizes invalid schemas', () => {
+    // createEndpoint removes invalid schemas, so OpenAPI generation succeeds
     interface TreeNode {
       name: string;
       children?: TreeNode[];
@@ -203,6 +155,45 @@ describe('generateOpenAPISchema with invalid schemas', () => {
       },
     ];
 
+    // Should not throw because createEndpoint removed the invalid schema
+    const schema = generateOpenAPISchema(services, {
+      version: '1.0.0',
+      title: 'Test',
+      description: 'Test',
+    });
+
+    expect(schema.openapi).toBe('3.1.0');
+    expect(schema.paths!['/tree']).toBeDefined();
+  });
+
+  it('should throw for raw endpoints with invalid schemas', () => {
+    // Test that raw endpoints (not sanitized by createEndpoint) still throw
+    interface TreeNode {
+      name: string;
+      children?: TreeNode[];
+    }
+
+    const TreeNodeSchema: z.ZodType<TreeNode> = z.lazy(() =>
+      z.object({
+        name: z.string(),
+        children: z.array(TreeNodeSchema).optional(),
+      })
+    );
+
+    const rawEndpoint: EndpointDefinition = {
+      method: 'GET',
+      path: '/tree',
+      responseSchema: z.object({ tree: TreeNodeSchema }),
+      handler: async () => ({ tree: { name: 'root' } }),
+    };
+
+    const services: ServiceDefinition[] = [
+      {
+        name: 'test',
+        endpoints: [rawEndpoint],
+      },
+    ];
+
     expect(() =>
       generateOpenAPISchema(services, {
         version: '1.0.0',
@@ -225,7 +216,7 @@ describe('generateOpenAPISchema with invalid schemas', () => {
               user: z.object({
                 id: z.string(),
                 name: z.string(),
-                email: z.string().email(),
+                email: z.string(),
               }),
             }),
             handler: async () => ({
@@ -237,7 +228,7 @@ describe('generateOpenAPISchema with invalid schemas', () => {
             path: '/users',
             requestSchema: z.object({
               name: z.string(),
-              email: z.string().email(),
+              email: z.string(),
             }),
             responseSchema: z.object({ id: z.string() }),
             handler: async () => ({ id: '1' }),

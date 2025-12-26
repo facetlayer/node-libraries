@@ -22,32 +22,32 @@ describe('prism list-endpoints', () => {
       endpoints: [
         createEndpoint({
           method: 'GET',
-          path: '/api/users',
+          path: '/users',
           description: 'List all users',
           handler: () => ({ users: [] }),
         }),
         createEndpoint({
           method: 'POST',
-          path: '/api/users',
+          path: '/users',
           description: 'Create a new user',
           handler: () => ({ id: '123', name: 'Test User' }),
         }),
         createEndpoint({
           method: 'GET',
-          path: '/api/users/:id',
+          path: '/users/:id',
           description: 'Get user by ID',
           handler: () => ({ id: '123', name: 'Test User' }),
         }),
         createEndpoint({
           method: 'DELETE',
-          path: '/api/users/:id',
+          path: '/users/:id',
           description: 'Delete user by ID',
           handler: () => ({ success: true }),
         }),
       ],
     };
 
-    const app = new App([testService]);
+    const app = new App({ name: 'Test App', services: [testService] });
     console.log('Starting server');
     server = await startServer({
       port,
@@ -76,10 +76,10 @@ describe('prism list-endpoints', () => {
     // Verify the output contains our endpoints
     expect(output).toContain('Available endpoints');
     expect(output).toContain('GET');
-    expect(output).toContain('/api/users');
+    expect(output).toContain('/users');
     expect(output).toContain('POST');
     expect(output).toContain('DELETE');
-    expect(output).toContain('/api/users/:id');
+    expect(output).toContain('/users/:id');
   });
 
   it('should return endpoints via /endpoints.json', async () => {
@@ -92,7 +92,7 @@ describe('prism list-endpoints', () => {
 
     // Check that our test endpoints are included
     const paths = data.endpoints.map((e: { path: string }) => e.path);
-    expect(paths).toContain('/api/users');
-    expect(paths).toContain('/api/users/:id');
+    expect(paths).toContain('/users');
+    expect(paths).toContain('/users/:id');
   });
 });

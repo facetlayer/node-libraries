@@ -165,7 +165,7 @@ export function mountMiddlewares(
 ): void {
   middlewares.forEach(middleware => mountMiddleware(app, middleware));
 }
-function logDebug(arg0: string) {
-  throw new Error('Function not implemented.');
+function logDebug(_message: string) {
+  // Debug logging - silently ignore for now
 }
 

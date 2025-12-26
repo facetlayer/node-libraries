@@ -22,7 +22,7 @@ export interface ServerSetupConfig {
 export function createExpressApp(config: ServerSetupConfig): express.Application {
   const app = express();
 
-  app.use(corsMiddleware(config.corsConfig));
+  app.use(corsMiddleware(config.corsConfig ?? {}));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(requestContextMiddleware);

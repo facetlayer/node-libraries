@@ -61,7 +61,7 @@ export function validateServicesForOpenapi(services: ServiceDefinition[]): Servi
 
       for (const endpoint of endpoints) {
         const endpointResult = validateEndpointForOpenapi(endpoint);
-        if (endpointResult.error) {
+        if (endpointResult?.error) {
           problemEndpoints.push({
             serviceName: service.name,
             path: endpoint.path,
