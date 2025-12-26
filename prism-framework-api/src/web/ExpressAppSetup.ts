@@ -4,30 +4,23 @@ import { Server } from 'http';
 import { PrismApp } from '../app/PrismApp.ts';
 import { getMetrics } from '../Metrics.ts';
 import { corsMiddleware, CorsConfig } from './corsMiddleware.ts';
-import { mountPrismApp, setLoggers } from './ExpressEndpointSetup.ts';
+import { mountPrismApp, } from './ExpressEndpointSetup.ts';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware.ts';
 import { requestContextMiddleware } from './requestContextMiddleware.ts';
-import { mountOpenAPIEndpoints, OpenAPIConfig } from './OpenAPI.ts';
+import { mountOpenAPIEndpoints, OpenAPIConfig } from './openapi/OpenAPI.ts';
 import { createListingEndpoints } from './EndpointListing.ts';
+import { captureError } from '@facetlayer/Streams';
+import { logError, logInfo } from '../logging/index.ts';
 
 export interface ServerSetupConfig {
   port: number;
   app: PrismApp;
   openapiConfig?: OpenAPIConfig;
   corsConfig?: CorsConfig;
-  logInfo?: (message: string) => void;
-  logDebug?: (message: string) => void;
-  logWarn?: (message: string) => void;
-  logError?: (message: string, details?: any, error?: Error) => void;
 }
 
 export function createExpressApp(config: ServerSetupConfig): express.Application {
   const app = express();
-
-  // Set up logging if provided
-  if (config.logDebug && config.logWarn && config.logError) {
-    setLoggers(config.logDebug, config.logWarn, config.logError);
-  }
 
   app.use(corsMiddleware(config.corsConfig));
   app.use(express.json());
@@ -68,6 +61,10 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
           res.json(result);
         }
       } catch (error) {
+        logError('Unhandled error in endpoint', {
+          endpointPath: endpoint.path,
+          error: captureError(error),
+        });
         res.status(500).json({ error: 'Internal server error' });
       }
     };
@@ -91,8 +88,6 @@ export async function startServer(config: ServerSetupConfig): Promise<Server> {
   const port = config.port;
 
   const app = createExpressApp(config);
-
-  const logInfo = config.logInfo || ((message: string) => console.log(`[INFO] ${message}`));
 
   const server = app.listen(port, () => {
     logInfo(`Server now listening on port ${port}`);

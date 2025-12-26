@@ -34,19 +34,18 @@ export { corsMiddleware } from './web/corsMiddleware.ts';
 export type { CorsConfig } from './web/corsMiddleware.ts';
 export type { EndpointDefinition } from './web/ExpressEndpointSetup.ts';
 export {
-  createEndpoint,
   getRequestDataFromReq,
   mountMiddleware,
   mountMiddlewares,
   mountPrismApp,
-  setLoggers,
 } from './web/ExpressEndpointSetup.ts';
 export { localhostOnlyMiddleware } from './web/localhostOnlyMiddleware.ts';
 export { SseResponse } from './web/SseResponse.ts';
+export { createEndpoint } from './endpoints/createEndpoint.ts';
 
 // OpenAPI exports
-export type { OpenAPIDocumentInfo, ParseExpressPathForOpenAPIResult } from './web/OpenAPI.ts';
-export { generateOpenAPISchema, parseExpressPathForOpenAPI } from './web/OpenAPI.ts';
+export type { OpenAPIDocumentInfo, ParseExpressPathForOpenAPIResult } from './web/openapi/OpenAPI.ts';
+export { generateOpenAPISchema, parseExpressPathForOpenAPI } from './web/openapi/OpenAPI.ts';
 
 // Endpoint listing exports
 export { createListingEndpoints } from './web/EndpointListing.ts';

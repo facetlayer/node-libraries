@@ -14,9 +14,13 @@ import {
 import swaggerUi from 'swagger-ui-express';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import z from 'zod';
-import { ServiceDefinition } from '../ServiceDefinition.ts';
-import { PrismApp } from '../app/PrismApp.ts';
+import { ServiceDefinition } from '../../ServiceDefinition.ts';
+import { PrismApp } from '../../app/PrismApp.ts';
 import express, { Request, Response } from 'express';
+import { captureError } from '@facetlayer/Streams'
+import { validateServicesForOpenapi } from './validateServicesForOpenapi.ts';
+
+export { validateServicesForOpenapi as validateEndpointForOpenapi } from './validateServicesForOpenapi.ts';
 
 type RequestConfig = RouteConfig['request'];
 
@@ -109,57 +113,57 @@ export function generateOpenAPISchema(
         };
       }
 
-      registry.registerPath({
-        method: endpoint.method.toLowerCase() as any,
-        path: openApiPath,
-        description: endpoint.description || `${endpoint.method} ${endpoint.path}`,
-        operationId: endpoint.handler.name,
-        request: requestConfig,
-        responses: {
-          200: {
-            description: 'Success',
-            content: {
-              'application/json': {
-                schema: endpoint.responseSchema ?? z.any(),
+          registry.registerPath({
+            method: endpoint.method.toLowerCase() as any,
+            path: openApiPath,
+            description: endpoint.description || `${endpoint.method} ${endpoint.path}`,
+            operationId: endpoint.handler.name,
+            request: requestConfig,
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': {
+                    schema: endpoint.responseSchema ?? z.any(),
+                  },
+                },
               },
-            },
-          },
-          /*
-          400: {
-            description: 'Bad Request - Schema validation failed',
-            content: {
-              'application/json': {
-                schema: z.object({
-                  error: z.string(),
-                  details: z.array(z.any()),
-                }),
+              /*
+              400: {
+                description: 'Bad Request - Schema validation failed',
+                content: {
+                  'application/json': {
+                    schema: z.object({
+                      error: z.string(),
+                      details: z.array(z.any()),
+                    }),
+                  },
+                },
               },
-            },
-          },
-          401: {
-            description: 'Unauthorized',
-            content: {
-              'application/json': {
-                schema: z.object({
-                  message: z.string(),
-                  details: z.any().optional(),
-                }),
+              401: {
+                description: 'Unauthorized',
+                content: {
+                  'application/json': {
+                    schema: z.object({
+                      message: z.string(),
+                      details: z.any().optional(),
+                    }),
+                  },
+                },
               },
-            },
-          },
-          500: {
-            description: 'Internal Server Error',
-            content: {
-              'application/json': {
-                schema: z.object({
-                  message: z.string(),
-                }),
+              500: {
+                description: 'Internal Server Error',
+                content: {
+                  'application/json': {
+                    schema: z.object({
+                      message: z.string(),
+                    }),
+                  },
+                },
               },
+              */
             },
-          },
-          */
-        },
-      });
+          });
     }
   }
 
@@ -197,26 +201,6 @@ export function generateOpenAPISchema(
   });
 }
 
-export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express.Application, prismApp: PrismApp): void {
-  expressApp.get('/openapi.json', (req: Request, res: Response) => {
-    res.json(generateOpenAPISchema(prismApp.getAllServices(), {
-      version: '1.0.0',
-      title: prismApp.name,
-      description: prismApp.description,
-    }));
-  });
-
-  if (config.enableSwagger) {
-    setupSwaggerUI(expressApp);
-  }
-}
-
-/**
- * Sets up Swagger UI to serve interactive API documentation
- *
- * @param app - Express application instance
- * @param openApiJsonPath - Path where the OpenAPI JSON schema is served (default: '/openapi.json')
- */
 export function setupSwaggerUI(app: express.Application, openApiJsonPath: string = '/openapi.json'): void {
   // Serve Swagger UI on /swagger
   app.use(
@@ -228,4 +212,31 @@ export function setupSwaggerUI(app: express.Application, openApiJsonPath: string
       },
     })
   );
+}
+
+export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express.Application, prismApp: PrismApp): void {
+  expressApp.get('/openapi.json', (req: Request, res: Response) => {
+    const services = prismApp.getAllServices();
+    try {
+      res.json(generateOpenAPISchema(services, {
+        version: '1.0.0',
+        title: prismApp.name,
+        description: prismApp.description,
+      }));
+    } catch (error) {
+
+      const validationResult = validateServicesForOpenapi(services);
+
+      console.error("/openapi.json failed to generate schema", {
+        cause: captureError(error),
+        problemEndpoints: validationResult.problemEndpoints,
+      });
+
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  if (config.enableSwagger) {
+    setupSwaggerUI(expressApp);
+  }
 }

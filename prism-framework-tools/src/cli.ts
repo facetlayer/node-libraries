@@ -9,6 +9,7 @@ import { loadEnv } from './loadEnv.ts';
 import { callEndpoint } from './call-command.ts';
 import { listEndpoints } from './list-endpoints-command.ts';
 import { generateApiClients } from './generate-api-clients.ts';
+import { loadConfig } from './config/index.ts';
 import { DocFilesHelper } from '@facetlayer/doc-files-helper';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -103,16 +104,31 @@ async function main() {
         return yargs.option('out', {
           type: 'string',
           array: true,
-          demandOption: true,
           describe: 'Output file path(s) to write generated types to',
         });
       },
       async (argv) => {
         try {
           const cwd = process.cwd();
-          const config = loadEnv(cwd);
-          console.log(`Using API server at: ${config.baseUrl}\n`);
-          await generateApiClients(config.baseUrl, argv.out);
+          const envConfig = loadEnv(cwd);
+          console.log(`Using API server at: ${envConfig.baseUrl}\n`);
+
+          let outputFiles: string[] = [];
+
+          if (argv.out && argv.out.length > 0) {
+            outputFiles = argv.out;
+          } else {
+            const prismConfig = loadConfig(cwd);
+            if (!prismConfig || prismConfig.generateApiClientTargets.length === 0) {
+              console.error('Error: No output files specified.');
+              console.error('Either use --out to specify output files, or configure targets in .prism.qc:');
+              console.error('  generate-api-client-target out=./src/api-types.ts');
+              process.exit(1);
+            }
+            outputFiles = prismConfig.generateApiClientTargets.map(t => t.outputFile);
+          }
+
+          await generateApiClients(envConfig.baseUrl, outputFiles);
         } catch (error) {
           if (error instanceof Error && error.stack) {
             console.error(error.stack);

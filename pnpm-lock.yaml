@@ -499,6 +499,9 @@ importers:
       '@facetlayer/prism-framework-api':
         specifier: 0.2.0
         version: 0.2.0
+      '@facetlayer/qc':
+        specifier: ^0.1.0
+        version: 0.1.0
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1

@@ -5,6 +5,9 @@ import { recordHttpRequest, recordHttpResponse } from '../Metrics.ts';
 import { getCurrentRequestContext } from '../RequestContext.ts';
 import { SseResponse } from './SseResponse.ts';
 import { PrismApp, endpointKey } from '../app/PrismApp.ts';
+import { logError } from '../logging/index.ts';
+
+export { createEndpoint } from '../endpoints/createEndpoint.ts';
 
 type EndpointRequireOption = 'authenticated-user';
 
@@ -34,25 +37,6 @@ export function getRequestDataFromReq(req: Request): any {
   }
 
   return result;
-}
-
-export function createEndpoint(
-  definition: EndpointDefinition
-): EndpointDefinition {
-  return definition;
-}
-
-// Helper for logging - can be overridden by applications
-export let logDebug = (message: string) => console.log(`[DEBUG] ${message}`);
-export let logWarn = (message: string) => console.warn(`[WARN] ${message}`);
-export let logError = (message: string, details?: any, error?: Error) => {
-  console.error(`[ERROR] ${message}`, details, error);
-};
-
-export function setLoggers(debug: typeof logDebug, warn: typeof logWarn, error: typeof logError) {
-  logDebug = debug;
-  logWarn = warn;
-  logError = error;
 }
 
 function getOneHandler(
@@ -181,3 +165,7 @@ export function mountMiddlewares(
 ): void {
   middlewares.forEach(middleware => mountMiddleware(app, middleware));
 }
+function logDebug(arg0: string) {
+  throw new Error('Function not implemented.');
+}
+
