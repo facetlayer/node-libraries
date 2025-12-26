@@ -46,6 +46,6 @@ It's recommended to use the `@facetlayer/port-assignment` tool if you need to as
 
 Example:
 
-    port-assigment claim --name <project name>
+    npx @facetlayer/port-assignment claim --name <project name>
 
-Run `port-assigment list-docs` for more documentation.
+Run `npx @facetlayer/port-assigment list-docs` for more documentation.

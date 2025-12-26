@@ -67,3 +67,16 @@ The top level of the project should have these dependencies:
 
     `pnpm add typescript dotenv @facetlayer-prism-framework-tools`
 
+## Local service management
+
+Prism projects usually use the `candle` tool (from @facetlayer/candle) to run local services.
+
+Examples:
+
+ Browse documentation:
+   `candle list-docs`
+
+ Set up services in the .candle.json file:
+   `candle add-service api "node --watch src/_main/api.ts" --root ./api
+   `candle add-service web "pnpm dev" --root ./web
+
