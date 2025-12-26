@@ -14,6 +14,7 @@ packages:
   - generic-lexer
   - goob-static-web-server
   - goobernetes
+  - library-docs-tool
   - lsp-dev-tools
   - parse-stdout-lines
   - port-assignment

@@ -353,6 +353,34 @@ importers:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
+  library-docs-tool:
+    dependencies:
+      '@facetlayer/doc-files-helper':
+        specifier: ^0.1.2
+        version: 0.1.2
+      '@facetlayer/userdata-db':
+        specifier: ^0.1.1
+        version: 0.1.1
+      yargs:
+        specifier: 18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: 0.3.1
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: 17.0.34
+        version: 17.0.34
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+
   lsp-dev-tools:
     dependencies:
       typescript:

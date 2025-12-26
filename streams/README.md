@@ -50,9 +50,62 @@ One stream can only have one receiver and the receiver can't be changed after cr
 
 The receiver can be:
 
- - A function that takes a `StreamEvent` as its input.
+ - A function that takes a `StreamEvent` as its input (simple callback style).
  - An object that implements a function `.event(event: StreamEvent)`.
- - Another `Stream` instance (which has `.event`);
+ - Another `Stream` instance (which has `.event`).
+
+**Example - Simple callback:**
+
+```typescript
+const stream = new Stream();
+
+// Use pipe() with a simple callback to receive all events
+stream.pipe((event) => {
+  switch (event.t) {
+    case 'item':
+      console.log('Received item:', event.item);
+      break;
+    case 'done':
+      console.log('Stream completed');
+      break;
+    case 'fail':
+      console.error('Stream failed:', event.error);
+      break;
+  }
+});
+
+stream.item('hello');
+stream.item('world');
+stream.done();
+```
+
+### `Stream.listen(callbacks)` ###
+
+A convenience wrapper around `pipe()` that takes an object with separate callbacks for each event type.
+This is useful when you only care about certain event types.
+
+**Parameters:**
+- `callbacks.item?(item)` - Called for each item event
+- `callbacks.done?()` - Called when the stream completes successfully
+- `callbacks.fail?(error)` - Called if the stream fails
+
+**Example:**
+
+```typescript
+const stream = new Stream();
+
+// Use listen() when you want separate handlers for each event type
+stream.listen({
+  item: (msg) => console.log('Received:', msg),
+  done: () => console.log('All done!'),
+  fail: (err) => console.error('Error:', err.errorMessage)
+});
+
+stream.item('hello');
+stream.done();
+```
+
+**Note:** Unlike `pipe()`, `listen()` does not accept a simple callback function. Use `pipe()` if you want to handle all events with a single callback.
 
 ## Error handling ##
 

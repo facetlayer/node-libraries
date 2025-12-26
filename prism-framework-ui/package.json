@@ -16,7 +16,7 @@
     "dev": "tsc -p . --watch",
     "prepublishOnly": "pnpm run build",
     "test": "vitest run --testTimeout=30000",
-    "local-install": "pnpm build && npm i -g ."
+    "local:install": "pnpm build && npm i -g ."
   },
   "keywords": [
     "framework",
@@ -49,8 +49,6 @@
     "vitest": "1.6.0"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.0.0",
-    "@tanstack/react-query-devtools": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

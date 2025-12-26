@@ -26,30 +26,67 @@ to read more about the motivations for this).
 
 Create a new database:
 
-```
-let _db = new DatabaseLoader({
-    filename: './something.sqlite',
-    schema: {
-        name: 'SomethingDatabase',
-        statements: [
-            `create table some_table(
-                ...
-            )`,
-        ]
-    }
-});
+```typescript
+import { DatabaseLoader, loadBetterSqlite, SqliteDatabase, LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
+import { Stream } from '@facetlayer/streams';
+
+// loadBetterSqlite() is async - call it once at startup
+let _loadDatabaseFn: LoadDatabaseFn | null = null;
+let _dbLoader: DatabaseLoader | null = null;
+
+export async function initDatabase(): Promise<void> {
+    _loadDatabaseFn = await loadBetterSqlite();
+}
 
 export function getDatabase(): SqliteDatabase {
-    return _db.load();
+    if (!_loadDatabaseFn) {
+        throw new Error('Database not initialized. Call initDatabase() first.');
+    }
+
+    if (!_dbLoader) {
+        const logs = new Stream<string>();
+        logs.listen({ item: (msg) => console.log('[DB]', msg) });
+
+        _dbLoader = new DatabaseLoader({
+            filename: './something.sqlite',
+            schema: {
+                name: 'SomethingDatabase',
+                statements: [
+                    `create table some_table(
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL
+                    )`,
+                ]
+            },
+            logs,
+            loadDatabase: _loadDatabaseFn,
+            migrationBehavior: 'safe-upgrades'
+        });
+    }
+    return _dbLoader.load();
 }
 ```
 
 Use the database:
 
+```typescript
+// At app startup
+await initDatabase();
+
+// Then use throughout your app
+const db = getDatabase();
+const user = db.get(`select * from user_table where user_id = ?`, [user_id]);
 ```
-    const db = getDatabase();
-    const user = db.get(`select * from user_table where user_id = ?`, [user_id]);
-```
+
+### DatabaseLoader Options
+
+The `DatabaseLoader` constructor requires the following options:
+
+- `filename` (string): Path to the SQLite database file
+- `schema` (DatabaseSchema): Object with `name` and `statements` array
+- `logs` (Stream): A Stream instance for logging database operations
+- `loadDatabase` (LoadDatabaseFn): The function returned by `loadBetterSqlite()`
+- `migrationBehavior` (MigrationBehavior): One of `'ignore'`, `'strict'`, `'safe-upgrades'`, or `'full-destructive-updates'`
 
 # API #
 
@@ -140,32 +177,33 @@ The SQL statement will look like `insert into <tableName> (...) values (...)`
 The columns & values will be built using the `row` object, which
 is plain object where each field is a column name.
 
-##### SqliteDatabase.update(tableName, where, whereValues, row)
+##### SqliteDatabase.update(tableName, whereClause, row)
 
 Convenience function that builds an `update` statement.
 
 **Parameters:**
 - `tableName` (string): The name of the table to update
-- `where` (string): The WHERE clause condition (e.g., 'id = ?' or 'name = ? AND active = ?')
-- `whereValues` (array): Array of values to substitute for the ? placeholders in the WHERE clause
+- `whereClause` (object): Object specifying the WHERE conditions, where each key is a column name and value is the expected value (uses equality matching)
 - `row` (object): Object containing the columns to update, where each key is a column name and value is the new value
 
 **Example:**
 ```javascript
 // Update a single record by ID
-db.update('users', 'id = ?', [123], { 
-  name: 'John Doe', 
-  email: 'john@example.com' 
+db.update('users', { id: 123 }, {
+  name: 'John Doe',
+  email: 'john@example.com'
 });
 
-// Update multiple records with complex conditions
-db.update('products', 'category = ? AND price < ?', ['electronics', 100], {
+// Update with multiple WHERE conditions (AND)
+db.update('products', { category: 'electronics', active: true }, {
   discount: 0.1,
   updated_at: Date.now()
 });
 ```
 
-The generated SQL will look like: `UPDATE <tableName> SET column1 = ?, column2 = ? WHERE <where condition>`
+The generated SQL will look like: `UPDATE <tableName> SET column1 = ?, column2 = ? WHERE key1 = ? AND key2 = ?`
+
+**Note:** For complex WHERE conditions (e.g., `>`, `<`, `LIKE`, `OR`), use `db.run()` directly with a custom SQL statement.
 
 #### SqliteDatabase.upsert(tableName, where: Record<string,any>, row: Record<string, any>)
 
