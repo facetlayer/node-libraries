@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 (2025-12-26)
+
+- Fix OpenAPI type generation (fix operationIds)
+
 ## 0.2.4 (2025-12-26)
 
 - Added validation checks on endpoints

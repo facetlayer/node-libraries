@@ -11,6 +11,7 @@ import { mountOpenAPIEndpoints, OpenAPIConfig } from './openapi/OpenAPI.ts';
 import { createListingEndpoints } from './EndpointListing.ts';
 import { captureError } from '@facetlayer/Streams';
 import { logError, logInfo } from '../logging/index.ts';
+import { validateAppOrThrow } from '../app/validateApp.ts';
 
 export interface ServerSetupConfig {
   port: number;
@@ -85,6 +86,9 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
 }
 
 export async function startServer(config: ServerSetupConfig): Promise<Server> {
+  // Validate app configuration before starting
+  validateAppOrThrow(config.app);
+
   const port = config.port;
 
   const app = createExpressApp(config);

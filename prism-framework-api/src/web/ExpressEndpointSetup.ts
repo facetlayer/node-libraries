@@ -19,6 +19,12 @@ export interface EndpointDefinition {
   responseSchema?: z.ZodSchema;
   description?: string;
   requires?: EndpointRequireOption[];
+  /**
+   * Unique identifier for this endpoint in the OpenAPI schema.
+   * If not provided, one will be generated from the method and path.
+   * Must be unique across all endpoints in the app.
+   */
+  operationId?: string;
 }
 
 export function getRequestDataFromReq(req: Request): any {

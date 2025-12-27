@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { createEndpoint } from '../endpoints/createEndpoint.ts';
+import { createEndpoint, isValidOperationId, generateOperationIdFromPath, getEffectiveOperationId } from '../endpoints/createEndpoint.ts';
 import { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
 
 describe('createEndpoint', () => {
@@ -251,5 +251,181 @@ describe('createEndpoint', () => {
 
       expect(() => result.handler({})).toThrow('/schema-error-path');
     });
+  });
+
+  describe('operationId validation', () => {
+    it('should reject operationId "handler"', () => {
+      const definition: EndpointDefinition = {
+        method: 'GET',
+        path: '/test',
+        operationId: 'handler',
+        handler: async () => ({}),
+      };
+
+      const result = createEndpoint(definition);
+
+      expect(() => result.handler({})).toThrow('operationId "handler" is not allowed');
+    });
+
+    it('should reject operationId "anonymous"', () => {
+      const definition: EndpointDefinition = {
+        method: 'GET',
+        path: '/test',
+        operationId: 'anonymous',
+        handler: async () => ({}),
+      };
+
+      const result = createEndpoint(definition);
+
+      expect(() => result.handler({})).toThrow('operationId "anonymous" is not allowed');
+    });
+
+    it('should reject empty operationId', () => {
+      const definition: EndpointDefinition = {
+        method: 'GET',
+        path: '/test',
+        operationId: '',
+        handler: async () => ({}),
+      };
+
+      const result = createEndpoint(definition);
+
+      expect(() => result.handler({})).toThrow('operationId "" is not allowed');
+    });
+
+    it('should allow valid operationId', () => {
+      const originalHandler = async () => ({});
+      const definition: EndpointDefinition = {
+        method: 'GET',
+        path: '/test',
+        operationId: 'getTestData',
+        handler: originalHandler,
+      };
+
+      const result = createEndpoint(definition);
+
+      expect(result.handler).toBe(originalHandler);
+    });
+
+    it('should allow undefined operationId', () => {
+      const originalHandler = async () => ({});
+      const definition: EndpointDefinition = {
+        method: 'GET',
+        path: '/test',
+        handler: originalHandler,
+      };
+
+      const result = createEndpoint(definition);
+
+      expect(result.handler).toBe(originalHandler);
+    });
+  });
+});
+
+describe('isValidOperationId', () => {
+  it('should return true for undefined', () => {
+    expect(isValidOperationId(undefined)).toBe(true);
+  });
+
+  it('should return false for "handler"', () => {
+    expect(isValidOperationId('handler')).toBe(false);
+  });
+
+  it('should return false for "anonymous"', () => {
+    expect(isValidOperationId('anonymous')).toBe(false);
+  });
+
+  it('should return false for empty string', () => {
+    expect(isValidOperationId('')).toBe(false);
+  });
+
+  it('should return true for valid operationIds', () => {
+    expect(isValidOperationId('getUsers')).toBe(true);
+    expect(isValidOperationId('createUser')).toBe(true);
+    expect(isValidOperationId('deleteUserById')).toBe(true);
+  });
+});
+
+describe('generateOperationIdFromPath', () => {
+  it('should generate operationId from simple path', () => {
+    expect(generateOperationIdFromPath('GET', '/users')).toBe('getUsers');
+  });
+
+  it('should generate operationId from path with multiple segments', () => {
+    expect(generateOperationIdFromPath('POST', '/users/profile')).toBe('postUsersProfile');
+  });
+
+  it('should handle path parameters', () => {
+    expect(generateOperationIdFromPath('GET', '/users/:id')).toBe('getUsers_id');
+  });
+
+  it('should handle multiple path parameters', () => {
+    expect(generateOperationIdFromPath('PUT', '/users/:userId/posts/:postId')).toBe('putUsers_userIdPosts_postId');
+  });
+
+  it('should handle different HTTP methods', () => {
+    expect(generateOperationIdFromPath('DELETE', '/users/:id')).toBe('deleteUsers_id');
+    expect(generateOperationIdFromPath('PATCH', '/users/:id')).toBe('patchUsers_id');
+  });
+
+  it('should handle root path', () => {
+    expect(generateOperationIdFromPath('GET', '/')).toBe('get');
+  });
+});
+
+describe('getEffectiveOperationId', () => {
+  it('should use explicit operationId when provided', () => {
+    const definition: EndpointDefinition = {
+      method: 'GET',
+      path: '/users',
+      operationId: 'listAllUsers',
+      handler: async function getUsers() { return []; },
+    };
+
+    expect(getEffectiveOperationId(definition)).toBe('listAllUsers');
+  });
+
+  it('should use handler function name when operationId not provided', () => {
+    async function fetchUserProfile() { return {}; }
+    const definition: EndpointDefinition = {
+      method: 'GET',
+      path: '/users/:id',
+      handler: fetchUserProfile,
+    };
+
+    expect(getEffectiveOperationId(definition)).toBe('fetchUserProfile');
+  });
+
+  it('should fall back to auto-generated when handler name is "handler"', () => {
+    const definition: EndpointDefinition = {
+      method: 'GET',
+      path: '/users/:id',
+      handler: async function handler() { return {}; },
+    };
+
+    expect(getEffectiveOperationId(definition)).toBe('getUsers_id');
+  });
+
+  it('should fall back to auto-generated for arrow functions', () => {
+    const definition: EndpointDefinition = {
+      method: 'POST',
+      path: '/users',
+      handler: async () => ({}),
+    };
+
+    // Arrow functions have empty string as name
+    expect(getEffectiveOperationId(definition)).toBe('postUsers');
+  });
+
+  it('should ignore invalid explicit operationId and use handler name', () => {
+    async function createNewUser() { return {}; }
+    const definition: EndpointDefinition = {
+      method: 'POST',
+      path: '/users',
+      operationId: 'handler', // Invalid
+      handler: createNewUser,
+    };
+
+    expect(getEffectiveOperationId(definition)).toBe('createNewUser');
   });
 });

@@ -19,6 +19,7 @@ import { PrismApp } from '../../app/PrismApp.ts';
 import express, { Request, Response } from 'express';
 import { captureError } from '@facetlayer/Streams'
 import { validateServicesForOpenapi } from './validateServicesForOpenapi.ts';
+import { getEffectiveOperationId } from '../../endpoints/createEndpoint.ts';
 
 export { validateServicesForOpenapi as validateEndpointForOpenapi } from './validateServicesForOpenapi.ts';
 
@@ -117,7 +118,7 @@ export function generateOpenAPISchema(
             method: endpoint.method.toLowerCase() as any,
             path: openApiPath,
             description: endpoint.description || `${endpoint.method} ${endpoint.path}`,
-            operationId: endpoint.handler.name,
+            operationId: getEffectiveOperationId(endpoint),
             request: requestConfig,
             responses: {
               200: {
