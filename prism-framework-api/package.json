@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework-api",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
   "description": "API component of the Prism app framework",
   "main": "dist/index.js",

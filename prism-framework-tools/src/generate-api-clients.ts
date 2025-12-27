@@ -89,8 +89,8 @@ function schemaToTypeScript(schema: any, components?: Record<string, any>, inden
   }
 }
 
-import { writeFileSync } from 'fs';
-import { resolve } from 'path';
+import { mkdirSync, writeFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 
 export async function generateApiClients(baseUrl: string, outputFiles: string[]): Promise<void> {
   if (outputFiles.length === 0) {
@@ -177,6 +177,7 @@ export async function generateApiClients(baseUrl: string, outputFiles: string[])
     // Write to each output file
     for (const outputFile of outputFiles) {
       const resolvedPath = resolve(outputFile);
+      mkdirSync(dirname(resolvedPath), { recursive: true });
       writeFileSync(resolvedPath, content, 'utf-8');
       console.log(`Written: ${resolvedPath}`);
     }
