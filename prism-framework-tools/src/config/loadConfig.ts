@@ -18,9 +18,14 @@ export function loadConfig(cwd: string): ConfigFile | null {
   const generateApiClientTargets: GenerateApiClientTarget[] = [];
 
   for (const query of queries) {
-    if (query.command === 'generate-api-client') {
-      const outputFile = query.getStringValue('output-file');
-      generateApiClientTargets.push({ outputFile });
+    switch (query.command) {
+      case 'generate-api-client': {
+        const outputFile = query.getStringValue('output-file');
+        generateApiClientTargets.push({ outputFile });
+        break;
+      }
+      default:
+        throw new Error(`Unknown command "${query.command}" in ${CONFIG_FILENAME}`);
     }
   }
 
