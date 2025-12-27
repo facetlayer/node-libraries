@@ -371,6 +371,34 @@ describe('generateOperationIdFromPath', () => {
   it('should handle root path', () => {
     expect(generateOperationIdFromPath('GET', '/')).toBe('get');
   });
+
+  it('should convert hyphenated segments to camelCase', () => {
+    expect(generateOperationIdFromPath('GET', '/undo-redo-state')).toBe('getUndoRedoState');
+  });
+
+  it('should handle path with hyphenated segment after parameter', () => {
+    expect(generateOperationIdFromPath('GET', '/designs/:id/undo-redo-state')).toBe('getDesigns_idUndoRedoState');
+  });
+
+  it('should handle OpenAPI-style {id} path parameters', () => {
+    expect(generateOperationIdFromPath('GET', '/users/{id}')).toBe('getUsers_id');
+  });
+
+  it('should handle OpenAPI-style parameters with hyphenated paths', () => {
+    expect(generateOperationIdFromPath('GET', '/designer/designs/{id}/undo-redo-state')).toBe('getDesignerDesigns_idUndoRedoState');
+  });
+
+  it('should handle multiple hyphenated segments', () => {
+    expect(generateOperationIdFromPath('POST', '/user-profile/account-settings')).toBe('postUserProfileAccountSettings');
+  });
+
+  it('should handle hyphenated path parameters', () => {
+    expect(generateOperationIdFromPath('GET', '/users/:user-id/posts/:post-id')).toBe('getUsers_userIdPosts_postId');
+  });
+
+  it('should handle OpenAPI-style hyphenated path parameters', () => {
+    expect(generateOperationIdFromPath('GET', '/users/{user-id}/posts/{post-id}')).toBe('getUsers_userIdPosts_postId');
+  });
 });
 
 describe('getEffectiveOperationId', () => {

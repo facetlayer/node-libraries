@@ -148,16 +148,23 @@ export async function generateApiClients(baseUrl: string, outputFiles: string[])
       }
     }
 
+    // Generate ApiEndpoint union type
+    lines.push('// Union type of all valid endpoints');
+    lines.push('export type ApiEndpoint =');
+    const endpointStrings = endpointMap.map(({ method, path }) => `  | "${method} ${path}"`);
+    lines.push(endpointStrings.join('\n'));
+    lines.push(';\n');
+
     // Generate generic RequestType and ResponseType
     lines.push('// Generic Request/Response Types by Endpoint');
-    lines.push('export type RequestType<T extends string> =');
+    lines.push('export type RequestType<T extends ApiEndpoint> =');
     const requestCases = endpointMap.map(({ method, path, operationId }) =>
       `  T extends "${method} ${path}" ? ${capitalizeFirst(operationId)}Request :`
     );
     lines.push(requestCases.join('\n'));
     lines.push('  never;\n');
 
-    lines.push('export type ResponseType<T extends string> =');
+    lines.push('export type ResponseType<T extends ApiEndpoint> =');
     const responseCases = endpointMap.map(({ method, path, operationId }) =>
       `  T extends "${method} ${path}" ? ${capitalizeFirst(operationId)}Response :`
     );
