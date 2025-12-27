@@ -1,17 +1,40 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join, resolve } from 'path';
 import { parseFile } from '@facetlayer/qc';
 import type { ConfigFile, GenerateApiClientTarget } from './ConfigFile.ts';
 
 const CONFIG_FILENAME = '.prism.qc';
 
-export function loadConfig(cwd: string): ConfigFile | null {
-  const configPath = join(cwd, CONFIG_FILENAME);
+export interface LoadConfigResult {
+  config: ConfigFile;
+  configDir: string;
+}
 
-  if (!existsSync(configPath)) {
-    return null;
+/**
+ * Find and load the .prism.qc config file.
+ * Searches in the provided directory and parent directories until found or root is reached.
+ */
+export function loadConfig(cwd: string): LoadConfigResult | null {
+  let currentDir = resolve(cwd);
+
+  while (true) {
+    const configPath = join(currentDir, CONFIG_FILENAME);
+
+    if (existsSync(configPath)) {
+      const config = parseConfigFile(configPath);
+      return { config, configDir: currentDir };
+    }
+
+    const parentDir = dirname(currentDir);
+    if (parentDir === currentDir) {
+      // Reached root directory
+      return null;
+    }
+    currentDir = parentDir;
   }
+}
 
+function parseConfigFile(configPath: string): ConfigFile {
   const content = readFileSync(configPath, 'utf-8');
   const queries = parseFile(content);
 

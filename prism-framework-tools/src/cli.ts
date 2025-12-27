@@ -118,14 +118,14 @@ async function main() {
           if (argv.out && argv.out.length > 0) {
             outputFiles = argv.out;
           } else {
-            const prismConfig = loadConfig(cwd);
-            if (!prismConfig || prismConfig.generateApiClientTargets.length === 0) {
+            const result = loadConfig(cwd);
+            if (!result || result.config.generateApiClientTargets.length === 0) {
               console.error('Error: No output files specified.');
               console.error('Either use --out to specify output files, or configure targets in .prism.qc:');
               console.error('  generate-api-client-target out=./src/api-types.ts');
               process.exit(1);
             }
-            outputFiles = prismConfig.generateApiClientTargets.map(t => t.outputFile);
+            outputFiles = result.config.generateApiClientTargets.map(t => t.outputFile);
           }
 
           await generateApiClients(envConfig.baseUrl, outputFiles);
