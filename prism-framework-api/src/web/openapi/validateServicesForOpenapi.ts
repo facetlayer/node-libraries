@@ -1,6 +1,6 @@
-import { ServiceDefinition } from "../../ServiceDefinition";
-import { EndpointDefinition } from "../ExpressEndpointSetup";
-import { generateOpenAPISchema } from "./OpenAPI";
+import { ServiceDefinition } from "../../ServiceDefinition.ts";
+import { EndpointDefinition } from "../ExpressEndpointSetup.ts";
+import { generateOpenAPISchema } from "./OpenAPI.ts";
 import { captureError, ErrorDetails } from "@facetlayer/Streams";
 
 export interface EndpointValidationResult {

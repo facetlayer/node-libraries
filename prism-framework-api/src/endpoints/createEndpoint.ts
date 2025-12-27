@@ -1,6 +1,6 @@
-import { logWarn } from "../logging";
-import { EndpointDefinition } from "../web/ExpressEndpointSetup";
-import { validateEndpointForOpenapi, validateServicesForOpenapi } from "../web/openapi/validateServicesForOpenapi";
+import { logWarn } from "../logging/index.ts";
+import { EndpointDefinition } from "../web/ExpressEndpointSetup.ts";
+import { validateEndpointForOpenapi } from "../web/openapi/validateServicesForOpenapi.ts";
 
 export function createEndpoint(
     definition: EndpointDefinition
