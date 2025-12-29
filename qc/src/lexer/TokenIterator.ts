@@ -1,8 +1,9 @@
 
-import { Token, t_space, t_newline, t_ident } from '.'
-import SourcePos from './SourcePos'
-import TokenDef from './TokenDef'
-import { LexedText } from './LexedText'
+import type { Token } from './Token.ts'
+import { t_space, t_newline, t_ident } from './index.ts'
+import type { SourcePos } from './SourcePos.ts'
+import type { TokenDef } from './TokenDef.ts'
+import { LexedText } from './LexedText.ts'
 
 export interface Options {
     reverse?: boolean

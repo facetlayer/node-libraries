@@ -1,7 +1,7 @@
-import { parseQueryTag } from "../parseQueryTag";
+import { parseQueryTag } from "../parseQueryTag.ts";
 import { it, expect, describe } from 'vitest'
-import { Tag } from '../../query'
-import { TagSpecialValueType } from "../../query/QueryTag";
+import { Tag } from '../../query/index.ts'
+import { TAG_STAR_VALUE } from "../../query/QueryTag.ts";
 
 function checkTag(actual: any, desired: any) {
     expect(actual.attr).toEqual(desired.attr);
@@ -99,7 +99,7 @@ it(`parses attr=*"`, () => {
 
     // Check that the tag has attr = 'theattr' and value = '123'
     expect(parsed.attr).toEqual('attr');
-    expect((parsed.value as any).t).toEqual(TagSpecialValueType.star);
+    expect((parsed.value as any).t).toEqual(TAG_STAR_VALUE);
 });
 
 it("parses attr=(tuple)", () => {

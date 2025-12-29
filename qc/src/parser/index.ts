@@ -1,5 +1,5 @@
 
-export { parseQuery, parseMultiStepQuery } from './parseQuery'
-export { parseQueryTag } from './parseQueryTag'
-export { parseFile } from './parseFile'
-export { ParseError } from './ParseError'
+export { parseQuery, parseMultiStepQuery } from './parseQuery.ts'
+export { parseQueryTag } from './parseQueryTag.ts'
+export { parseFile } from './parseFile.ts'
+export { ParseError } from './ParseError.ts'

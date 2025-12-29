@@ -1,6 +1,6 @@
 
-export { Query, Tag } from './Query'
-export type { QueryNode, QueryLike } from './Query'
-export { TagList } from './TagList'
-export { toQuery, toQueryNode } from './toQuery'
-export { queryToString } from './queryToString'
+export { Query, Tag } from './Query.ts'
+export type { QueryNode, QueryLike } from './Query.ts'
+export { TagList } from './TagList.ts'
+export { toQuery, toQueryNode } from './toQuery.ts'
+export { queryToString } from './queryToString.ts'

@@ -1,5 +1,5 @@
 
-export default interface TokenDef {
+export interface TokenDef {
     name: string
     str?: string
     bracketPairsWith?: string

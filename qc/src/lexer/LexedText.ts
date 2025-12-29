@@ -1,11 +1,12 @@
 // Simplified lexed text without table dependencies
-import { LexerSettings } from './LexerSettings'
-import { lexTextToTokenList } from './lexifyString'
-import { t_space, t_newline, t_tab, t_quoted_string } from './tokens'
-import { Token, getTokenText } from './Token'
-import { TokenIterator, Options as IteratorOptions } from './TokenIterator'
-import { Query, Tag } from '../query'
-import unescape from './unescape'
+import type { LexerSettings } from './LexerSettings.ts'
+import { lexTextToTokenList } from './lexifyString.ts'
+import { t_space, t_newline, t_tab, t_quoted_string } from './tokens.ts'
+import type { Token } from './Token.ts'
+import { getTokenText } from './Token.ts'
+import { TokenIterator } from './TokenIterator.ts'
+import type { Options as IteratorOptions } from './TokenIterator.ts'
+import { unescape } from './unescape.ts'
 
 interface SourceLine {
     lineNumber: number

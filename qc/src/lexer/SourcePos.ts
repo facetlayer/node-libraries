@@ -1,5 +1,5 @@
 
-export default interface SourcePos {
+export interface SourcePos {
     filename?: string
     lineStart: number
     lineEnd: number

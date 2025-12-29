@@ -1,6 +1,6 @@
 
 import { it, expect } from 'vitest'
-import { OldTokenIterator } from '../OldTokenIterator'
+import { OldTokenIterator } from '../OldTokenIterator.ts'
 import { t_plain_value, t_space, lexifyString } from '..';
 
 //describe('sourcePosToHere', () => {

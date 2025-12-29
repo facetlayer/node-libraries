@@ -1,6 +1,7 @@
 
-import { Query, QueryLike, QueryNode } from './Query'
-import { parseQuery } from '../parser/parseQuery'
+import { Query } from './Query.ts'
+import type { QueryLike, QueryNode } from './Query.ts'
+import { parseQuery } from '../parser/parseQuery.ts'
 
 export function toQueryNode(queryLike: QueryLike): QueryNode {
     if (queryLike && (queryLike as Query)?.t === 'query')

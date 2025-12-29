@@ -1,13 +1,11 @@
 
-import TokenDef_ from './TokenDef'
+export * from './tokens.ts'
+export { OldTokenIterator } from './OldTokenIterator.ts'
+export { TokenIterator } from './TokenIterator.ts'
+export { OldLexedText } from './OldLexedText.ts'
+export { LexedText } from './LexedText.ts'
+export type { Range, TextRange, TokenRange } from './LexedText.ts'
+export { lexifyString, lexStringToIterator } from './lexifyString.ts'
 
-export * from './tokens'
-export { OldTokenIterator } from './OldTokenIterator'
-export { TokenIterator } from './TokenIterator'
-export { OldLexedText } from './OldLexedText'
-export { LexedText } from './LexedText'
-export type { Range, TextRange, TokenRange } from './LexedText'
-export { lexifyString, lexStringToIterator } from './lexifyString'
-
-export type { Token } from './Token'
-export type TokenDef = TokenDef_;
+export type { Token } from './Token.ts'
+export type { TokenDef } from './TokenDef.ts'

@@ -1,14 +1,15 @@
 
 import { LexedText, TokenIterator, t_plain_value, t_bar, t_slash,
-    t_integer, t_rparen, t_right_arrow, t_comma, t_semicolon, 
-    Token,
+    t_integer, t_rparen, t_right_arrow, t_comma, t_semicolon,
     t_line_comment,
     t_space,
-    t_newline} from '../lexer'
-import { parseQueryTagFromTokens } from './parseQueryTag'
-import { ParseError } from './ParseError'
-import { Tag, Query, QueryNode, } from '../query'
-import { MultistepQuery } from '../query/Query';
+    t_newline} from '../lexer/index.ts'
+import type { Token } from '../lexer/index.ts'
+import { parseQueryTagFromTokens } from './parseQueryTag.ts'
+import { ParseError } from './ParseError.ts'
+import { Tag, Query } from '../query/index.ts'
+import type { QueryNode } from '../query/index.ts'
+import { MultistepQuery } from '../query/Query.ts';
 
 export interface QueryParseContext {
     insideParen?: boolean;

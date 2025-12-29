@@ -1,8 +1,8 @@
 
-import { LexContext } from './LexContext'
-import { OldTokenIterator } from './OldTokenIterator'
-import { OldLexedText } from './OldLexedText'
-import { LexerSettings } from './LexerSettings'
+import { LexContext } from './LexContext.ts'
+import { OldTokenIterator } from './OldTokenIterator.ts'
+import { OldLexedText } from './OldLexedText.ts'
+import type { LexerSettings } from './LexerSettings.ts'
 import { t_ident, t_integer, t_unrecognized, t_space, t_double_dash,
     t_line_comment, t_block_comment, t_quoted_string, t_double_equals,
     t_double_bar, t_double_amp,
@@ -10,8 +10,8 @@ import { t_ident, t_integer, t_unrecognized, t_space, t_double_dash,
     t_right_fat_arrow, tokenFromSingleCharCode,
     t_triple_equals, t_bang_equals, t_bang_double_equals,
 
-} from './tokens'
-import { Token } from './Token'
+} from './tokens.ts'
+import type { Token } from './Token.ts'
 
 const c_0 = '0'.charCodeAt(0);
 const c_9 = '9'.charCodeAt(0);

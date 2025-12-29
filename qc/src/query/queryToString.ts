@@ -1,4 +1,4 @@
-import { QueryLike } from "./Query";
+import type { QueryLike } from "./Query.ts";
 
 export function queryToString(queryLike: QueryLike): string {
     if (typeof queryLike === 'string')

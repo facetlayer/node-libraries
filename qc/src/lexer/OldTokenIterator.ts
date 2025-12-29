@@ -1,8 +1,9 @@
 
-import { Token, OldLexedText, t_space, t_newline, t_ident } from '.'
-import SourcePos from './SourcePos'
-import TokenDef from './TokenDef'
-import { LexerSettings } from './LexerSettings'
+import type { Token } from './Token.ts'
+import { OldLexedText, t_space, t_newline, t_ident } from './index.ts'
+import type { SourcePos } from './SourcePos.ts'
+import type { TokenDef } from './TokenDef.ts'
+import type { LexerSettings } from './LexerSettings.ts'
 
 export class OldTokenIterator {
     position: number = 0

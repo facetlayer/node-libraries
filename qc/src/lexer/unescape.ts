@@ -1,5 +1,5 @@
 
-export default function unescape(s: string) {
+export function unescape(s: string) {
     const out = [];
 
     let sliceStart = 0;

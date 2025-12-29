@@ -1,4 +1,4 @@
-import { parseQuery } from "../parseQuery";
+import { parseQuery } from "../parseQuery.ts";
 import { it, expect } from 'vitest'
 
 it("parseQuery parses a single step query", () => {

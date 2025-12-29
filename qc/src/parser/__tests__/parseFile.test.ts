@@ -1,7 +1,7 @@
 
-import { Query } from '../../query';
+import { Query } from '../../query/index.ts';
 import { it, expect } from 'vitest'
-import { parseFile } from '../parseFile'
+import { parseFile } from '../parseFile.ts'
 
 it('parses a file with a single query', () => {
     const parsed = parseFile('a b c');

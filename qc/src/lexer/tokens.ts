@@ -1,5 +1,5 @@
 
-import TokenDef from './TokenDef'
+import type { TokenDef } from './TokenDef.ts'
 
 export const t_lparen: TokenDef = {
     name: "lparen",

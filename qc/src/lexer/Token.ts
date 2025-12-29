@@ -1,5 +1,5 @@
 
-import TokenDef from './TokenDef'
+import type { TokenDef } from './TokenDef.ts'
 
 export interface Token {
     match: TokenDef

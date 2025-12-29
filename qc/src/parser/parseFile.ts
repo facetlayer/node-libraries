@@ -1,6 +1,7 @@
-import { LexedText, t_line_comment, t_semicolon } from "../lexer";
-import { Query, QueryNode } from "../query";
-import { parseQueryFromTokens } from "./parseQuery";
+import { LexedText, t_line_comment, t_semicolon } from "../lexer/index.ts";
+import { Query } from "../query/index.ts";
+import type { QueryNode } from "../query/index.ts";
+import { parseQueryFromTokens } from "./parseQuery.ts";
 
 export function parseFile(fileContents: string): Query[] {
     let queries: Query[] = [];

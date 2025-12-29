@@ -1,6 +1,8 @@
+#! /usr/bin/env node
+
 import * as fs from 'fs'
-import { parseFile } from '../parser'
-import { queryToString, Query, Tag, TagList } from '../query'
+import { parseFile } from '../parser/index.ts'
+import { queryToString, Query, Tag, TagList } from '../query/index.ts'
 
 function printTag(tag: Tag, indent: string): void {
     console.log(`${indent}- ${tag.attr}`)
@@ -99,3 +101,5 @@ export function main(): void {
     const filename = args[0]
     checkFile(filename)
 }
+
+main()

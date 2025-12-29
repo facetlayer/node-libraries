@@ -1,11 +1,12 @@
 
-import { Tag, TagValue } from './QueryTag'
-import { TagList } from './TagList'
+import { Tag } from './QueryTag.ts'
+import type { TagValue } from './QueryTag.ts'
+import { TagList } from './TagList.ts'
 
 export type QueryLike = string | Query | QueryNode
 export type QueryNode = MultistepQuery | Query | Tag
-export { Tag } from './QueryTag'
-export { TagList } from './TagList'
+export { Tag } from './QueryTag.ts'
+export { TagList } from './TagList.ts'
 
 export class MultistepQuery {
     t: 'multistep' = 'multistep'

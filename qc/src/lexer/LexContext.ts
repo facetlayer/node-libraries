@@ -1,8 +1,8 @@
 
-import { t_space, t_newline, } from './tokens'
-import { Token } from '.'
-import TokenDef from './TokenDef'
-import { LexerSettings } from './LexerSettings'
+import { t_space, t_newline, } from './tokens.ts'
+import type { Token } from './Token.ts'
+import type { TokenDef } from './TokenDef.ts'
+import type { LexerSettings } from './LexerSettings.ts'
 
 const c_newline = '\n'.charCodeAt(0);
 

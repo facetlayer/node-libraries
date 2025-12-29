@@ -1,4 +1,4 @@
-import { Tag } from './QueryTag'
+import { Tag } from './QueryTag.ts'
 
 export class TagList {
     t: 'taglist' = 'taglist'

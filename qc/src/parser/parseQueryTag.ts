@@ -1,11 +1,12 @@
 
 import { LexedText, TokenIterator, t_plain_value, t_slash, t_colon,
     t_dot, t_question, t_integer, t_dash, t_dollar, t_star,
-    t_lparen, t_rparen, t_equals, t_double_dash, t_space } from '../lexer'
-import { Query, Tag, QueryNode, TagList } from '../query'
-import { parseQueryFromTokens } from './parseQuery'
-import { ParseError } from './ParseError'
-import { TagSpecialValueType } from '../query/QueryTag';
+    t_lparen, t_rparen, t_equals, t_double_dash, t_space } from '../lexer/index.ts'
+import { Query, Tag, TagList } from '../query/index.ts'
+import type { QueryNode } from '../query/index.ts'
+import { parseQueryFromTokens } from './parseQuery.ts'
+import { ParseError } from './ParseError.ts'
+import { TAG_STAR_VALUE } from '../query/QueryTag.ts';
 
 function parseTagListFromTokens(it: TokenIterator): TagList | ParseError {
     const query = parseQueryFromTokens(it, { insideParen: true });
@@ -104,7 +105,7 @@ export function parseQueryTagFromTokens(it: TokenIterator): Tag {
         } else if (it.tryConsume(t_question)) {
             result.isValueOptional = true;
         } else if (it.tryConsume(t_star)) {
-            result.value = { t: TagSpecialValueType.star };
+            result.value = { t: TAG_STAR_VALUE };
         } else if (it.tryConsume(t_lparen)) {
             let tagList = parseTagListFromTokens(it);
 

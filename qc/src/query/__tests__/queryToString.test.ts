@@ -1,7 +1,7 @@
 
 import { toQuery } from '..';
 import { it, expect } from 'vitest'
-import { queryToString } from '../queryToString';
+import { queryToString } from '../queryToString.ts';
 
 it("handles bidirectional tests", () => {
     function bidirectionalTest(queryStr: string) {

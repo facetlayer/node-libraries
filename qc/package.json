@@ -1,26 +1,27 @@
 {
   "name": "@facetlayer/qc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
-  "dependencies": {},
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "bin": {
-    "qc-check-file": "./bin/qc-check-file"
+    "qc-check-file": "./dist/tools/checkFile.js"
   },
   "sideEffects": false,
   "scripts": {
-    "build": "tsc -p .",
-    "tsc": "tsc",
+    "build": "node build.mts build",
     "test": "vitest run --testTimeout=30000",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "node build.mts build && node build.mts validate"
   },
   "files": [
     "src",
     "dist",
-    "bin",
     "README.md"
   ],
+  "dependencies": {},
   "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.1",
     "@types/node": "^20.19.0",
     "typescript": "^5.2.0",
     "vitest": "^3.0.6"

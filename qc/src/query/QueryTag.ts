@@ -1,15 +1,13 @@
 
-import type { Query, QueryNode } from '../query'
-import type { TagList } from './TagList'
+import type { Query, QueryNode } from './Query.ts'
+import type { TagList } from './TagList.ts'
 
 export type TagValue = string | number | boolean | Query | QueryNode | TagList | TagStarValue;
 
-export enum TagSpecialValueType {
-    star = 1200
-}
+export const TAG_STAR_VALUE = 'star' as const;
 
 export interface TagStarValue {
-    t: TagSpecialValueType.star
+    t: typeof TAG_STAR_VALUE
 }
 
 export class Tag {
@@ -54,7 +52,7 @@ export class Tag {
     }
 
     isStar() {
-        return (this.value as any)?.t === TagSpecialValueType.star;
+        return (this.value as any)?.t === TAG_STAR_VALUE;
     }
 
     getQuery() {
@@ -85,7 +83,7 @@ export class Tag {
         if (this.value == null)
             return this.value;
 
-        if ((this.value as any)?.t === TagSpecialValueType.star)
+        if ((this.value as any)?.t === TAG_STAR_VALUE)
             throw new Error(".getValue usage error: tag has special value (star)");
 
         return this.value;

@@ -1,7 +1,7 @@
 
-import { Token } from './Token'
-import unescape from './unescape'
-import { t_quoted_string } from './tokens'
+import type { Token } from './Token.ts'
+import { unescape } from './unescape.ts'
+import { t_quoted_string } from './tokens.ts'
 
 export class OldLexedText {
     tokens: Token[]
