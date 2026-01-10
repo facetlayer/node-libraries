@@ -5,7 +5,7 @@ description: How to write and add documentation files for CLI tools
 
 # Writing Doc Files
 
-This guide explains how to write documentation files that work with `@facetlayer/doc-files-helper`.
+This guide explains how to write documentation files that work with `@facetlayer/docs-tool`.
 
 ## Doc File Format
 
@@ -71,7 +71,7 @@ To ensure your doc files are available through the CLI, you need to:
 2. **Configure DocFilesHelper** - In your CLI script, create an instance pointing to your docs:
 
 ```typescript
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],

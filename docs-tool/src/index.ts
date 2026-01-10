@@ -117,12 +117,12 @@ export class DocFilesHelper {
   formatGetDocCommand(filename: string): string {
     const script = relative(process.cwd(), process.argv[1]);
     const binName = basename(script);
-    // Handle cases like 'node .' or 'node dist/cli.js'
-    if (binName === '.' || binName.endsWith('.js') || binName.endsWith('.mjs')) {
-      const getDocSubcommand = this.options.overrideGetSubcommand || 'get-doc';
-      return `node ${script} ${getDocSubcommand} ${filename}`;
+    const subcommand = this.options.overrideGetSubcommand || 'show';
+    // Handle cases like 'node .' or 'node dist/cli.js' or 'node src/cli.ts'
+    if (binName === '.' || binName.endsWith('.js') || binName.endsWith('.mjs') || binName.endsWith('.ts')) {
+      return `node ${script} ${subcommand} ${filename}`;
     }
-    return `${binName} get-doc ${filename}`;
+    return `${binName} ${subcommand} ${filename}`;
   }
 
   /**
@@ -243,7 +243,7 @@ export class DocFilesHelper {
       console.log(`\n(File source: ${doc.fullPath})`);
     } catch {
       console.error(`Doc file not found: ${name}`);
-      console.error('Use "list-docs" to see available docs.');
+      console.error('Run with "list-docs" or "list" command to see available docs.');
       process.exit(1);
     }
   }

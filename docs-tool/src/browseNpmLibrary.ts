@@ -337,7 +337,11 @@ export function getLibraryDocs(libraryPath: string, libraryName: string): NpmLib
     dirs.push(docsPath);
   }
 
-  const helper = new DocFilesHelper({ dirs, files });
+  const helper = new DocFilesHelper({
+    dirs,
+    files,
+    overrideGetSubcommand: `show ${libraryName}`,
+  });
 
   return {
     libraryName,

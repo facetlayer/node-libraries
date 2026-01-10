@@ -1,7 +1,7 @@
 {
   "name": "@facetlayer/docs-tool",
   "version": "0.1.0",
-  "description": "CLI tool for browsing documentation in directories and NPM packages",
+  "description": "Library and CLI tool for browsing docs in NPM packages",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

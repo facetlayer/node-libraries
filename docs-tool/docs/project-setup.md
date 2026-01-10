@@ -1,16 +1,16 @@
 ---
 name: project-setup
-description: Instructions for adding doc-files-helper to your CLI application
+description: Instructions for adding docs-tool to your CLI application
 ---
 
 # Project Setup
 
-This guide explains how to add `@facetlayer/doc-files-helper` to your CLI application.
+This guide explains how to add `@facetlayer/docs-tool` to your CLI application.
 
 ## Installation
 
 ```bash
-pnpm add @facetlayer/doc-files-helper
+pnpm add @facetlayer/docs-tool
 ```
 
 ## Setting Up the Doc Files Folder
@@ -45,7 +45,7 @@ Your markdown content here.
 In your CLI script (e.g., `src/cli.ts`), create a `DocFilesHelper` instance:
 
 ```typescript
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -85,7 +85,7 @@ If your CLI uses yargs with `.parse()` and command handlers, call `yargsSetup()`
 ```typescript
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],
@@ -124,7 +124,7 @@ If your CLI uses `.parseSync()` with a switch statement to handle commands, regi
 ```typescript
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],
