@@ -1,10 +1,21 @@
 import { build, BuildOptions } from 'esbuild';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, relative } from 'path';
+import { resolve, relative, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { execSync } from 'child_process';
 import { runValidate } from './validate.js';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const __packageRoot = resolve(__dirname, '..');
+
+const docFiles = new DocFilesHelper({
+  dirs: [resolve(__packageRoot, 'docs')],
+  files: [resolve(__packageRoot, 'README.md')],
+});
 
 // Re-export validate for programmatic use
 export { runValidate } from './validate.js';
@@ -176,7 +187,7 @@ async function runBuild(config: BuildConfig): Promise<void> {
  * This sets up yargs command parsing and handles the build command
  */
 export async function runBuildTool(config: BuildConfig = {}): Promise<void> {
-  await yargs(hideBin(process.argv))
+  const args = yargs(hideBin(process.argv))
     .command(
       'build',
       'Build the project using esbuild and generate TypeScript declarations',
@@ -219,6 +230,9 @@ export async function runBuildTool(config: BuildConfig = {}): Promise<void> {
       }
     )
     .demandCommand(1, 'You must specify a command')
-    .help()
-    .parse();
+    .help();
+
+  docFiles.yargsSetup(args);
+
+  await args.parse();
 }
