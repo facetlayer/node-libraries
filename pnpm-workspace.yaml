@@ -16,6 +16,7 @@ packages:
   - goobernetes
   - library-docs-tool
   - lsp-dev-tools
+  - npm-status
   - parse-stdout-lines
   - port-assignment
   - prism-framework-api

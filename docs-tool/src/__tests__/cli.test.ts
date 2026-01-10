@@ -13,9 +13,9 @@ async function runCli(...args: string[]) {
 }
 
 describe('CLI', () => {
-  describe('browse command', () => {
+  describe('list command', () => {
     it('should list all doc files in the sample directory', async () => {
-      const result = await runCli('browse', sampleDir);
+      const result = await runCli('list', sampleDir);
 
       expect(result.exitCode).toBe(0);
 
@@ -27,7 +27,7 @@ describe('CLI', () => {
     });
 
     it('should show descriptions from frontmatter', async () => {
-      const result = await runCli('browse', sampleDir);
+      const result = await runCli('list', sampleDir);
 
       expect(result.exitCode).toBe(0);
 
@@ -38,7 +38,7 @@ describe('CLI', () => {
     });
 
     it('should fail with non-existent directory', async () => {
-      const result = await runCli('browse', './nonexistent-dir');
+      const result = await runCli('list', './nonexistent-dir');
 
       expect(result.exitCode).not.toBe(0);
     });
@@ -51,7 +51,7 @@ describe('CLI', () => {
       expect(result.exitCode).toBe(0);
 
       const output = result.stdoutAsString();
-      expect(output).toContain('browse');
+      expect(output).toContain('list');
     });
 
     it('should show version with --version flag', async () => {

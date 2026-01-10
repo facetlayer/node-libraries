@@ -3,7 +3,7 @@
 
 Collection of individual NPM libraries.
 
-Each one is published inside the @facetlayer NPM organization.
+Each one is published inside the `@facetlayer` NPM organization.
 
 This repo also uses PNPM with workspaces.
 
@@ -27,6 +27,15 @@ The 'scripts' section often will look like this:
       "test": "vitest",
       "prepublishOnly": "node build.mts build && node build.mts validate"
     },
+
+## Common libraries
+
+In this collection are a few common helper libraries. This should be preferred to use
+if you need the functionality:
+
+    `@facetlayer/build-config-nodejs` - Helps prepare a library to run with .ts scripts, and build a Node.js bundle.
+    `@facetlayer/subprocess-wrapper` - Wraps around the child process API to make it easier to manage subprocesses.
+    `@facetlayer/sqlite-wrapper` - Wraps around `better-sqlite3` and implements automatic SQL migration and helper functions.
 
 ## Testing
 

@@ -1,6 +1,18 @@
 import { readFileSync, readdirSync } from 'fs';
 import { join, basename, relative } from 'path';
 
+// Re-export from submodules
+export { browseLocalLibrary, type LocalLibraryDocs } from './browseLocalLibrary.ts';
+export {
+  browseNpmLibrary,
+  findLibrary,
+  findLibraryInNodeModules,
+  getInstallationDirectory,
+  getLibraryDocs,
+  type LibraryLocation,
+  type NpmLibraryDocs,
+} from './browseNpmLibrary.ts';
+
 export interface Frontmatter {
   name?: string;
   description?: string;
@@ -258,4 +270,19 @@ export class DocFilesHelper {
     )
 
   }
+}
+
+export type ParsedTarget =
+  | { type: 'directory'; value: string }
+  | { type: 'npm'; value: string };
+
+/**
+ * Determine if a target string is a directory path or an NPM package name.
+ * Returns 'directory' if it starts with '.' or '/', otherwise 'npm'.
+ */
+export function parseTarget(target: string): ParsedTarget {
+  if (target.startsWith('.') || target.startsWith('/')) {
+    return { type: 'directory', value: target };
+  }
+  return { type: 'npm', value: target };
 }
