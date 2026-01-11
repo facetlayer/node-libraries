@@ -340,6 +340,34 @@ importers:
         specifier: ^3.0.0
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
+  local-logs:
+    dependencies:
+      '@facetlayer/sqlite-wrapper':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@facetlayer/streams':
+        specifier: ^1.0.1
+        version: 1.0.1
+      yargs:
+        specifier: 18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: ^0.3.2
+        version: 0.3.2(jiti@1.21.7)(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: 17.0.34
+        version: 17.0.34
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
+
   lsp-dev-tools:
     dependencies:
       typescript:
@@ -2290,6 +2318,9 @@ packages:
   '@facetlayer/build-config-nodejs@0.3.1':
     resolution: {integrity: sha512-Cph1fKx6Xw3NGDmN3m2/gP7xzHdhrWrDHb9prYzsUWd9H8uzmUSAwdMfaoNWVumXNASzVFN1MLl1xC6672VXiw==}
 
+  '@facetlayer/build-config-nodejs@0.3.2':
+    resolution: {integrity: sha512-0pqzGkDaS/G/QHGMo/XyMHQ5GylX0+0+rD1BqKbW3XnzktYPmzTHbSEE2hd1wJo63obao2Fk1mdAX1vSFWypBQ==}
+
   '@facetlayer/concurrency-limit@0.1.0':
     resolution: {integrity: sha512-3DG8yo6UzlDUzcmRxD7WFzVEv2PxDFDaP7Hv8eAnhhHEBkzxr6Umd1acbH4BlvtxndCATL52gsxTwedka/7Flw==}
 
@@ -2327,6 +2358,9 @@ packages:
 
   '@facetlayer/sqlite-wrapper@1.2.0':
     resolution: {integrity: sha512-olq65eb2uwn8URzYL0E4AFzXLRkCNvEBKYzi1qfPCN3o7t2Bgl8S6thqKi6V2pECW7e67D8uAUXo8ulBpGRsCg==}
+
+  '@facetlayer/sqlite-wrapper@1.2.1':
+    resolution: {integrity: sha512-v9DVnv8pNoIEfIEFkfy90GgUbD/uXPgZrzMGEKC9oQ9fhBEcn67IanTSCVdyBENtrktzxm9Wf1E8cWH9tvFFBw==}
 
   '@facetlayer/streams@1.0.0':
     resolution: {integrity: sha512-ickAKFy1XDodcl1lNOjLiOTMYC+TyY1YDUfmgD/bz2DSPBsyxExTfq1/BOyHcZ2Yp5zOeLfFP2RLV74xOIFxqQ==}
@@ -9714,6 +9748,19 @@ snapshots:
       - supports-color
       - typescript
 
+  '@facetlayer/build-config-nodejs@0.3.2(jiti@1.21.7)(typescript@5.7.3)':
+    dependencies:
+      '@typescript-eslint/parser': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
+      '@typescript-eslint/utils': 8.48.0(eslint@9.39.1(jiti@1.21.7))(typescript@5.7.3)
+      esbuild: 0.25.12
+      eslint: 9.39.1(jiti@1.21.7)
+      glob: 11.1.0
+      yargs: 18.0.0
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - typescript
+
   '@facetlayer/concurrency-limit@0.1.0': {}
 
   '@facetlayer/doc-files-helper@0.1.1':
@@ -9741,7 +9788,7 @@ snapshots:
 
   '@facetlayer/prism-framework-api@0.2.0':
     dependencies:
-      '@facetlayer/sqlite-wrapper': 1.2.0
+      '@facetlayer/sqlite-wrapper': 1.2.1
       '@facetlayer/streams': 1.0.1
       cookie-parser: 1.4.7
       dotenv: 16.6.1
@@ -9764,6 +9811,12 @@ snapshots:
   '@facetlayer/qc@0.1.0': {}
 
   '@facetlayer/sqlite-wrapper@1.2.0':
+    dependencies:
+      '@facetlayer/generic-lexer': 1.0.0
+      '@facetlayer/streams': 1.0.1
+      better-sqlite3: 11.8.1
+
+  '@facetlayer/sqlite-wrapper@1.2.1':
     dependencies:
       '@facetlayer/generic-lexer': 1.0.0
       '@facetlayer/streams': 1.0.1

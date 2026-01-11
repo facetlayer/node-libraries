@@ -35,6 +35,13 @@ function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+/**
+ * Convert OpenAPI path parameter format {param} to Express format :param
+ */
+export function convertToExpressPath(openApiPath: string): string {
+  return openApiPath.replace(/\{([^}]+)\}/g, ':$1');
+}
+
 function schemaToTypeScript(schema: any, components?: Record<string, any>, indent = 0): string {
   if (!schema) {
     return 'unknown';
@@ -130,7 +137,8 @@ export async function generateApiClients(baseUrl: string, outputFiles: string[])
         if (!operation.operationId) continue;
 
         const typeName = capitalizeFirst(operation.operationId);
-        endpointMap.push({ method: method.toLowerCase(), path: pathStr, operationId: operation.operationId });
+        const expressPath = convertToExpressPath(pathStr);
+        endpointMap.push({ method: method.toLowerCase(), path: expressPath, operationId: operation.operationId });
 
         // Generate Request type
         const requestSchema = operation.requestBody?.content?.['application/json']?.schema;

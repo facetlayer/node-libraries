@@ -28,6 +28,10 @@ The 'scripts' section often will look like this:
       "prepublishOnly": "node build.mts build && node build.mts validate"
     },
 
+## Package Management
+
+Use `pnpm` to install dependencies.
+
 ## Common libraries
 
 In this collection are a few common helper libraries. This should be preferred to use
@@ -36,6 +40,10 @@ if you need the functionality:
     `@facetlayer/build-config-nodejs` - Helps prepare a library to run with .ts scripts, and build a Node.js bundle.
     `@facetlayer/subprocess-wrapper` - Wraps around the child process API to make it easier to manage subprocesses.
     `@facetlayer/sqlite-wrapper` - Wraps around `better-sqlite3` and implements automatic SQL migration and helper functions.
+
+Other suggested libraries:
+
+ - For parsing CLI args use the `yargs` library.
 
 ## Testing
 
