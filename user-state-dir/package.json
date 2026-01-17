@@ -1,0 +1,43 @@
+{
+  "name": "@facetlayer/user-state-dir",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Find or auto-create a state directory for an application following XDG standards",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "tsc": "tsc",
+    "test": "vitest run --testTimeout=30000",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "xdg",
+    "state",
+    "directory",
+    "home",
+    "config",
+    "user-data"
+  ],
+  "author": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "vitest": "3.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}
