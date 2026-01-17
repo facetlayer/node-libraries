@@ -6,7 +6,7 @@ import * as os from 'os'
  * Get the state directory for an application following XDG standards
  *
  * Priority order:
- * 1. {APPNAME}_STATE_DIR environment variable
+ * 1. {AppName}_STATE_DIR environment variable
  * 2. $XDG_STATE_HOME/{appName}
  * 3. ~/.local/state/{appName} (XDG default)
  *
@@ -18,7 +18,7 @@ export function getStateDirectory(appName: string): string {
   // Convert appName to uppercase and replace hyphens with underscores for env var
   const envVarName = appName.toUpperCase().replace(/-/g, '_') + '_STATE_DIR'
 
-  // First: Use APP_STATE_DIR if set
+  // First: Use <AppName>_STATE_DIR if set
   if (process.env[envVarName]) {
     return process.env[envVarName]!
   }

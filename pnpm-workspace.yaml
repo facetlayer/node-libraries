@@ -30,6 +30,7 @@ packages:
   - streams
   - subprocess-wrapper
   - qc
+  - user-state-db
   - user-state-dir
   - userdata-db
   - userdata-db/docs-site

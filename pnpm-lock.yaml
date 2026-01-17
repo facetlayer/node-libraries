@@ -755,6 +755,31 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
+  user-state-db:
+    dependencies:
+      '@facetlayer/sqlite-wrapper':
+        specifier: ^1.2.0
+        version: 1.2.1
+      '@facetlayer/streams':
+        specifier: ^1.0.0
+        version: 1.0.1
+      '@facetlayer/user-state-dir':
+        specifier: ^0.1.0
+        version: 0.1.0
+      better-sqlite3:
+        specifier: 11.8.1
+        version: 11.8.1
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.23
+      typescript:
+        specifier: ^5.2.0
+        version: 5.7.3
+      vitest:
+        specifier: 3.1.2
+        version: 3.1.2(@types/debug@4.1.12)(@types/node@20.19.23)(terser@5.44.1)
+
   user-state-dir:
     devDependencies:
       '@types/node':
@@ -2370,6 +2395,9 @@ packages:
 
   '@facetlayer/subprocess-wrapper@1.1.0':
     resolution: {integrity: sha512-WPqR7AwVluyvgFMPYKXjg5S7tORCDZGXWEivJIOoHBfSXJoBafC0rb8+YTboxSpNfvuCaGMEVaXv0rZHQFRRqg==}
+
+  '@facetlayer/user-state-dir@0.1.0':
+    resolution: {integrity: sha512-jliVKqPZYC05XAvpUWGMdqpsuVF0QrRYRJ5nI3GKqkLKgvdV9VQQlIsncblZ1z5mtHku35Z6mG0Wjqyoknsm0g==}
 
   '@facetlayer/userdata-db@0.1.1':
     resolution: {integrity: sha512-EZYjSyStiIBeKJ19FTuXQ7KpETUZA7gmx9pUaHL0/KAyZ1wNVbk2VEF/E7gewkECp/yxrdz3DXPoKnkyWZ7WTw==}
@@ -9830,6 +9858,8 @@ snapshots:
     dependencies:
       '@facetlayer/parse-stdout-lines': 1.1.0
       '@facetlayer/streams': 1.0.1
+
+  '@facetlayer/user-state-dir@0.1.0': {}
 
   '@facetlayer/userdata-db@0.1.1':
     dependencies:
