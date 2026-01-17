@@ -3,6 +3,7 @@ import { join, dirname } from 'path';
 import { homedir } from 'os';
 import { runShellCommand } from '@facetlayer/subprocess-wrapper';
 import { DocFilesHelper } from './index.ts';
+import { findInGlobalNpmInstall } from './browseGlobalNpmInstall.ts';
 
 export interface LibraryLocation {
   libraryPath: string;
@@ -19,16 +20,22 @@ export interface NpmLibraryDocs {
 }
 
 /**
+ * Check if a package exists at the given path with a package.json
+ */
+export function packageExistsAt(packagePath: string): boolean {
+  return existsSync(packagePath) && existsSync(join(packagePath, 'package.json'));
+}
+
+/**
  * Check if a directory contains a package that matches the given name exactly
  */
 function findExactMatch(nodeModulesPath: string, libraryName: string): string | null {
   // Handle scoped packages like @scope/package
   if (libraryName.startsWith('@')) {
     const [scope, pkgName] = libraryName.split('/');
-    const scopePath = join(nodeModulesPath, scope);
-    if (pkgName && existsSync(scopePath)) {
-      const fullPath = join(scopePath, pkgName);
-      if (existsSync(fullPath) && existsSync(join(fullPath, 'package.json'))) {
+    if (pkgName) {
+      const fullPath = join(nodeModulesPath, scope, pkgName);
+      if (packageExistsAt(fullPath)) {
         return fullPath;
       }
     }
@@ -37,7 +44,7 @@ function findExactMatch(nodeModulesPath: string, libraryName: string): string | 
 
   // Regular package
   const fullPath = join(nodeModulesPath, libraryName);
-  if (existsSync(fullPath) && existsSync(join(fullPath, 'package.json'))) {
+  if (packageExistsAt(fullPath)) {
     return fullPath;
   }
   return null;
@@ -288,11 +295,20 @@ export async function findLibrary(libraryName: string, options?: { skipInstall?:
     return localResult;
   }
 
+  // Second, check global npm installation (where `npm install -g` puts packages)
+  const globalResult = await findInGlobalNpmInstall(libraryName);
+  if (globalResult) {
+    return {
+      ...globalResult,
+      matchType: 'exact',
+    };
+  }
+
   if (options?.skipInstall) {
     return null;
   }
 
-  // Check our installation directory
+  // Third, check our installation directory
   const installDir = getInstallationDirectory();
   let installedResult = findInInstallDir(installDir, libraryName);
 
