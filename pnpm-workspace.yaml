@@ -1,6 +1,7 @@
 packages:
   - agent-hint-tool
   - build-config-nodejs
+  - claude-ci-followup
   - claude-code-headless
   - claude-code-session-history
   - claude-settings-tidier

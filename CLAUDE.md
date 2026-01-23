@@ -53,7 +53,8 @@ The 'scripts' section often will look like this:
     "scripts": {
       "build": "node build.mts build",
       "test": "vitest",
-      "prepublishOnly": "node build.mts build && node build.mts validate"
+      "prepublishOnly": "node build.mts build && node build.mts validate",
+      "local:install": "pnpm build && npm i -g ."
     },
 
 ## Package Management

@@ -1,4 +1,7 @@
 
+1.1.1
+ - Rename package to @facetlayer/subprocess
+
 1.1.0
  - Changed StartShellCommandOptions to inherit from NodeSpawnOptions
 
