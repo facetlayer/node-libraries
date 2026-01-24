@@ -1,5 +1,7 @@
 
-import { getUserdataDatabase, SqliteDatabase } from '@facetlayer/userdata-db'
+import userdataDb from '@facetlayer/userdata-db'
+import type { SqliteDatabase } from '@facetlayer/userdata-db'
+const { getUserdataDatabase } = userdataDb
 import { createServer } from 'http'
 
 const MIN_PORT = 4000;
