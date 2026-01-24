@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import { join } from 'path';
 
 const projectRoot = join(import.meta.dirname, '../..');

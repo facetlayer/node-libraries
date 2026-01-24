@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import { packageExistsAt } from './browseNpmLibrary.ts';
 
 export interface GlobalLibraryLocation {

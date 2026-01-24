@@ -24,7 +24,7 @@
     "@facetlayer/qc": "^0.1.0",
     "@facetlayer/sqlite-wrapper": "^1.2.0",
     "@facetlayer/streams": "^1.0.1",
-    "@facetlayer/subprocess-wrapper": "^1.1.0",
+    "@facetlayer/subprocess": "^1.1.1",
     "@facetlayer/userdata-db": "^0.1.1",
     "@types/better-sqlite3": "^7.6.11",
     "@types/body-parser": "1.19.6",

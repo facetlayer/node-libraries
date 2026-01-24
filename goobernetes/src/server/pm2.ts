@@ -1,5 +1,5 @@
 
-import { runShellCommand, startShellCommand } from "@facetlayer/subprocess-wrapper";
+import { runShellCommand, startShellCommand } from "@facetlayer/subprocess";
 
 export async function pm2list() {
     try {

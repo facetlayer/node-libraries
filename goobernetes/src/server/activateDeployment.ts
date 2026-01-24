@@ -3,7 +3,7 @@ import { getDatabase, getDeploymentsDir } from "./Database.ts";
 import { pm2start, pm2delete, pm2restart, findPm2Process } from "./pm2.ts";
 import { parseFile } from "@facetlayer/qc";
 import Path from 'path';
-import { runShellCommand } from "@facetlayer/subprocess-wrapper";
+import { runShellCommand } from "@facetlayer/subprocess";
 
 interface Pm2StartAction {
     name: string;

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { Server } from 'http';

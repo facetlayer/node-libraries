@@ -30,7 +30,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@facetlayer/subprocess-wrapper": "^1.1.0",
+    "@facetlayer/subprocess": "^1.1.1",
     "yargs": "18.0.0"
   },
   "devDependencies": {

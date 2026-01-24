@@ -1,4 +1,4 @@
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import * as fs from 'fs';
 import * as path from 'path';
 

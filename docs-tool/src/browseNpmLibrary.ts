@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { homedir } from 'os';
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import { DocFilesHelper } from './index.ts';
 import { findInGlobalNpmInstall } from './browseGlobalNpmInstall.ts';
 

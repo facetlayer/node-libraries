@@ -1,5 +1,5 @@
 
-# subprocess-wrapper
+# subprocess
 
 A helpful wrapper around Node.js child processes. Adds line-based parsing, event listeners, and promise support.
 
@@ -15,7 +15,7 @@ A helpful wrapper around Node.js child processes. Adds line-based parsing, event
 ## Installation
 
 ```bash
-npm install @facetlayer/subprocess-wrapper
+npm install @facetlayer/subprocess
 ```
 
 ## Examples
@@ -23,7 +23,7 @@ npm install @facetlayer/subprocess-wrapper
 Running a subprcess and just get the parsed output:
 
 ```typescript
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 
 // Run a command and wait for completion
 const result = await runShellCommand('ls', ['-la']);
@@ -34,7 +34,7 @@ console.log('The command printed:', result.stdout);
 Launching a subprocess and waiting for lifecycle events:
 
 ```typescript
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 
 const subprocess = startShellCommand('ping', ['google.com'], {
   cwd: '/tmp/project',
@@ -286,7 +286,7 @@ if you want to avoid storing stdout/stderr lines in memory.
 ### Basic Command Execution
 
 ```typescript
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 
 // Simple command
 const result = await runShellCommand('echo', ['Hello']);
@@ -300,7 +300,7 @@ console.log(result2.stdout);
 ### Real-time Output Processing
 
 ```typescript
-import { startShellCommand } from '@facetlayer/subprocess-wrapper';
+import { startShellCommand } from '@facetlayer/subprocess';
 
 const subprocess = startShellCommand('npm', ['install'], {
   cwd: '/path/to/project',

@@ -4,7 +4,7 @@ import { getSourceManifest } from "@facetlayer/file-manifest";
 import { Query, parseFile } from '@facetlayer/qc';
 import { resolveFileList } from '@facetlayer/file-manifest';
 import { Limiter } from '@facetlayer/concurrency-limit';
-import { runShellCommand } from '@facetlayer/subprocess-wrapper';
+import { runShellCommand } from '@facetlayer/subprocess';
 import { getFileListFromConfig } from './fileList.ts';
 import { RunningTimer } from '../utils/RunningTimer.ts';
 import { GooberneteRPCClient } from './rpc-client.ts';
