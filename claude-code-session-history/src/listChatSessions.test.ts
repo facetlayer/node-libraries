@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as path from 'path';
-import { listChatSessions } from './listChatSessions';
+import { listChatSessions } from './listChatSessions.ts';
 
 const fixturesDir = path.join(__dirname, '..', 'test', 'fixtures', 'claude');
 

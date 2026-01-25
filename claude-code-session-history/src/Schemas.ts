@@ -158,6 +158,24 @@ const QueueOperationMessageSchema = z.object({
   sessionId: z.string(),
 });
 
+// Progress message - reports progress of long-running operations
+const ProgressMessageSchema = z.object({
+  parentUuid: z.string().nullable(),
+  isSidechain: z.boolean(),
+  userType: z.string(),
+  cwd: z.string(),
+  sessionId: z.string(),
+  version: z.string(),
+  gitBranch: z.string().optional(),
+  slug: z.string().optional(),
+  type: z.literal('progress'),
+  data: z.any(),
+  toolUseID: z.string(),
+  parentToolUseID: z.string(),
+  uuid: z.string(),
+  timestamp: z.string(),
+});
+
 // Union of all message types
 export const ChatSessionMessageSchema = z.union([
   UserMessageSchema,
@@ -166,6 +184,7 @@ export const ChatSessionMessageSchema = z.union([
   FileHistorySnapshotSchema,
   SummaryMessageSchema,
   QueueOperationMessageSchema,
+  ProgressMessageSchema,
 ]);
 
 // Export individual schemas for use in other parts of the codebase
@@ -184,6 +203,7 @@ export const Schemas = {
   FileHistorySnapshot: FileHistorySnapshotSchema,
   SummaryMessage: SummaryMessageSchema,
   QueueOperationMessage: QueueOperationMessageSchema,
+  ProgressMessage: ProgressMessageSchema,
   ChatSessionMessage: ChatSessionMessageSchema,
 };
 
@@ -195,6 +215,7 @@ export type SystemMessage = z.infer<typeof SystemMessageSchema>;
 export type FileHistorySnapshot = z.infer<typeof FileHistorySnapshotSchema>;
 export type SummaryMessage = z.infer<typeof SummaryMessageSchema>;
 export type QueueOperationMessage = z.infer<typeof QueueOperationMessageSchema>;
+export type ProgressMessage = z.infer<typeof ProgressMessageSchema>;
 export type ApiMessage = z.infer<typeof ApiMessageSchema>;
 export type ContentBlock = z.infer<typeof ContentBlockSchema>;
 export type Usage = z.infer<typeof UsageSchema>;

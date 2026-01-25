@@ -16,6 +16,8 @@ export interface ChatMessage {
       name?: string;
       input?: any;
       tool_use_id?: string;
+      content?: string | Array<any>;
+      is_error?: boolean;
     }>;
     id?: string;
     model?: string;
@@ -37,7 +39,10 @@ export interface ChatMessage {
   timestamp: string;
   requestId?: string;
   toolUseResult?: any;
+  /** Derived field: identifies internal message types like hooks and terminal control */
   internalMessageType?: 'terminal_control' | 'hook';
+  /** Derived field: identifies permission check results */
+  permissionResult?: 'rejected';
 }
 
 export interface ChatSession {

@@ -2,11 +2,11 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { listChatSessions } from './listChatSessions';
-import { ChatSession } from './types';
-import { printProjects } from './printProjects';
-import { printChatSessions } from './printChatSessions';
-import { ChatSessionMessageSchema } from './Schemas';
+import { listChatSessions } from './listChatSessions.ts';
+import type { ChatSession } from './types.ts';
+import { printProjects } from './printProjects.ts';
+import { printChatSessions, printAllSessions, pathToProjectDir } from './printChatSessions.ts';
+import { ChatSessionMessageSchema } from './Schemas.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
@@ -265,14 +265,13 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'list-sessions',
-    'List all Claude Code chat sessions',
+    'list-sessions [project]',
+    'List Claude Code chat sessions for a project (defaults to current directory)',
     (yargs) => {
       return yargs
-        .option('project', {
+        .positional('project', {
           type: 'string',
-          description: 'Filter sessions by project name',
-          alias: 'p'
+          description: 'Project path or directory name (defaults to current directory)'
         })
         .option('offset', {
           type: 'number',
@@ -294,8 +293,51 @@ yargs(hideBin(process.argv))
         });
     },
     (argv) => {
+      // If no project specified, use current directory
+      // If a path is given (starts with /), convert it to project dir format
+      let project: string;
+      if (!argv.project) {
+        project = pathToProjectDir(process.cwd());
+      } else if (argv.project.startsWith('/')) {
+        project = pathToProjectDir(argv.project);
+      } else {
+        project = argv.project;
+      }
       printChatSessions({
-        project: argv.project,
+        project,
+        offset: argv.offset,
+        limit: argv.limit,
+        claudeDir: argv['claude-dir'],
+        verbose: argv.verbose
+      }).catch(console.error);
+    }
+  )
+  .command(
+    'list-all-sessions',
+    'List all Claude Code chat sessions across all projects',
+    (yargs) => {
+      return yargs
+        .option('offset', {
+          type: 'number',
+          description: 'Number of sessions to skip',
+          default: 0
+        })
+        .option('limit', {
+          type: 'number',
+          description: 'Maximum number of sessions to return'
+        })
+        .option('claude-dir', {
+          type: 'string',
+          description: 'Custom path to Claude directory'
+        })
+        .option('verbose', {
+          type: 'boolean',
+          description: 'Enable verbose logging',
+          default: false
+        });
+    },
+    (argv) => {
+      printAllSessions({
         offset: argv.offset,
         limit: argv.limit,
         claudeDir: argv['claude-dir'],

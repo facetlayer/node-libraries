@@ -1,4 +1,6 @@
-import { listChatSessions } from './listChatSessions';
+import { listChatSessions } from './listChatSessions.ts';
+import { TextGrid } from './TextGrid.ts';
+import type { ChatSession } from './types.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
@@ -11,129 +13,154 @@ export interface PrintSessionsOptions {
   project?: string;
 }
 
+/**
+ * Convert a filesystem path to the Claude project directory format.
+ * e.g., /Users/andy/candle -> -Users-andy-candle
+ */
+export function pathToProjectDir(fsPath: string): string {
+  return fsPath.replace(/\//g, '-');
+}
+
+function formatRelativeDate(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+
+  return date.toLocaleDateString();
+}
+
+function printSessionsGrid(sessions: ChatSession[], showProject: boolean = false): void {
+  const columns = showProject
+    ? [
+        { header: 'Project' },
+        { header: 'Session ID' },
+        { header: 'Last Active' },
+        { header: 'Messages', align: 'right' as const },
+      ]
+    : [
+        { header: 'Session ID' },
+        { header: 'Last Active' },
+        { header: 'Messages', align: 'right' as const },
+      ];
+
+  const grid = new TextGrid(columns);
+
+  for (const session of sessions) {
+    const lastActive = formatRelativeDate(new Date(session.lastMessageTimestamp));
+
+    if (showProject) {
+      grid.addRow([session.projectPath, session.sessionId, lastActive, session.messageCount]);
+    } else {
+      grid.addRow([session.sessionId, lastActive, session.messageCount]);
+    }
+  }
+
+  grid.print();
+}
+
 export async function printChatSessions(options: PrintSessionsOptions): Promise<void> {
+  try {
+    const verbose = options.verbose || false;
+
+    if (!options.project) {
+      console.log('No project specified. Use --project or provide a project path.');
+      process.exit(1);
+    }
+
+    const sessions = await listChatSessions({
+      project: options.project,
+      claudeDir: options.claudeDir,
+      verbose: options.verbose,
+      offset: options.offset,
+      limit: options.limit
+    });
+
+    if (sessions.length === 0) {
+      console.log(`No sessions found for project: ${options.project}`);
+      return;
+    }
+
+    printSessionsGrid(sessions, false);
+
+    console.log(`\nTotal sessions: ${sessions.length}`);
+
+    if (options.offset || options.limit) {
+      console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
+    }
+  } catch (error) {
+    console.error('Error listing sessions:', error);
+    process.exit(1);
+  }
+}
+
+export interface PrintAllSessionsOptions {
+  verbose?: boolean;
+  claudeDir?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export async function printAllSessions(options: PrintAllSessionsOptions): Promise<void> {
   try {
     const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
     const verbose = options.verbose || false;
 
-    // If project is specified, get sessions for that project only
-    if (options.project) {
+    // Get all projects
+    let projectDirs: string[];
+    try {
+      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      projectDirs = projectDirents
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+    } catch (error) {
+      if (verbose) {
+        console.log('Claude directory does not exist');
+      }
+      console.log('No sessions found.');
+      return;
+    }
+
+    // Collect all sessions from all projects
+    const allSessions: ChatSession[] = [];
+    for (const projectDir of projectDirs) {
       const sessions = await listChatSessions({
-        project: options.project,
+        project: projectDir,
         claudeDir: options.claudeDir,
-        verbose: options.verbose,
-        offset: options.offset,
-        limit: options.limit
+        verbose: options.verbose
       });
 
-      if (sessions.length === 0) {
-        console.log(`No sessions found for project: ${options.project}`);
-        return;
-      }
+      allSessions.push(...sessions);
+    }
 
-      console.log(`\nProject: ${options.project}`);
-      console.log('─'.repeat(80));
+    if (allSessions.length === 0) {
+      console.log('No sessions found.');
+      return;
+    }
 
-      for (const session of sessions) {
-        const firstDate = new Date(session.firstMessageTimestamp).toLocaleString();
-        const lastDate = new Date(session.lastMessageTimestamp).toLocaleString();
+    // Sort all sessions by timestamp
+    allSessions.sort((a, b) =>
+      new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()
+    );
 
-        console.log(`\nSession ID: ${session.sessionId}`);
-        console.log(`  Messages: ${session.messageCount}`);
-        console.log(`  First message: ${firstDate}`);
-        console.log(`  Last message: ${lastDate}`);
-      }
+    // Apply pagination
+    const offset = options.offset || 0;
+    const paginatedSessions = options.limit !== undefined
+      ? allSessions.slice(offset, offset + options.limit)
+      : allSessions.slice(offset);
 
-      console.log(`\n${'─'.repeat(80)}`);
-      console.log(`Total sessions: ${sessions.length}`);
+    printSessionsGrid(paginatedSessions, true);
 
-      if (options.offset || options.limit) {
-        console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
-      }
-    } else {
-      // Get all projects and their sessions
-      let projectDirs: string[];
-      try {
-        const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
-        projectDirs = projectDirents
-          .filter(dirent => dirent.isDirectory())
-          .map(dirent => dirent.name);
-      } catch (error) {
-        if (verbose) {
-          console.log('Claude directory does not exist');
-        }
-        console.log('No sessions found.');
-        return;
-      }
+    console.log(`\nTotal sessions: ${paginatedSessions.length}${allSessions.length > paginatedSessions.length ? ` (of ${allSessions.length})` : ''}`);
 
-      // Collect all sessions from all projects
-      const allSessions: Array<{ projectPath: string; sessions: any[] }> = [];
-      for (const projectDir of projectDirs) {
-        const sessions = await listChatSessions({
-          project: projectDir,
-          claudeDir: options.claudeDir,
-          verbose: options.verbose
-        });
-
-        if (sessions.length > 0) {
-          allSessions.push({
-            projectPath: projectDir,
-            sessions
-          });
-        }
-      }
-
-      if (allSessions.length === 0) {
-        console.log('No sessions found.');
-        return;
-      }
-
-      // Flatten and sort all sessions by timestamp
-      const flatSessions = allSessions.flatMap(p =>
-        p.sessions.map(s => ({ ...s, projectPath: p.projectPath }))
-      );
-      flatSessions.sort((a, b) =>
-        new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()
-      );
-
-      // Apply pagination
-      const offset = options.offset || 0;
-      const paginatedSessions = options.limit !== undefined
-        ? flatSessions.slice(offset, offset + options.limit)
-        : flatSessions.slice(offset);
-
-      // Group by project for display
-      const projectMap = new Map<string, any[]>();
-      for (const session of paginatedSessions) {
-        if (!projectMap.has(session.projectPath)) {
-          projectMap.set(session.projectPath, []);
-        }
-        projectMap.get(session.projectPath)!.push(session);
-      }
-
-      let sessionCount = 0;
-      for (const [projectPath, sessions] of projectMap) {
-        console.log(`\nProject: ${projectPath}`);
-        console.log('─'.repeat(80));
-
-        for (const session of sessions) {
-          sessionCount++;
-          const firstDate = new Date(session.firstMessageTimestamp).toLocaleString();
-          const lastDate = new Date(session.lastMessageTimestamp).toLocaleString();
-
-          console.log(`\nSession ID: ${session.sessionId}`);
-          console.log(`  Messages: ${session.messageCount}`);
-          console.log(`  First message: ${firstDate}`);
-          console.log(`  Last message: ${lastDate}`);
-        }
-      }
-
-      console.log(`\n${'─'.repeat(80)}`);
-      console.log(`Total sessions: ${sessionCount}`);
-
-      if (options.offset || options.limit) {
-        console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
-      }
+    if (options.offset || options.limit) {
+      console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
     }
   } catch (error) {
     console.error('Error listing sessions:', error);

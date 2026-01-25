@@ -1,6 +1,7 @@
 {
   "name": "@facetlayer/claude-code-session-history",
   "version": "0.2.0",
+  "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -11,11 +12,10 @@
     "claude-code-session-history": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -p .",
-    "typecheck": "tsc -p .",
-    "tsc": "tsc",
+    "build": "node build.mts build",
     "test": "vitest run --testTimeout=30000",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "node build.mts build && node build.mts validate",
+    "local:install": "pnpm build && npm i -g ."
   },
   "files": [
     "src",
@@ -28,6 +28,7 @@
     "zod": "4.1.12"
   },
   "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.2",
     "@types/node": "^20.0.0",
     "@types/yargs": "^17.0.32",
     "typescript": "^5.0.0",

@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
-import { ChatMessage, ChatSession } from './types';
-import { annotateInternalMessages } from './annotateInternalMessages';
+import type { ChatMessage, ChatSession } from './types.ts';
+import { annotateMessages } from './annotateMessages.ts';
 
 export interface ListChatSessionsOptions {
   /**
@@ -92,7 +92,7 @@ export async function listChatSessions(options: ListChatSessionsOptions): Promis
         }
       });
 
-      annotateInternalMessages(messages);
+      annotateMessages(messages);
 
       if (messages.length > 0) {
         // Find sessionId from first message that has it (some messages like file-history-snapshot may not have it)
@@ -111,14 +111,15 @@ export async function listChatSessions(options: ListChatSessionsOptions): Promis
           continue;
         }
 
-        const firstMessage = messages[0];
-        const lastMessage = messages[messages.length - 1];
+        // Find first and last messages with valid timestamps
+        const firstMessageWithTimestamp = messages.find(m => m.timestamp);
+        const lastMessageWithTimestamp = [...messages].reverse().find(m => m.timestamp);
 
         sessions.push({
           sessionId,
           messages,
-          firstMessageTimestamp: firstMessage.timestamp,
-          lastMessageTimestamp: lastMessage.timestamp,
+          firstMessageTimestamp: firstMessageWithTimestamp?.timestamp,
+          lastMessageTimestamp: lastMessageWithTimestamp?.timestamp ?? '',
           projectPath: projectDir,
           messageCount: messages.length
         });

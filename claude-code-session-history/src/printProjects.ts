@@ -1,4 +1,6 @@
-import { listChatSessions } from './listChatSessions';
+import { listChatSessions } from './listChatSessions.ts';
+import { TextGrid } from './TextGrid.ts';
+import type { ChatSession } from './types.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
@@ -6,6 +8,22 @@ import * as os from 'os';
 export interface PrintProjectsOptions {
   verbose?: boolean;
   claudeDir?: string;
+}
+
+function formatRelativeDate(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+
+  // For older dates, show the date
+  return date.toLocaleDateString();
 }
 
 export async function printProjects(options: PrintProjectsOptions): Promise<void> {
@@ -34,7 +52,7 @@ export async function printProjects(options: PrintProjectsOptions): Promise<void
     }
 
     // Get sessions for each project
-    const projectsWithSessions = [];
+    const projectsWithSessions: Array<{ path: string; sessions: ChatSession[] }> = [];
     for (const projectDir of projectDirs) {
       const sessions = await listChatSessions({
         project: projectDir,
@@ -62,19 +80,24 @@ export async function printProjects(options: PrintProjectsOptions): Promise<void
       return bLatest - aLatest;
     });
 
-    for (const project of projectsWithSessions) {
-      const totalMessages = project.sessions.reduce((sum, s) => sum + s.messageCount, 0);
-      const lastSession = project.sessions[0];
-      const lastActive = new Date(lastSession.lastMessageTimestamp).toLocaleString();
+    const grid = new TextGrid([
+      { header: 'Project' },
+      { header: 'Last Active' },
+      { header: 'Sessions', align: 'right' },
+      { header: 'Messages', align: 'right' }
+    ]);
 
-      console.log(`\n${project.path}`);
-      console.log(`  Sessions: ${project.sessions.length}`);
-      console.log(`  Total messages: ${totalMessages}`);
-      console.log(`  Last active: ${lastActive}`);
+    for (const project of projectsWithSessions) {
+      const totalMessages = project.sessions.reduce((sum: number, s) => sum + s.messageCount, 0);
+      const lastSession = project.sessions[0];
+      const lastActive = formatRelativeDate(new Date(lastSession.lastMessageTimestamp));
+
+      grid.addRow([project.path, lastActive, project.sessions.length, totalMessages]);
     }
 
-    console.log(`\n${'─'.repeat(80)}`);
-    console.log(`Total projects: ${projectsWithSessions.length}`);
+    grid.print();
+
+    console.log(`\nTotal projects: ${projectsWithSessions.length}`);
   } catch (error) {
     console.error('Error listing projects:', error);
     process.exit(1);

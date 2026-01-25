@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
-import { ChatMessage } from './types';
-import { annotateInternalMessages } from './annotateInternalMessages';
+import type { ChatMessage } from './types.ts';
+import { annotateMessages } from './annotateMessages.ts';
 
 export interface GetChatSessionDetailsOptions {
   /**
@@ -41,7 +41,7 @@ export async function getChatSessionDetails(
 
     const messages: ChatMessage[] = lines.map(line => JSON.parse(line));
 
-    annotateInternalMessages(messages);
+    annotateMessages(messages);
     return messages;
   } catch (error) {
     if (verbose) {
