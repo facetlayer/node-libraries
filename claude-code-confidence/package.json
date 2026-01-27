@@ -1,0 +1,37 @@
+{
+  "name": "@facetlayer/claude-code-confidence",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "claude-code-confidence": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "node build.mts build",
+    "test": "vitest run --testTimeout=30000",
+    "prepublishOnly": "node build.mts build && node build.mts validate",
+    "local:install": "pnpm build && npm i -g ."
+  },
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@facetlayer/claude-code-session-history": "workspace:*",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.2",
+    "@types/node": "^20.0.0",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.6"
+  }
+}

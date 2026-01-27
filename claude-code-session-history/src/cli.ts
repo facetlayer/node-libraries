@@ -6,6 +6,7 @@ import { listChatSessions } from './listChatSessions.ts';
 import type { ChatSession } from './types.ts';
 import { printProjects } from './printProjects.ts';
 import { printChatSessions, printAllSessions, pathToProjectDir } from './printChatSessions.ts';
+import { printSearchResults } from './searchSessions.ts';
 import { ChatSessionMessageSchema } from './Schemas.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -273,6 +274,11 @@ yargs(hideBin(process.argv))
           type: 'string',
           description: 'Project path or directory name (defaults to current directory)'
         })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'List sessions from all projects',
+          default: false
+        })
         .option('offset', {
           type: 'number',
           description: 'Number of sessions to skip',
@@ -293,56 +299,32 @@ yargs(hideBin(process.argv))
         });
     },
     (argv) => {
-      // If no project specified, use current directory
-      // If a path is given (starts with /), convert it to project dir format
-      let project: string;
-      if (!argv.project) {
-        project = pathToProjectDir(process.cwd());
-      } else if (argv.project.startsWith('/')) {
-        project = pathToProjectDir(argv.project);
+      if (argv['all-projects']) {
+        printAllSessions({
+          offset: argv.offset,
+          limit: argv.limit,
+          claudeDir: argv['claude-dir'],
+          verbose: argv.verbose
+        }).catch(console.error);
       } else {
-        project = argv.project;
+        // If no project specified, use current directory
+        // If a path is given (starts with /), convert it to project dir format
+        let project: string;
+        if (!argv.project) {
+          project = pathToProjectDir(process.cwd());
+        } else if (argv.project.startsWith('/')) {
+          project = pathToProjectDir(argv.project);
+        } else {
+          project = argv.project;
+        }
+        printChatSessions({
+          project,
+          offset: argv.offset,
+          limit: argv.limit,
+          claudeDir: argv['claude-dir'],
+          verbose: argv.verbose
+        }).catch(console.error);
       }
-      printChatSessions({
-        project,
-        offset: argv.offset,
-        limit: argv.limit,
-        claudeDir: argv['claude-dir'],
-        verbose: argv.verbose
-      }).catch(console.error);
-    }
-  )
-  .command(
-    'list-all-sessions',
-    'List all Claude Code chat sessions across all projects',
-    (yargs) => {
-      return yargs
-        .option('offset', {
-          type: 'number',
-          description: 'Number of sessions to skip',
-          default: 0
-        })
-        .option('limit', {
-          type: 'number',
-          description: 'Maximum number of sessions to return'
-        })
-        .option('claude-dir', {
-          type: 'string',
-          description: 'Custom path to Claude directory'
-        })
-        .option('verbose', {
-          type: 'boolean',
-          description: 'Enable verbose logging',
-          default: false
-        });
-    },
-    (argv) => {
-      printAllSessions({
-        offset: argv.offset,
-        limit: argv.limit,
-        claudeDir: argv['claude-dir'],
-        verbose: argv.verbose
-      }).catch(console.error);
     }
   )
   .command(
@@ -397,6 +379,58 @@ yargs(hideBin(process.argv))
     (argv) => {
       checkSchema({
         project: argv.project,
+        claudeDir: argv['claude-dir'],
+        verbose: argv.verbose
+      }).catch(console.error);
+    }
+  )
+  .command(
+    'search <query>',
+    'Search for text in chat sessions',
+    (yargs) => {
+      return yargs
+        .positional('query', {
+          type: 'string',
+          description: 'Text to search for',
+          demandOption: true
+        })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Search across all projects',
+          default: false
+        })
+        .option('project', {
+          type: 'string',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('limit', {
+          type: 'number',
+          description: 'Maximum number of results to return'
+        })
+        .option('claude-dir', {
+          type: 'string',
+          description: 'Custom path to Claude directory'
+        })
+        .option('verbose', {
+          type: 'boolean',
+          description: 'Enable verbose logging',
+          default: false
+        });
+    },
+    (argv) => {
+      let project: string | undefined;
+      if (argv.project) {
+        if (argv.project.startsWith('/')) {
+          project = pathToProjectDir(argv.project);
+        } else {
+          project = argv.project;
+        }
+      }
+      printSearchResults({
+        query: argv.query as string,
+        allProjects: argv['all-projects'],
+        project,
+        limit: argv.limit,
         claudeDir: argv['claude-dir'],
         verbose: argv.verbose
       }).catch(console.error);

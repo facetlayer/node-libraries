@@ -16,9 +16,10 @@ export interface PrintSessionsOptions {
 /**
  * Convert a filesystem path to the Claude project directory format.
  * e.g., /Users/andy/candle -> -Users-andy-candle
+ * e.g., /Users/andy.fischer/foo -> -Users-andy-fischer-foo
  */
 export function pathToProjectDir(fsPath: string): string {
-  return fsPath.replace(/\//g, '-');
+  return fsPath.replace(/[\/\.]/g, '-');
 }
 
 function formatRelativeDate(date: Date): string {
