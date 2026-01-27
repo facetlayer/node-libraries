@@ -1,0 +1,44 @@
+{
+  "name": "@facetlayer/md-reader",
+  "version": "0.1.0",
+  "description": "CLI tool for reading and navigating Markdown files by sections",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "md-reader": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "node build.mts build",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "local:install": "npm run build && npm i -g ."
+  },
+  "keywords": [
+    "markdown",
+    "toc",
+    "headings",
+    "sections",
+    "cli"
+  ],
+  "author": "andyfischer",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "yargs": "18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "0.3.1",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "17.0.34",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
+  }
+}

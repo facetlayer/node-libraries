@@ -18,6 +18,7 @@ packages:
   - library-docs-tool
   - local-logs
   - lsp-dev-tools
+  - md-reader
   - npm-status
   - parse-stdout-lines
   - port-assignment

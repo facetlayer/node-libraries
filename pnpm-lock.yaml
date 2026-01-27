@@ -67,31 +67,6 @@ importers:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
-  claude-ci-followup:
-    dependencies:
-      '@facetlayer/subprocess-wrapper':
-        specifier: ^1.1.0
-        version: 1.1.0
-      yargs:
-        specifier: ^18.0.0
-        version: 18.0.0
-    devDependencies:
-      '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.2
-        version: 0.3.2(jiti@1.21.7)(typescript@5.7.3)
-      '@types/node':
-        specifier: ^22.10.0
-        version: 22.13.0
-      '@types/yargs':
-        specifier: ^17.0.34
-        version: 17.0.35
-      typescript:
-        specifier: ^5.7.0
-        version: 5.7.3
-      vitest:
-        specifier: ^3.0.0
-        version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.0)(terser@5.44.1)
-
   claude-code-session-history:
     dependencies:
       yargs:
@@ -101,6 +76,9 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
     devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: ^0.3.2
+        version: 0.3.2(jiti@1.21.7)(typescript@5.7.3)
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.23
@@ -284,9 +262,9 @@ importers:
       '@facetlayer/streams':
         specifier: ^1.0.1
         version: 1.0.1
-      '@facetlayer/subprocess-wrapper':
-        specifier: ^1.1.0
-        version: 1.1.0
+      '@facetlayer/subprocess':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@facetlayer/userdata-db':
         specifier: ^0.1.1
         version: 0.1.1
@@ -412,11 +390,33 @@ importers:
         specifier: ^17.0.34
         version: 17.0.35
 
+  md-reader:
+    dependencies:
+      yargs:
+        specifier: 18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: 0.3.1
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: 17.0.34
+        version: 17.0.34
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.0)(terser@5.44.1)
+
   npm-status:
     dependencies:
-      '@facetlayer/subprocess-wrapper':
-        specifier: ^1.1.0
-        version: 1.1.0
+      '@facetlayer/subprocess':
+        specifier: ^1.1.1
+        version: 1.1.1
       yargs:
         specifier: 18.0.0
         version: 18.0.0
@@ -525,9 +525,9 @@ importers:
       '@facetlayer/prism-framework-tools':
         specifier: ^0.2.3
         version: 0.2.3
-      '@facetlayer/subprocess-wrapper':
-        specifier: ^1.1.0
-        version: 1.1.0
+      '@facetlayer/subprocess':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@types/cookie-parser':
         specifier: ^1.4.7
         version: 1.4.10(@types/express@5.0.5)
@@ -2401,6 +2401,9 @@ packages:
 
   '@facetlayer/subprocess-wrapper@1.1.0':
     resolution: {integrity: sha512-WPqR7AwVluyvgFMPYKXjg5S7tORCDZGXWEivJIOoHBfSXJoBafC0rb8+YTboxSpNfvuCaGMEVaXv0rZHQFRRqg==}
+
+  '@facetlayer/subprocess@1.1.1':
+    resolution: {integrity: sha512-wqutokTn4PCEyRqsFpkCmJ+eNmpka3ENF7nnwlMzOoHo87yF9Tz2g72WyATnY4wq8unNyZbXK5FBQOO6PVGOdA==}
 
   '@facetlayer/user-state-dir@0.1.0':
     resolution: {integrity: sha512-jliVKqPZYC05XAvpUWGMdqpsuVF0QrRYRJ5nI3GKqkLKgvdV9VQQlIsncblZ1z5mtHku35Z6mG0Wjqyoknsm0g==}
@@ -9865,6 +9868,11 @@ snapshots:
       '@facetlayer/parse-stdout-lines': 1.1.0
       '@facetlayer/streams': 1.0.1
 
+  '@facetlayer/subprocess@1.1.1':
+    dependencies:
+      '@facetlayer/parse-stdout-lines': 1.1.0
+      '@facetlayer/streams': 1.0.1
+
   '@facetlayer/user-state-dir@0.1.0': {}
 
   '@facetlayer/userdata-db@0.1.1':
@@ -9914,7 +9922,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -10392,7 +10400,7 @@ snapshots:
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/chai@5.2.3':
     dependencies:
@@ -10402,11 +10410,11 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 5.1.0
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/cookie-parser@1.4.10(@types/express@5.0.5)':
     dependencies:
@@ -10436,14 +10444,14 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.7':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
   '@types/express-serve-static-core@5.1.0':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -10483,7 +10491,7 @@ snapshots:
 
   '@types/http-proxy@1.17.17':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -10509,7 +10517,7 @@ snapshots:
 
   '@types/node-forge@1.3.14':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/node@17.0.45': {}
 
@@ -10564,16 +10572,16 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/serve-index@1.9.4':
     dependencies:
@@ -10582,12 +10590,12 @@ snapshots:
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       '@types/send': 0.17.6
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/swagger-ui-express@4.1.8':
     dependencies:
@@ -10602,7 +10610,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12074,7 +12082,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       require-like: 0.1.2
 
   event-stream@3.3.4:
@@ -12843,7 +12851,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -12851,13 +12859,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.23
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
