@@ -77,6 +77,10 @@ async function handleList(args: ListArgs) {
 }
 
 yargs(hideBin(process.argv))
+  .parserConfiguration({
+    'short-option-groups': false,
+    'camel-case-expansion': false,
+  })
   .scriptName('claude-code-confidence')
   .usage('$0 <command> [options]')
   .command(
@@ -87,12 +91,14 @@ yargs(hideBin(process.argv))
         .option('session', {
           alias: 's',
           type: 'string',
+          nargs: 1,
           description: 'Session ID to analyze',
           demandOption: true,
         })
         .option('project', {
           alias: 'p',
           type: 'string',
+          nargs: 1,
           description: 'Project name (optional, will search all projects if not specified)',
         })
         .option('claude-dir', {
@@ -123,6 +129,7 @@ yargs(hideBin(process.argv))
         .option('project', {
           alias: 'p',
           type: 'string',
+          nargs: 1,
           description: 'Project name',
           demandOption: true,
         })
