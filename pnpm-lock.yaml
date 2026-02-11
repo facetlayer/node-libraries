@@ -117,6 +117,31 @@ importers:
         specifier: ^3.0.6
         version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.23)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
+  claude-code-settings-tool:
+    dependencies:
+      '@facetlayer/docs-tool':
+        specifier: ^0.2.0
+        version: 0.2.0
+      yargs:
+        specifier: ^18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: 0.3.1
+        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/yargs':
+        specifier: ^17.0.34
+        version: 17.0.35
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.6
+        version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.0)(terser@5.44.1)
+
   claude-worktree-helper:
     dependencies:
       yargs:
@@ -2390,6 +2415,10 @@ packages:
 
   '@facetlayer/docs-tool@0.1.0':
     resolution: {integrity: sha512-KLW6V3I1I7tLkD0unZxo1x9/lCRb+6bUmINAqH4TYisVzkUHMvZrLunhOypZDTYU7xlIYhrvz7nkeNHIVwTSdQ==}
+    hasBin: true
+
+  '@facetlayer/docs-tool@0.2.0':
+    resolution: {integrity: sha512-aFCGtZFmFgU1XblLHiinvCDgwBcxxqelMMsNjqTETa+XKkeUTt5s0N6RU5uV2gsNuYkxWhZ2Hcb3EWqH75Leiw==}
     hasBin: true
 
   '@facetlayer/file-manifest@0.1.0':
@@ -9834,6 +9863,11 @@ snapshots:
       yargs: 18.0.0
 
   '@facetlayer/docs-tool@0.1.0':
+    dependencies:
+      '@facetlayer/subprocess-wrapper': 1.1.0
+      yargs: 18.0.0
+
+  '@facetlayer/docs-tool@0.2.0':
     dependencies:
       '@facetlayer/subprocess-wrapper': 1.1.0
       yargs: 18.0.0

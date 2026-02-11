@@ -1,0 +1,46 @@
+{
+  "name": "@facetlayer/claude-code-settings-tool",
+  "version": "0.1.0",
+  "description": "Helper functions and CLI for working with Claude Code settings files",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "claude-code-settings": "dist/cli.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mts build",
+    "test": "vitest run --testTimeout=30000",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "local:install": "pnpm build && npm i -g ."
+  },
+  "files": [
+    "src",
+    "dist",
+    "docs",
+    "README.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  },
+  "dependencies": {
+    "@facetlayer/docs-tool": "^0.2.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "0.3.1",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "^17.0.34",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.6"
+  }
+}
