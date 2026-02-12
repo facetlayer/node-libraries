@@ -1,4 +1,4 @@
-# @facetlayer/claude-code-session-history
+# @facetlayer/cc-session-history
 
 A Node.js library for loading and parsing Claude Code session history files.
 
@@ -7,7 +7,7 @@ Also includes a CLI tool for browsing session history using the command line.
 ## Installation
 
 ```bash
-npm install @facetlayer/claude-code-session-history
+npm install @facetlayer/cc-session-history
 ```
 
 ## API
@@ -17,7 +17,7 @@ npm install @facetlayer/claude-code-session-history
 Retrieve all Claude Code chat sessions for a specific project:
 
 ```typescript
-import { listChatSessions } from '@facetlayer/claude-code-session-history';
+import { listChatSessions } from '@facetlayer/cc-session-history';
 
 const sessions = await listChatSessions({
   project: 'my-project-name'
@@ -37,7 +37,7 @@ for (const session of sessions) {
 Retrieve all messages for a specific session:
 
 ```typescript
-import { getSessionDetails } from '@facetlayer/claude-code-session-history';
+import { getSessionDetails } from '@facetlayer/cc-session-history';
 
 const messages = await getSessionDetails('session-id-here', 'project-name-here');
 
@@ -63,7 +63,7 @@ for (const message of messages) {
 List sessions with pagination:
 
 ```typescript
-import { listChatSessions } from '@facetlayer/claude-code-session-history';
+import { listChatSessions } from '@facetlayer/cc-session-history';
 
 // Get first 10 sessions
 const firstPage = await listChatSessions({
@@ -85,7 +85,7 @@ const secondPage = await listChatSessions({
 The library will look in `~/.claude` by default but you can pass an alternate value for `claudeDir`
 
 ```typescript
-import { listChatSessions, getSessionDetails } from '@facetlayer/claude-code-session-history';
+import { listChatSessions, getSessionDetails } from '@facetlayer/cc-session-history';
 
 const sessions = await listChatSessions({
   project: 'my-project',
@@ -146,13 +146,13 @@ const messages = await getSessionDetails('abc-123', 'my-project', {
 
 ```bash
 # List all projects
-claude-code-session-history list-projects
+cc-session-history list-projects
 
 # List sessions for a specific project
-claude-code-session-history list-sessions --project <project-name>
+cc-session-history list-sessions --project <project-name>
 
 # Get details for a single session
-claude-code-session-history get-chat --session <session-id>
+cc-session-history get-chat --session <session-id>
 
 ```
 

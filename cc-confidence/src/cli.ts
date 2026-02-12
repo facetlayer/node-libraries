@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { analyzeSession, analyzeSessionInProject } from './analyzeSession.ts';
 import { formatMetricsSummary } from './calculateMetrics.ts';
-import { listChatSessions } from '@facetlayer/claude-code-session-history';
+import { listChatSessions } from '@facetlayer/cc-session-history';
 
 interface AnalyzeArgs {
   session: string;
@@ -81,7 +81,7 @@ yargs(hideBin(process.argv))
     'short-option-groups': false,
     'camel-case-expansion': false,
   })
-  .scriptName('claude-code-confidence')
+  .scriptName('cc-confidence')
   .usage('$0 <command> [options]')
   .command(
     'analyze',

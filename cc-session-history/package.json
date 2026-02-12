@@ -1,6 +1,6 @@
 {
-  "name": "@facetlayer/claude-code-confidence",
-  "version": "0.1.0",
+  "name": "@facetlayer/cc-session-history",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,7 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "claude-code-confidence": "dist/cli.js"
+    "cc-session-history": "dist/cli.js"
   },
   "scripts": {
     "build": "node build.mts build",
@@ -24,8 +24,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@facetlayer/claude-code-session-history": "workspace:*",
-    "yargs": "^17.7.2"
+    "yargs": "^17.7.2",
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@facetlayer/build-config-nodejs": "^0.3.2",

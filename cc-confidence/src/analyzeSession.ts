@@ -3,7 +3,7 @@ import {
   getSessionDetails,
   type ChatSession,
   type ChatMessage,
-} from '@facetlayer/claude-code-session-history';
+} from '@facetlayer/cc-session-history';
 import type { SessionMetrics, AnalyzeSessionOptions } from './types.ts';
 import { calculateMetrics } from './calculateMetrics.ts';
 

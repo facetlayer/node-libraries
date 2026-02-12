@@ -1,4 +1,4 @@
-# claude-code-confidence
+# cc-confidence
 
 Analyze Claude Code sessions for success metrics, confidence levels, and KPIs.
 
@@ -13,7 +13,7 @@ Analyze Claude Code sessions for success metrics, confidence levels, and KPIs.
 ## Installation
 
 ```bash
-npm install @facetlayer/claude-code-confidence
+npm install @facetlayer/cc-confidence
 ```
 
 ## CLI Usage
@@ -22,25 +22,25 @@ npm install @facetlayer/claude-code-confidence
 
 ```bash
 # Analyze by session ID (searches all projects)
-claude-code-confidence analyze --session <session-id>
+cc-confidence analyze --session <session-id>
 
 # Analyze with specific project
-claude-code-confidence analyze --session <session-id> --project <project-name>
+cc-confidence analyze --session <session-id> --project <project-name>
 
 # Output as JSON
-claude-code-confidence analyze --session <session-id> --json
+cc-confidence analyze --session <session-id> --json
 ```
 
 ### List sessions
 
 ```bash
-claude-code-confidence list --project <project-name>
+cc-confidence list --project <project-name>
 ```
 
 ## Programmatic Usage
 
 ```typescript
-import { analyzeSession, formatMetricsSummary } from '@facetlayer/claude-code-confidence';
+import { analyzeSession, formatMetricsSummary } from '@facetlayer/cc-confidence';
 
 // Analyze a session
 const metrics = await analyzeSession('session-id-here');

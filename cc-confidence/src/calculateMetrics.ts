@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatSession } from '@facetlayer/claude-code-session-history';
+import type { ChatMessage, ChatSession } from '@facetlayer/cc-session-history';
 import type {
   SessionMetrics,
   ToolCall,
