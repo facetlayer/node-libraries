@@ -1,9 +1,5 @@
 {
-<<<<<<<< HEAD:claude-code-settings-tool/package.json
   "name": "@facetlayer/claude-code-settings-tool",
-========
-  "name": "@facetlayer/cc-settings-cleanup",
->>>>>>>> db7c505 (renaming the claude-code- projects to cc-):cc-settings-cleanup/package.json
   "version": "0.1.0",
   "description": "Helper functions and CLI for working with Claude Code settings files",
   "type": "module",
@@ -37,15 +33,7 @@
     "url": "https://github.com/facetlayer/node-libraries"
   },
   "dependencies": {
-<<<<<<<< HEAD:claude-code-settings-tool/package.json
     "@facetlayer/docs-tool": "^0.2.0",
-========
-    "@facetlayer/cc-headless": "workspace:*",
-    "@anthropic-ai/sdk": "^0.71.2",
-    "ink": "^5.0.1",
-    "ink-spinner": "^5.0.0",
-    "react": "^18.3.1",
->>>>>>>> db7c505 (renaming the claude-code- projects to cc-):cc-settings-cleanup/package.json
     "yargs": "^18.0.0"
   },
   "devDependencies": {
