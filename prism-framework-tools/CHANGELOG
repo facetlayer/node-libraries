@@ -2,6 +2,14 @@
 Unreleased
  - Update documentation examples to use correct endpoint paths (without /api prefix)
 
+0.3.0
+ - Add config file support (.prism.qc) with parent directory search
+ - Fix API client type generation issues
+ - Add generate-api-clients-config documentation
+ - Add endpoint-tools and env-files documentation
+ - Safety checks for Zod schemas incompatible with OpenAPI
+ - Improve getting-started docs
+
 0.2.5
  - Add list-docs and get-doc (with doc-files-helper)
  
