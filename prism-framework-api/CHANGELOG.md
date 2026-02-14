@@ -6,6 +6,8 @@
  - Add Zod 4.x as peer dependency to catch version mismatches early
  - Update documentation examples to use correct endpoint paths (without `/api` prefix)
  - Add "Testing Endpoints" section to README
+
+## 0.3.0
  - Expand configuration options for local CORS
  - Documented the `ServiceDefinition` interface in creating-services doc
  - Improve docs
