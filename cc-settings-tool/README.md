@@ -1,16 +1,16 @@
 ---
 name: README
-description: Overview of claude-code-settings-tool
+description: Overview of cc-settings-tool
 ---
 
-# @facetlayer/claude-code-settings-tool
+# @facetlayer/cc-settings-tool
 
 Helper functions and CLI for working with Claude Code settings files (`.claude/settings.json` and `.claude/settings.local.json`).
 
 ## Installation
 
 ```bash
-npm install -g @facetlayer/claude-code-settings-tool
+npm install -g @facetlayer/cc-settings-tool
 ```
 
 ## CLI Usage
@@ -20,8 +20,8 @@ npm install -g @facetlayer/claude-code-settings-tool
 List all allow rules from both settings files:
 
 ```bash
-claude-code-settings list-rules
-claude-code-settings list-rules /path/to/project
+cc-settings list-rules
+cc-settings list-rules /path/to/project
 ```
 
 ### Add allow rules
@@ -29,13 +29,13 @@ claude-code-settings list-rules /path/to/project
 Add one or more allow rules:
 
 ```bash
-claude-code-settings allow-rules "Bash(npm test)" "Bash(npm run build)"
+cc-settings allow-rules "Bash(npm test)" "Bash(npm run build)"
 ```
 
 Add rules to `settings.local.json` instead:
 
 ```bash
-claude-code-settings allow-rules "Bash(npm test)" --file settings.local.json
+cc-settings allow-rules "Bash(npm test)" --file settings.local.json
 ```
 
 ## Library Usage
@@ -46,7 +46,7 @@ import {
   listAllowRules,
   hasAllowRule,
   addAllowRule,
-} from '@facetlayer/claude-code-settings-tool';
+} from '@facetlayer/cc-settings-tool';
 
 // Load both settings files
 const { settingsFile, localSettingsFile } = loadSettings('.');

@@ -1,5 +1,5 @@
 {
-  "name": "@facetlayer/claude-code-settings-tool",
+  "name": "@facetlayer/cc-settings-tool",
   "version": "0.1.0",
   "description": "Helper functions and CLI for working with Claude Code settings files",
   "type": "module",
@@ -12,7 +12,7 @@
     }
   },
   "bin": {
-    "claude-code-settings": "dist/cli.js"
+    "cc-settings": "dist/cli.js"
   },
   "sideEffects": false,
   "scripts": {

@@ -5,7 +5,7 @@ packages:
   - cc-confidence
   - cc-headless
   - cc-session-history
-  - claude-code-settings-tool
+  - cc-settings-tool
   - claude-settings-tidier
   - claude-worktree-helper
   - concurrency-limit
