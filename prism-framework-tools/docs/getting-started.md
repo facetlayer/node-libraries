@@ -42,19 +42,22 @@ Some ways to set up the repo for a Prism project:
  - `./api` - Backend API
    - `./api/package.json` - Contains prism-framework-api
    - `./api/src/` - Backend service implementation
- - `./web` - Frontend web app
-   - `./web/package.json` - Contains Next.js and prism-framework-ui
+ - `./web` or `./ui` - Frontend web app
+   - `./web/package.json` - Contains Next.js or Vite, and prism-framework-ui
    - `./web/src` - Frontend implementation
 
 ### Option 2: API in top level directory
 
  - `./package.json` - Contains prism-framework-api
  - `./src` - Backend API source code
- - `./web` - Frontend web app
-   - `./web/package.json` - Contains Next.js and prism-framework-ui
+ - `./web` or `./ui` - Frontend web app
+   - `./web/package.json` - Contains Next.js or Vite, and prism-framework-ui
    - `./web/src`
 
-Also depending on the type of project, the frontend may be in `./ui` instead of `./web`
+### Frontend framework choice
+
+ - **Vite + React** - Recommended for local tools, GUIs, and apps that don't need SSR. Lighter weight and faster dev server. See the `vite-setup` doc in `@facetlayer/prism-framework-ui`.
+ - **Next.js** - Recommended for production web apps that need SSR, routing, or deployment to platforms like Vercel. See the `nextjs-setup` doc in `@facetlayer/prism-framework-ui`.
 
 ## Packages
 

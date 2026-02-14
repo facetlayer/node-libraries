@@ -37,7 +37,7 @@ export const myService: ServiceDefinition = {
   endpoints: [
     createEndpoint({
       method: 'GET',
-      path: '/api/hello',
+      path: '/hello',
       handler: async () => ({ message: 'Hello World' }),
     }),
   ],

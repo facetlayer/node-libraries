@@ -3,7 +3,12 @@ import express from 'express';
 export interface CorsConfig {
   /** Base URL for web application (e.g., 'example.com' or 'https://example.com') */
   webBaseUrl?: string;
-  /** Allow localhost origins for testing */
+  /** Allow any localhost origin (http://localhost:*) for local development */
+  allowLocalhost?: boolean;
+  /**
+   * @deprecated Use `allowLocalhost` instead. This field controls both test endpoints and localhost CORS.
+   * When `allowLocalhost` is set, it takes precedence for CORS behavior.
+   */
   enableTestEndpoints?: boolean;
 }
 
@@ -28,8 +33,9 @@ function setACAOHeader(res: express.Response, reqOrigin: string, config: CorsCon
     }
   }
 
-  // Special case for testing: Allow any localhost port when test endpoints are enabled
-  if (config.enableTestEndpoints && reqOrigin.startsWith('http://localhost:')) {
+  // Allow any localhost port for local development
+  const localhostAllowed = config.allowLocalhost ?? config.enableTestEndpoints;
+  if (localhostAllowed && reqOrigin.startsWith('http://localhost:')) {
     res.header('Access-Control-Allow-Origin', reqOrigin);
     return;
   }

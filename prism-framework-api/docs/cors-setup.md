@@ -35,7 +35,10 @@ interface CorsConfig {
   /** Base URL for web application (e.g., 'example.com' or 'https://example.com') */
   webBaseUrl?: string;
 
-  /** Allow localhost origins for testing */
+  /** Allow any localhost origin (http://localhost:*) for local development */
+  allowLocalhost?: boolean;
+
+  /** @deprecated Use `allowLocalhost` instead */
   enableTestEndpoints?: boolean;
 }
 ```
@@ -56,20 +59,24 @@ corsConfig: {
 }
 ```
 
-### enableTestEndpoints
+### allowLocalhost
 
-Enables CORS for any `http://localhost:*` origin (any port).
+Enables CORS for any `http://localhost:*` origin (any port). This is the recommended setting for local development where the API server and frontend run on different ports.
 
 - **Default**: `false`
-- **When `true`**: Allows any localhost origin for development/testing
+- **When `true`**: Allows any localhost origin for development
 - **When `false`**: Localhost origins are blocked
 - **Typical usage**: Enable in development, disable in production
 
 ```typescript
 corsConfig: {
-  enableTestEndpoints: process.env.NODE_ENV !== 'production',
+  allowLocalhost: process.env.NODE_ENV !== 'production',
 }
 ```
+
+### enableTestEndpoints (deprecated)
+
+Use `allowLocalhost` instead. When both are set, `allowLocalhost` takes precedence.
 
 ## Environment Variable Pattern
 
@@ -78,17 +85,17 @@ A common pattern is to configure CORS via environment variables:
 ```bash
 # .env (development)
 WEB_BASE_URL=localhost:3000
-ENABLE_TEST_ENDPOINTS=true
+ALLOW_LOCALHOST=true
 
 # .env (production)
 WEB_BASE_URL=myapp.example.com
-ENABLE_TEST_ENDPOINTS=false
+ALLOW_LOCALHOST=false
 ```
 
 ```typescript
 corsConfig: {
   webBaseUrl: process.env.WEB_BASE_URL,
-  enableTestEndpoints: process.env.ENABLE_TEST_ENDPOINTS === 'true',
+  allowLocalhost: process.env.ALLOW_LOCALHOST === 'true',
 }
 ```
 
@@ -123,7 +130,7 @@ await startServer({
   app,
   port: 4000,
   corsConfig: {
-    enableTestEndpoints: true,
+    allowLocalhost: true,
   },
 });
 ```
@@ -136,7 +143,6 @@ await startServer({
   port: 4000,
   corsConfig: {
     webBaseUrl: 'myapp.example.com',
-    enableTestEndpoints: false,
   },
 });
 ```
@@ -149,7 +155,7 @@ await startServer({
   port: parseInt(process.env.PRISM_API_PORT, 10),
   corsConfig: {
     webBaseUrl: process.env.WEB_BASE_URL,
-    enableTestEndpoints: process.env.ENABLE_TEST_ENDPOINTS === 'true',
+    allowLocalhost: process.env.ALLOW_LOCALHOST === 'true',
   },
 });
 ```
@@ -160,7 +166,7 @@ await startServer({
 
 This means the requesting origin is not allowed. Check:
 
-1. For localhost development: Ensure `enableTestEndpoints: true` is set
+1. For localhost development: Ensure `allowLocalhost: true` is set
 2. For production: Ensure `webBaseUrl` matches your frontend's domain
 3. The request origin uses the correct protocol (https for production)
 

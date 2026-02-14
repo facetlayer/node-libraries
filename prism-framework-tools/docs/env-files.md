@@ -17,21 +17,18 @@ Next to the API / backend code there should be a .env file with:
 | PRISM_API_PORT | `<port number>` | The port for the web server |
 | DATABASE_DIR | data | The relative path to a folder that has SQlite databases |
 | WEB_BASE_URL | `http://localhost:<number>` | The URL for the web server |
-| ENABLE_TEST_ENDPOINTS | `true` | Whether to enable dev-only debugging & testing endpoints |
+| ALLOW_LOCALHOST | `true` | Whether to allow localhost CORS origins for local development |
 
 ### Frontend
 
-In the frontend directory, these variables are recommended:
+#### Next.js
 
 | name | example value | description |
 | ---- | ------------- | ----------- |
 | PORT | `<port number>` | The port for the web server. Should match WEB_BASE_URL from the backend. |
 | NEXT_PUBLIC_API_URL | `http://localhost:<number>` | The URL for the API server. Should match PRISM_API_PORT from the backend. |
 
-
-Remember that if a variable is used in the frontend code, it needs a prefix of NEXT_PUBLIC_
-
-#### Next.js Launching
+Remember that if a variable is used in the frontend code, it needs a prefix of `NEXT_PUBLIC_`.
 
 Next.js doesn't load the .env file by default so it's recommended to have this script in package.json:
 
@@ -39,6 +36,22 @@ Next.js doesn't load the .env file by default so it's recommended to have this s
     "dev": "dotenv -e .env next dev",
     ...
   },
+
+#### Vite
+
+| name | example value | description |
+| ---- | ------------- | ----------- |
+| VITE_API_URL | `http://localhost:<number>` | The URL for the API server. Only needed if not using the Vite proxy approach. |
+
+Vite uses the `VITE_` prefix instead of `NEXT_PUBLIC_` for client-exposed variables. Vite loads `.env` files automatically — no extra setup needed.
+
+Access in code:
+
+```typescript
+const apiUrl = import.meta.env.VITE_API_URL;
+```
+
+See the `vite-setup` doc in `@facetlayer/prism-framework-ui` for more details.
 
 # Port assignment
 

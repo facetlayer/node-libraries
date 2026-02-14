@@ -210,6 +210,61 @@ describe('corsMiddleware', () => {
     });
   });
 
+  describe('allowLocalhost configuration', () => {
+    it('should allow localhost origins when allowLocalhost is true', () => {
+      const config: CorsConfig = { allowLocalhost: true };
+      const middleware = corsMiddleware(config);
+      const req = createMockRequest({ origin: 'http://localhost:3000' });
+      const { res, headers } = createMockResponse();
+      const next = vi.fn();
+
+      middleware(req as Request, res as Response, next as NextFunction);
+
+      expect(headers['Access-Control-Allow-Origin']).toBe('http://localhost:3000');
+    });
+
+    it('should allow any localhost port when allowLocalhost is true', () => {
+      const config: CorsConfig = { allowLocalhost: true };
+      const middleware = corsMiddleware(config);
+      const ports = [3000, 4000, 5173, 8080];
+
+      for (const port of ports) {
+        const req = createMockRequest({ origin: `http://localhost:${port}` });
+        const { res, headers } = createMockResponse();
+        const next = vi.fn();
+
+        middleware(req as Request, res as Response, next as NextFunction);
+
+        expect(headers['Access-Control-Allow-Origin']).toBe(`http://localhost:${port}`);
+      }
+    });
+
+    it('should not allow localhost origins when allowLocalhost is false', () => {
+      const config: CorsConfig = { allowLocalhost: false };
+      const middleware = corsMiddleware(config);
+      const req = createMockRequest({ origin: 'http://localhost:3000' });
+      const { res, headers } = createMockResponse();
+      const next = vi.fn();
+
+      middleware(req as Request, res as Response, next as NextFunction);
+
+      expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
+    });
+
+    it('should take precedence over enableTestEndpoints', () => {
+      // allowLocalhost: false should override enableTestEndpoints: true
+      const config: CorsConfig = { allowLocalhost: false, enableTestEndpoints: true };
+      const middleware = corsMiddleware(config);
+      const req = createMockRequest({ origin: 'http://localhost:3000' });
+      const { res, headers } = createMockResponse();
+      const next = vi.fn();
+
+      middleware(req as Request, res as Response, next as NextFunction);
+
+      expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
+    });
+  });
+
   describe('combined configuration', () => {
     it('should handle webBaseUrl and enableTestEndpoints together', () => {
       const config: CorsConfig = {

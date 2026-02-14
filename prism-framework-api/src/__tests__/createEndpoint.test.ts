@@ -90,7 +90,7 @@ describe('createEndpoint', () => {
 
       // The replacement handler throws synchronously
       expect(() => result.handler({})).toThrow(
-        'Misconfigured endpoint /api/bad-endpoint: API endpoints should not start with /api'
+        'Endpoint paths must not start with /api'
       );
     });
 
@@ -107,7 +107,7 @@ describe('createEndpoint', () => {
         const result = createEndpoint(definition);
 
         // The replacement handler throws synchronously
-        expect(() => result.handler({})).toThrow(/API endpoints should not start with \/api/);
+        expect(() => result.handler({})).toThrow(/Endpoint paths must not start with \/api/);
       }
     });
 

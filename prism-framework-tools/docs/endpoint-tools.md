@@ -45,6 +45,8 @@ Calls an endpoint on a running server.
 
 ### Basic Usage
 
+**Important:** Do not use the `/api` prefix in endpoint paths. Use the path directly as defined in the endpoint.
+
 ```bash
 # GET request
 prism call /users

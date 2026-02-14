@@ -1,3 +1,19 @@
+export interface WebFetchConfig {
+    baseUrl?: string;
+}
+
+let globalConfig: WebFetchConfig = {};
+
+/**
+ * Configure global defaults for webFetch. Useful for setting a base URL
+ * when the API server runs on a different port than the frontend.
+ *
+ * Example:
+ *   configureWebFetch({ baseUrl: 'http://localhost:4800' });
+ */
+export function configureWebFetch(config: WebFetchConfig) {
+    globalConfig = { ...config };
+}
 
 export interface ApiRequestOptions {
     params?: any;
@@ -54,7 +70,8 @@ export async function webFetch(endpoint: string, options: ApiRequestOptions = {}
         credentials: 'include' as const,
     };
 
-    let url = `${options.host || ''}${finalPath.startsWith('/') ? finalPath : '/' + finalPath}`;
+    const host = options.host || globalConfig.baseUrl || '';
+    let url = `${host}${finalPath.startsWith('/') ? finalPath : '/' + finalPath}`;
 
     // Add request body for POST/PUT/PATCH methods if params are provided
     if (Object.keys(remainingParams).length > 0) {

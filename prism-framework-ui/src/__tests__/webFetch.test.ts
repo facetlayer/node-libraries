@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { webFetch } from '../webFetch';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { webFetch, configureWebFetch } from '../webFetch';
 
 // Mock the global fetch function
 global.fetch = vi.fn();
@@ -15,10 +15,10 @@ describe('webFetch', () => {
 
     describe('endpoint parsing', () => {
         it('should parse GET method and path from endpoint string', async () => {
-            await webFetch('GET /api/users', {});
+            await webFetch('GET /users', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users',
+                '/users',
                 expect.objectContaining({
                     method: 'GET',
                 })
@@ -26,10 +26,10 @@ describe('webFetch', () => {
         });
 
         it('should parse POST method and path from endpoint string', async () => {
-            await webFetch('POST /api/users', {});
+            await webFetch('POST /users', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users',
+                '/users',
                 expect.objectContaining({
                     method: 'POST',
                 })
@@ -37,10 +37,10 @@ describe('webFetch', () => {
         });
 
         it('should convert method to lowercase', async () => {
-            await webFetch('post /api/users', {});
+            await webFetch('post /users', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users',
+                '/users',
                 expect.objectContaining({
                     method: 'POST',
                 })
@@ -48,10 +48,10 @@ describe('webFetch', () => {
         });
 
         it('should default to GET when only path is provided', async () => {
-            await webFetch('/api/users', {});
+            await webFetch('/users', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users',
+                '/users',
                 expect.objectContaining({
                     method: 'GET',
                 })
@@ -59,10 +59,10 @@ describe('webFetch', () => {
         });
 
         it('should handle PUT method', async () => {
-            await webFetch('put /api/users/123', {});
+            await webFetch('put /users/123', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.objectContaining({
                     method: 'PUT',
                 })
@@ -70,10 +70,10 @@ describe('webFetch', () => {
         });
 
         it('should handle PATCH method', async () => {
-            await webFetch('patch /api/users/123', {});
+            await webFetch('patch /users/123', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.objectContaining({
                     method: 'PATCH',
                 })
@@ -81,10 +81,10 @@ describe('webFetch', () => {
         });
 
         it('should handle DELETE method', async () => {
-            await webFetch('delete /api/users/123', {});
+            await webFetch('delete /users/123', {});
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.objectContaining({
                     method: 'DELETE',
                 })
@@ -94,34 +94,34 @@ describe('webFetch', () => {
 
     describe('path parameter replacement', () => {
         it('should replace single path parameter', async () => {
-            await webFetch('GET /api/users/:id', {
+            await webFetch('GET /users/:id', {
                 params: { id: '123' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.any(Object)
             );
         });
 
         it('should replace multiple path parameters', async () => {
-            await webFetch('GET /api/users/:userId/posts/:postId', {
+            await webFetch('GET /users/:userId/posts/:postId', {
                 params: { userId: '123', postId: '456' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123/posts/456',
+                '/users/123/posts/456',
                 expect.any(Object)
             );
         });
 
         it('should replace path parameters and include remaining params in query string for GET', async () => {
-            await webFetch('GET /api/users/:id', {
+            await webFetch('GET /users/:id', {
                 params: { id: '123', status: 'active', role: 'admin' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123?status=active&role=admin',
+                '/users/123?status=active&role=admin',
                 expect.objectContaining({
                     method: 'GET',
                 })
@@ -129,12 +129,12 @@ describe('webFetch', () => {
         });
 
         it('should replace path parameters and include remaining params in body for POST', async () => {
-            await webFetch('POST /api/users/:id/posts', {
+            await webFetch('POST /users/:id/posts', {
                 params: { id: '123', title: 'Test Post', content: 'Test content' },
             });
 
             const [url, options] = (global.fetch as any).mock.calls[0];
-            expect(url).toBe('/api/users/123/posts');
+            expect(url).toBe('/users/123/posts');
             expect(options.method).toBe('POST');
             expect(JSON.parse(options.body)).toEqual({
                 title: 'Test Post',
@@ -143,44 +143,44 @@ describe('webFetch', () => {
         });
 
         it('should not duplicate path params in query string for GET', async () => {
-            await webFetch('GET /api/users/:id', {
+            await webFetch('GET /users/:id', {
                 params: { id: '123' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.any(Object)
             );
         });
 
         it('should not duplicate path params in body for POST', async () => {
-            await webFetch('POST /api/users/:id', {
+            await webFetch('POST /users/:id', {
                 params: { id: '123' },
             });
 
             const [url, options] = (global.fetch as any).mock.calls[0];
-            expect(url).toBe('/api/users/123');
+            expect(url).toBe('/users/123');
             expect(options.body).toBeUndefined();
         });
 
         it('should handle numeric path parameters', async () => {
-            await webFetch('GET /api/users/:id', {
+            await webFetch('GET /users/:id', {
                 params: { id: 123 },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.any(Object)
             );
         });
 
         it('should handle path without leading slash', async () => {
-            await webFetch('GET api/users/:id', {
+            await webFetch('GET users/:id', {
                 params: { id: '123' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users/123',
+                '/users/123',
                 expect.any(Object)
             );
         });
@@ -188,7 +188,7 @@ describe('webFetch', () => {
 
     describe('request body and query parameters', () => {
         it('should send params in body for POST requests', async () => {
-            await webFetch('POST /api/users', {
+            await webFetch('POST /users', {
                 params: { name: 'John', email: 'john@example.com' },
             });
 
@@ -200,7 +200,7 @@ describe('webFetch', () => {
         });
 
         it('should send params in body for PUT requests', async () => {
-            await webFetch('PUT /api/users/123', {
+            await webFetch('PUT /users/123', {
                 params: { name: 'John Updated' },
             });
 
@@ -211,7 +211,7 @@ describe('webFetch', () => {
         });
 
         it('should send params in body for PATCH requests', async () => {
-            await webFetch('PATCH /api/users/123', {
+            await webFetch('PATCH /users/123', {
                 params: { status: 'active' },
             });
 
@@ -222,34 +222,76 @@ describe('webFetch', () => {
         });
 
         it('should send params as query string for GET requests', async () => {
-            await webFetch('GET /api/users', {
+            await webFetch('GET /users', {
                 params: { status: 'active', role: 'admin' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users?status=active&role=admin',
+                '/users?status=active&role=admin',
                 expect.any(Object)
             );
         });
 
         it('should send params as query string for DELETE requests', async () => {
-            await webFetch('DELETE /api/users', {
+            await webFetch('DELETE /users', {
                 params: { status: 'inactive' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users?status=inactive',
+                '/users?status=inactive',
                 expect.any(Object)
             );
         });
 
         it('should skip undefined and null params in query string', async () => {
-            await webFetch('GET /api/users', {
+            await webFetch('GET /users', {
                 params: { name: 'John', status: undefined, role: null },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/users?name=John',
+                '/users?name=John',
+                expect.any(Object)
+            );
+        });
+    });
+
+    describe('configureWebFetch', () => {
+        afterEach(() => {
+            // Reset global config after each test
+            configureWebFetch({});
+        });
+
+        it('should use global baseUrl when no host option is provided', async () => {
+            configureWebFetch({ baseUrl: 'http://localhost:4800' });
+
+            await webFetch('GET /users', {});
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                'http://localhost:4800/users',
+                expect.any(Object)
+            );
+        });
+
+        it('should allow host option to override global baseUrl', async () => {
+            configureWebFetch({ baseUrl: 'http://localhost:4800' });
+
+            await webFetch('GET /users', {
+                host: 'http://localhost:5000',
+            });
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                'http://localhost:5000/users',
+                expect.any(Object)
+            );
+        });
+
+        it('should work without global config', async () => {
+            configureWebFetch({});
+
+            await webFetch('GET /users', {});
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/users',
                 expect.any(Object)
             );
         });
@@ -257,24 +299,24 @@ describe('webFetch', () => {
 
     describe('host option', () => {
         it('should prepend host to URL', async () => {
-            await webFetch('GET /api/users', {
+            await webFetch('GET /users', {
                 host: 'https://api.example.com',
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                'https://api.example.com/api/users',
+                'https://api.example.com/users',
                 expect.any(Object)
             );
         });
 
         it('should work with host and path parameters', async () => {
-            await webFetch('GET /api/users/:id', {
+            await webFetch('GET /users/:id', {
                 host: 'https://api.example.com',
                 params: { id: '123', filter: 'active' },
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                'https://api.example.com/api/users/123?filter=active',
+                'https://api.example.com/users/123?filter=active',
                 expect.any(Object)
             );
         });
@@ -282,7 +324,7 @@ describe('webFetch', () => {
 
     describe('headers option', () => {
         it('should include custom headers', async () => {
-            await webFetch('GET /api/users', {
+            await webFetch('GET /users', {
                 headers: { Authorization: 'Bearer token123' },
             });
 
@@ -294,7 +336,7 @@ describe('webFetch', () => {
         });
 
         it('should override default Content-Type', async () => {
-            await webFetch('POST /api/users', {
+            await webFetch('POST /users', {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             });
 
@@ -310,7 +352,7 @@ describe('webFetch', () => {
                 status: 404,
             });
 
-            await expect(webFetch('GET /api/users/999', {})).rejects.toThrow(
+            await expect(webFetch('GET /users/999', {})).rejects.toThrow(
                 'Fetch error, status: 404'
             );
         });
@@ -321,7 +363,7 @@ describe('webFetch', () => {
                 status: 500,
             });
 
-            await expect(webFetch('POST /api/users', {})).rejects.toThrow(
+            await expect(webFetch('POST /users', {})).rejects.toThrow(
                 'Fetch error, status: 500'
             );
         });
@@ -335,14 +377,14 @@ describe('webFetch', () => {
                 json: async () => mockData,
             });
 
-            const result = await webFetch('GET /api/users/123', {});
+            const result = await webFetch('GET /users/123', {});
             expect(result).toEqual(mockData);
         });
     });
 
     describe('complex scenarios', () => {
         it('should handle complex path with multiple params and query string', async () => {
-            await webFetch('GET /api/organizations/:orgId/users/:userId/posts', {
+            await webFetch('GET /organizations/:orgId/users/:userId/posts', {
                 params: {
                     orgId: 'org123',
                     userId: 'user456',
@@ -352,7 +394,7 @@ describe('webFetch', () => {
             });
 
             expect(global.fetch).toHaveBeenCalledWith(
-                '/api/organizations/org123/users/user456/posts?status=published&sort=date',
+                '/organizations/org123/users/user456/posts?status=published&sort=date',
                 expect.objectContaining({
                     method: 'GET',
                 })
@@ -360,7 +402,7 @@ describe('webFetch', () => {
         });
 
         it('should handle POST with path params and body data', async () => {
-            await webFetch('POST /api/users/:userId/posts/:postId/comments', {
+            await webFetch('POST /users/:userId/posts/:postId/comments', {
                 params: {
                     userId: '123',
                     postId: '456',
@@ -370,7 +412,7 @@ describe('webFetch', () => {
             });
 
             const [url, options] = (global.fetch as any).mock.calls[0];
-            expect(url).toBe('/api/users/123/posts/456/comments');
+            expect(url).toBe('/users/123/posts/456/comments');
             expect(JSON.parse(options.body)).toEqual({
                 text: 'Great post!',
                 rating: 5,

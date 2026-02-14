@@ -9,12 +9,12 @@ export function createEndpoint(
     definition: EndpointDefinition
 ): EndpointDefinition {
     if (definition.path.startsWith('/api')) {
-        logWarn(`Misconfigured endpoint ${definition.path}: API endpoints should not start with /api`);
+        logWarn(`Misconfigured endpoint ${definition.path}: Endpoint paths must not start with /api. Use the path without the /api prefix (e.g. "/users" instead of "/api/users").`);
 
         return {
             ...definition,
             handler: () => {
-                throw new Error(`Misconfigured endpoint ${definition.path}: API endpoints should not start with /api`);
+                throw new Error(`Misconfigured endpoint ${definition.path}: Endpoint paths must not start with /api. Use the path without the /api prefix (e.g. "/users" instead of "/api/users").`);
             },
         }
     }

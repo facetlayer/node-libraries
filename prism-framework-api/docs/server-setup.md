@@ -44,7 +44,7 @@ async function main() {
     },
     corsConfig: {
         webBaseUrl: process.env.WEB_BASE_URL,
-        enableTestEndpoints: process.env.ENABLE_TEST_ENDPOINTS === 'true',
+        allowLocalhost: process.env.ALLOW_LOCALHOST === 'true',
     },
   });
 }
@@ -55,9 +55,55 @@ main().catch(error => {
 });
 ```
 
-## Launching
+## Launching with Candle
 
-The service should be launched through the Candle process manager. (TODO: add more details)
+A Prism app needs both an API server and a frontend dev server running simultaneously. Use the `candle` process manager to coordinate them.
+
+### Setup
+
+Register each service in your `.candle.json`:
+
+```bash
+candle add-service api "node --watch src/_main/api.ts" --root ./api
+candle add-service ui "pnpm dev" --root ./ui
+```
+
+### Usage
+
+```bash
+# Start both services
+candle start api
+candle start ui
+
+# Check status
+candle ls
+
+# View logs
+candle logs api
+candle logs ui
+
+# Restart a service after changes
+candle restart api
+```
+
+### Recommended .env setup
+
+The API server reads from `./api/.env` (or root `.env`):
+
+```bash
+PRISM_API_PORT=4000
+ALLOW_LOCALHOST=true
+```
+
+The frontend reads from `./ui/.env` (Vite) or `./web/.env` (Next.js):
+
+```bash
+# Vite
+VITE_API_URL=http://localhost:4000
+
+# Next.js
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
 
 ## Testing
 

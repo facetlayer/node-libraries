@@ -1,3 +1,3 @@
 export { cn } from './lib/utils.js';
-export { webFetch, type ApiRequestOptions } from './webFetch.js';
+export { webFetch, configureWebFetch, type ApiRequestOptions, type WebFetchConfig } from './webFetch.js';
 

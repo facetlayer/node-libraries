@@ -7,6 +7,31 @@ description: How to create services with endpoints, middleware, and database sch
 
 Services are the building blocks of a Prism Framework application. Each service is self-contained and can define endpoints, middleware, database schemas, and background jobs.
 
+## ServiceDefinition Interface
+
+```typescript
+interface ServiceDefinition {
+  /** Unique name identifying this service */
+  name: string;
+
+  /** API endpoints provided by this service */
+  endpoints?: EndpointDefinition[];
+
+  /** Express middleware scoped to specific paths */
+  middleware?: MiddlewareDefinition[];
+
+  /** SQLite database schemas, keyed by database name */
+  databases?: Record<string, {
+    statements: string[];  // SQL CREATE TABLE / CREATE INDEX statements
+  }>;
+
+  /** Async callback to start background jobs when the app initializes */
+  startJobs?: () => Promise<void>;
+}
+```
+
+All fields except `name` are optional. A service can provide any combination of endpoints, middleware, databases, and background jobs.
+
 ## Basic Service Structure
 
 ```typescript
@@ -44,6 +69,8 @@ export const definition: ServiceDefinition = {
 
 ## Defining Endpoints
 
+**Important:** Endpoint paths must NOT start with `/api`. Define paths directly (e.g. `/users`, `/users/:id`). The framework will reject any endpoint path that starts with `/api`.
+
 Endpoints are defined with type safety using Zod schemas:
 
 ```typescript
@@ -59,7 +86,7 @@ const GetUserResponse = z.object({
 
 const getUserEndpoint = createEndpoint({
   method: 'GET',
-  path: '/api/users/:userId',
+  path: '/users/:userId',
   requestSchema: GetUserRequest,
   responseSchema: GetUserResponse,
   requires: ['authenticated-user'], // Optional requirements
@@ -103,7 +130,7 @@ For streaming responses, return an object with a `startSse` method:
 ```typescript
 createEndpoint({
   method: 'GET',
-  path: '/api/stream',
+  path: '/stream',
   handler: async () => {
     return {
       startSse: (sse: SseResponse) => {
@@ -133,7 +160,7 @@ export const definition: ServiceDefinition = {
   name: 'my-service',
   middleware: [
     {
-      path: '/api/admin/*',
+      path: '/admin/*',
       handler: (req, res, next) => {
         // Check admin permissions
         if (!isAdmin(req)) {
