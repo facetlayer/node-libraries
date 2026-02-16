@@ -20,6 +20,7 @@ interface GlobalOptions {
 
 interface GetChatOptions extends GlobalOptions {
   session: string;
+  json?: boolean;
 }
 
 interface CheckSchemaOptions extends GlobalOptions {
@@ -65,6 +66,18 @@ async function getChat(options: GetChatOptions): Promise<void> {
     if (!foundSession || !foundProjectPath) {
       console.error(`Session not found: ${options.session}`);
       process.exit(1);
+    }
+
+    if (options.json) {
+      console.log(JSON.stringify({
+        project: foundProjectPath,
+        sessionId: foundSession.sessionId,
+        messageCount: foundSession.messageCount,
+        firstMessageTimestamp: foundSession.firstMessageTimestamp,
+        lastMessageTimestamp: foundSession.lastMessageTimestamp,
+        messages: foundSession.messages,
+      }));
+      return;
     }
 
     console.log(`Project: ${foundProjectPath}`);
@@ -346,13 +359,19 @@ yargs(hideBin(process.argv))
           type: 'boolean',
           description: 'Enable verbose logging',
           default: false
+        })
+        .option('json', {
+          type: 'boolean',
+          description: 'Output as JSON',
+          default: false
         });
     },
     (argv) => {
       getChat({
         session: argv.session,
         claudeDir: argv['claude-dir'],
-        verbose: argv.verbose
+        verbose: argv.verbose,
+        json: argv.json
       }).catch(console.error);
     }
   )
