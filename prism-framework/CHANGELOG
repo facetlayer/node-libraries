@@ -1,6 +1,8 @@
 
 Unreleased
  - Update documentation examples to use correct endpoint paths (without /api prefix)
+
+0.4.0
  - Renamed from @facetlayer/prism-framework-tools to @facetlayer/prism-framework
 
 0.3.0
