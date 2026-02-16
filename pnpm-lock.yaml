@@ -527,6 +527,46 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@types/node@18.19.130)(terser@5.44.1)
 
+  prism-framework:
+    dependencies:
+      '@facetlayer/doc-files-helper':
+        specifier: 0.1.2
+        version: 0.1.2
+      '@facetlayer/prism-framework-api':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@facetlayer/qc':
+        specifier: ^0.1.0
+        version: 0.1.0
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      yargs:
+        specifier: 18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: ^0.3.0
+        version: 0.3.2(jiti@1.21.7)(typescript@5.7.3)
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.0
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
+      '@types/yargs':
+        specifier: 17.0.34
+        version: 17.0.34
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.0)(terser@5.44.1)
+
   prism-framework-api:
     dependencies:
       '@asteasolutions/zod-to-openapi':
@@ -572,9 +612,9 @@ importers:
       '@facetlayer/build-config-nodejs':
         specifier: ^0.3.0
         version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
-      '@facetlayer/prism-framework-tools':
-        specifier: ^0.2.3
-        version: 0.2.3
+      '@facetlayer/prism-framework':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@facetlayer/subprocess':
         specifier: ^1.1.1
         version: 1.1.1
@@ -605,46 +645,6 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.13.0)(terser@5.44.1)
-
-  prism-framework-tools:
-    dependencies:
-      '@facetlayer/doc-files-helper':
-        specifier: 0.1.2
-        version: 0.1.2
-      '@facetlayer/prism-framework-api':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@facetlayer/qc':
-        specifier: ^0.1.0
-        version: 0.1.0
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.6.1
-      uuid:
-        specifier: ^11.1.0
-        version: 11.1.0
-      yargs:
-        specifier: 18.0.0
-        version: 18.0.0
-    devDependencies:
-      '@facetlayer/build-config-nodejs':
-        specifier: ^0.3.0
-        version: 0.3.1(jiti@1.21.7)(typescript@5.7.3)
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.13.0
-      '@types/uuid':
-        specifier: ^10.0.0
-        version: 10.0.0
-      '@types/yargs':
-        specifier: 17.0.34
-        version: 17.0.34
-      typescript:
-        specifier: ^5.7.2
-        version: 5.7.3
-      vitest:
-        specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.13.0)(jiti@1.21.7)(terser@5.44.1)(yaml@2.8.1)
 
   prism-framework-ui:
     dependencies:
@@ -2433,8 +2433,8 @@ packages:
   '@facetlayer/prism-framework-api@0.2.0':
     resolution: {integrity: sha512-FhfT2Uofi+jM+/5XZEROn1G/5vX/hRNQiMj5MiVIxZuaISgx9qvqGpOgHaD34d0+7pUXK24q4nRvCh/Z2H70QQ==}
 
-  '@facetlayer/prism-framework-tools@0.2.3':
-    resolution: {integrity: sha512-9MZeA/HtN4qTyXTiUmB6siuRrjuxxdo6j6dxKSNxBnNttcv1JvhrzBlhqV20xiHUJULL7bKmQmaMKxQj1B+qTQ==}
+  '@facetlayer/prism-framework@0.4.0':
+    resolution: {integrity: sha512-D8lbqxYWwUGRT4j+FH5qWCbhMPWaC2IwUhAsQXZCCAwAdZ1q34Zdgq0E8fUkccsdV7VIhXqJAH8rc8KgQ7wSyw==}
     hasBin: true
 
   '@facetlayer/qc@0.1.0':
@@ -9896,9 +9896,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@facetlayer/prism-framework-tools@0.2.3':
+  '@facetlayer/prism-framework@0.4.0':
     dependencies:
+      '@facetlayer/doc-files-helper': 0.1.2
       '@facetlayer/prism-framework-api': 0.2.0
+      '@facetlayer/qc': 0.1.0
       dotenv: 16.6.1
       uuid: 11.1.0
       yargs: 18.0.0
