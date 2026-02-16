@@ -33,7 +33,7 @@ async function main() {
     throw new Error('PRISM_API_PORT is not set');
   }
 
-  const app = new App(ALL_SERVICES);
+  const app = new App({ services: ALL_SERVICES });
 
   await startServer({
     app,

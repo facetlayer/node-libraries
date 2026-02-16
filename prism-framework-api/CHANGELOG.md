@@ -6,6 +6,9 @@
  - Add Zod 4.x as peer dependency to catch version mismatches early
  - Update documentation examples to use correct endpoint paths (without `/api` prefix)
  - Add "Testing Endpoints" section to README
+ - Fixed docs: App constructor examples now use correct config object syntax (`new App({ services: [...] })`)
+ - Fixed docs: Added Zod v4 requirement notice to README and overview
+ - Fixed docs: Corrected endpoint paths that incorrectly used `/api` prefix in README examples
 
 ## 0.3.0
  - Expand configuration options for local CORS

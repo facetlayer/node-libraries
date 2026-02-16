@@ -108,9 +108,9 @@ your-app/
 
 ## Getting Started
 
-1. Install the framework:
+1. Install the framework (requires **Zod v4** — Zod v3 is not compatible):
 ```bash
-pnpm add @facetlayer/prism-framework-api
+pnpm add @facetlayer/prism-framework-api zod@^4
 ```
 
 2. Create your first service (see creating-services doc)

@@ -255,7 +255,21 @@ async function checkSchema(options: CheckSchemaOptions): Promise<void> {
   }
 }
 
-yargs(hideBin(process.argv))
+// Pre-process argv to handle --project values that start with -.
+// Claude Code project directory names all start with - (e.g., -Users-andy-project),
+// which yargs misinterprets as short option flags. Joining with = prevents this.
+function preprocessProjectArg(argv: string[]): string[] {
+  const result = [...argv];
+  for (let i = 0; i < result.length; i++) {
+    if ((result[i] === '--project' || result[i] === '-p') && i + 1 < result.length && result[i + 1].startsWith('-')) {
+      result[i] = `${result[i]}=${result[i + 1]}`;
+      result.splice(i + 1, 1);
+    }
+  }
+  return result;
+}
+
+yargs(preprocessProjectArg(hideBin(process.argv)))
   .command(
     'list-projects',
     'List all projects with Claude Code sessions',
@@ -279,12 +293,13 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'list-sessions [project]',
+    'list-sessions',
     'List Claude Code chat sessions for a project (defaults to current directory)',
     (yargs) => {
       return yargs
-        .positional('project', {
+        .option('project', {
           type: 'string',
+          alias: 'p',
           description: 'Project path or directory name (defaults to current directory)'
         })
         .option('all-projects', {

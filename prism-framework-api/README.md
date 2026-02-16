@@ -2,6 +2,8 @@
 
 A TypeScript framework for building web-based SaaS applications and desktop Electron apps with a unified codebase.
 
+**Important:** This framework uses **Zod v4** for schema validation. Make sure to install `zod@^4` — Zod v3 is not compatible and will produce confusing type errors.
+
 ## Quick Start
 
 ```typescript
@@ -27,7 +29,7 @@ const myService: ServiceDefinition = {
 
 // Create app and start server
 async function main() {
-  const app = new App([myService]);
+  const app = new App({ services: [myService] });
 
   await startServer({
     app,
@@ -94,7 +96,7 @@ The `App` class wraps your services and provides endpoint routing:
 ```typescript
 import { App } from '@facetlayer/prism-framework-api';
 
-const app = new App([service1, service2]);
+const app = new App({ services: [service1, service2] });
 ```
 
 ### ServiceDefinition
