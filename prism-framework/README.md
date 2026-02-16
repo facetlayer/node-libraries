@@ -1,11 +1,11 @@
-# @facetlayer/prism-framework-tools
+# @facetlayer/prism-framework
 
-CLI tooling for the Prism app framework.
+Base library and CLI tools for the Prism app framework.
 
 ## Installation
 
 ```bash
-npm install @facetlayer/prism-framework-tools
+npm install @facetlayer/prism-framework
 ```
 
 ## CLI Commands

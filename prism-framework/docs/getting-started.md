@@ -11,9 +11,10 @@ description: Guide for setting up a new Prism Framework project with type-safe A
 
 This includes the following NPM libraries:
 
-### `@facetlayer/prism-framework-tools`
- - Tooling for various development and testing tasks
+### `@facetlayer/prism-framework`
+ - Base library with tooling for various development and testing tasks
  - Should be installed at the top level in the devDependencies section
+ - First place to look for documentation (`prism list-docs`)
 
 ### `@facetlayer/prism-framework-api`
  - Backend API framework
@@ -28,7 +29,7 @@ This includes the following NPM libraries:
 
 ## Getting started
 
- - Install `@facetlayer/prism-framework-tools`
+ - Install `@facetlayer/prism-framework`
  - Start using the `prism` CLI tool, especially:
    - `prism list-docs` - List available documentation files.
    - `prism get-doc <name>` - Read a documentation file.
@@ -68,7 +69,7 @@ Some ways to set up the repo for a Prism project:
 
 The top level of the project should have these dependencies:
 
-    `pnpm add typescript dotenv @facetlayer-prism-framework-tools`
+    `pnpm add typescript dotenv @facetlayer/prism-framework`
 
 ## Local service management
 

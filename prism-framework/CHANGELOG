@@ -1,6 +1,7 @@
 
 Unreleased
  - Update documentation examples to use correct endpoint paths (without /api prefix)
+ - Renamed from @facetlayer/prism-framework-tools to @facetlayer/prism-framework
 
 0.3.0
  - Add config file support (.prism.qc) with parent directory search

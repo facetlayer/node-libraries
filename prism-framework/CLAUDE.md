@@ -1,6 +1,6 @@
-# prism-framework-tools
+# prism-framework
 
-CLI tooling for the Prism app framework ecosystem.
+Base library and CLI tools for the Prism app framework ecosystem.
 
 ## Important Files and Directories
 
