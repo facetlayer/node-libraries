@@ -76,6 +76,19 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
 
   mountPrismApp(app, config.app);
 
+  // Helpful 404 for /api/* paths - this framework mounts endpoints without the /api prefix
+  app.use('/api/*', (req, res) => {
+      const attemptedPath = req.originalUrl;
+      const suggestedPath = attemptedPath.replace(/^\/api/, '');
+      res.status(404);
+      res.json({
+          error: 'Not found',
+          hint: 'This server does not use /api/* paths. Try the endpoint without the /api prefix.',
+          attempted: attemptedPath,
+          suggestion: suggestedPath,
+      });
+  });
+
   // 404 handling
   app.use((req, res) => {
       res.status(404);

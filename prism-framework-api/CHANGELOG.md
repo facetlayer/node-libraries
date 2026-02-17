@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+ - Add helpful 404 response for `/api/*` paths with guidance to remove prefix
+ - Add Zod 4.x as peer dependency to catch version mismatches early
+ - Update documentation examples to use correct endpoint paths (without `/api` prefix)
+ - Add "Testing Endpoints" section to README
+
 ## 0.2.5 (2025-12-26)
 
 - Fix OpenAPI type generation (fix operationIds)

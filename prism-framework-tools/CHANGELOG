@@ -1,4 +1,7 @@
 
+Unreleased
+ - Update documentation examples to use correct endpoint paths (without /api prefix)
+
 0.2.5
  - Add list-docs and get-doc (with doc-files-helper)
  

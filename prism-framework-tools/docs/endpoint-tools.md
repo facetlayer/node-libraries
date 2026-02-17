@@ -27,15 +27,17 @@ Using API server at: http://localhost:4003
 
 Available endpoints:
 
-  GET /api/users
+  GET /users
     List all users
-  POST /api/users
+  POST /users
     Create a new user
-  GET /api/users/:id
+  GET /users/:id
     Get user by ID
-  DELETE /api/users/:id
+  DELETE /users/:id
     Delete a user
 ```
+
+> **Note**: Endpoint paths should NOT start with `/api`. The framework mounts endpoints at the root path.
 
 ## prism call
 
@@ -45,18 +47,18 @@ Calls an endpoint on a running server.
 
 ```bash
 # GET request
-prism call /api/users
+prism call /users
 
 # Explicit method
-prism call GET /api/users
+prism call GET /users
 
 # POST with data
-prism call POST /api/users --name "John Doe" --email "john@example.com"
+prism call POST /users --name "John Doe" --email "john@example.com"
 
 # Other methods
-prism call PUT /api/users/123 --name "Jane"
-prism call PATCH /api/users/123 --status active
-prism call DELETE /api/users/123
+prism call PUT /users/123 --name "Jane"
+prism call PATCH /users/123 --status active
+prism call DELETE /users/123
 ```
 
 ### Passing Data
@@ -64,7 +66,7 @@ prism call DELETE /api/users/123
 Named arguments become the request body:
 
 ```bash
-prism call POST /api/users --name "John" --age 30 --active true
+prism call POST /users --name "John" --age 30 --active true
 ```
 
 Sends:
@@ -81,7 +83,7 @@ Sends:
 Arguments that look like JSON are parsed automatically:
 
 ```bash
-prism call POST /api/config --settings '{"timeout": 30, "retries": 3}'
+prism call POST /config --settings '{"timeout": 30, "retries": 3}'
 ```
 
 ### Output
