@@ -94,6 +94,9 @@ importers:
 
   cc-session-history:
     dependencies:
+      '@facetlayer/docs-tool':
+        specifier: ^0.2.0
+        version: 0.2.0
       yargs:
         specifier: ^17.7.2
         version: 17.7.2

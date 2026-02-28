@@ -2,16 +2,28 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 import { listChatSessions } from './listChatSessions.ts';
 import type { ChatSession } from './types.ts';
 import { printProjects } from './printProjects.ts';
 import { printChatSessions, printAllSessions, pathToProjectDir } from './printChatSessions.ts';
 import { printSearchResults } from './searchSessions.ts';
+import { printPermissionChecks } from './listPermissionChecks.ts';
 import { ChatSessionMessageSchema } from './Schemas.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import { ZodError } from 'zod';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const __packageRoot = path.join(__dirname, '..');
+
+const docFiles = new DocFilesHelper({
+  dirs: [path.join(__packageRoot, 'docs')],
+  files: [path.join(__packageRoot, 'README.md')],
+});
 
 interface GlobalOptions {
   verbose?: boolean;
@@ -269,7 +281,7 @@ function preprocessProjectArg(argv: string[]): string[] {
   return result;
 }
 
-yargs(preprocessProjectArg(hideBin(process.argv)))
+const args = yargs(preprocessProjectArg(hideBin(process.argv)))
   .command(
     'list-projects',
     'List all projects with Claude Code sessions',
@@ -470,6 +482,56 @@ yargs(preprocessProjectArg(hideBin(process.argv)))
       }).catch(console.error);
     }
   )
+  .command(
+    'list-permission-checks',
+    'List rejected tool permission checks',
+    (yargs) => {
+      return yargs
+        .option('project', {
+          type: 'string',
+          alias: 'p',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Search across all projects',
+          default: false
+        })
+        .option('limit', {
+          type: 'number',
+          description: 'Maximum number of results to return'
+        })
+        .option('claude-dir', {
+          type: 'string',
+          description: 'Custom path to Claude directory'
+        })
+        .option('verbose', {
+          type: 'boolean',
+          description: 'Enable verbose logging',
+          default: false
+        });
+    },
+    (argv) => {
+      let project: string | undefined;
+      if (argv.project) {
+        if (argv.project.startsWith('/')) {
+          project = pathToProjectDir(argv.project);
+        } else {
+          project = argv.project;
+        }
+      }
+      printPermissionChecks({
+        project,
+        allProjects: argv['all-projects'],
+        limit: argv.limit,
+        claudeDir: argv['claude-dir'],
+        verbose: argv.verbose
+      }).catch(console.error);
+    }
+  )
+docFiles.yargsSetup(args);
+
+args
   .demandCommand(1, 'You must specify a command')
   .help()
   .alias('help', 'h')

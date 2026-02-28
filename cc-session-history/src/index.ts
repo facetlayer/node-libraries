@@ -15,6 +15,9 @@ export type { GetChatSessionDetailsOptions as GetSessionDetailsOptions } from '.
 // Utility functions
 export { annotateMessages, annotateInternalMessages } from './annotateMessages.ts';
 
+export { listPermissionChecks } from './listPermissionChecks.ts';
+export type { PermissionCheck, ListPermissionChecksOptions } from './listPermissionChecks.ts';
+
 // UI helpers
 export { TextGrid } from './TextGrid.ts';
 export type { TextGridColumn } from './TextGrid.ts';
