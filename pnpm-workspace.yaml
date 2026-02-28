@@ -10,7 +10,7 @@ packages:
   - claude-worktree-helper
   - concurrency-limit
   - csv-tool
-  - doc-files-helper
+  - docs-tool
   - env-file-rewrite
   - fetch-sse-stream
   - file-manifest
