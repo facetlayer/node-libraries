@@ -1,4 +1,7 @@
 
+# Unreleased
+ - Changed `logs` option from a `Stream` instance to a `DatabaseLogs` callback object.
+
 # 1.2.0
  - Adds a retry loop on schema migration, certain errors will trigger a retry.
 

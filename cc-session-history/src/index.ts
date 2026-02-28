@@ -13,7 +13,7 @@ export { getChatSessionDetails as getSessionDetails } from './getChatSessionDeta
 export type { GetChatSessionDetailsOptions as GetSessionDetailsOptions } from './getChatSessionDetails.ts';
 
 // Utility functions
-export { annotateMessages, annotateInternalMessages } from './annotateMessages.ts';
+export { annotateMessages, annotateInternalMessages, toolNeedsPermission } from './annotateMessages.ts';
 
 export { listPermissionChecks } from './listPermissionChecks.ts';
 export type { PermissionCheck, ListPermissionChecksOptions } from './listPermissionChecks.ts';

@@ -28,7 +28,6 @@ Create a new database:
 
 ```typescript
 import { DatabaseLoader, loadBetterSqlite, SqliteDatabase, LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
-import { Stream } from '@facetlayer/streams';
 
 // loadBetterSqlite() is async - call it once at startup
 let _loadDatabaseFn: LoadDatabaseFn | null = null;
@@ -44,9 +43,6 @@ export function getDatabase(): SqliteDatabase {
     }
 
     if (!_dbLoader) {
-        const logs = new Stream<string>();
-        logs.listen({ item: (msg) => console.log('[DB]', msg) });
-
         _dbLoader = new DatabaseLoader({
             filename: './something.sqlite',
             schema: {
@@ -58,7 +54,11 @@ export function getDatabase(): SqliteDatabase {
                     )`,
                 ]
             },
-            logs,
+            logs: {
+                info: (msg) => console.log('[DB]', msg),
+                warn: (msg) => console.warn('[DB]', msg),
+                error: (err) => console.error('[DB]', err.errorMessage),
+            },
             loadDatabase: _loadDatabaseFn,
             migrationBehavior: 'safe-upgrades'
         });
@@ -84,9 +84,12 @@ The `DatabaseLoader` constructor requires the following options:
 
 - `filename` (string): Path to the SQLite database file
 - `schema` (DatabaseSchema): Object with `name` and `statements` array
-- `logs` (Stream): A Stream instance for logging database operations
+- `logs` (DatabaseLogs, optional): Object with logging callbacks: `{ info(msg), warn(msg), error(err) }`
+- `logsStream` (Stream, optional): A Stream instance from `@facetlayer/streams` for logging (alternative to `logs`)
 - `loadDatabase` (LoadDatabaseFn): The function returned by `loadBetterSqlite()`
 - `migrationBehavior` (MigrationBehavior): One of `'ignore'`, `'strict'`, `'safe-upgrades'`, or `'full-destructive-updates'`
+
+Provide either `logs` or `logsStream` to enable logging. If both are provided, `logsStream` takes precedence. If neither is provided, logging is silently disabled.
 
 # API #
 

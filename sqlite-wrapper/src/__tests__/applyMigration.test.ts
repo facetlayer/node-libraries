@@ -3,7 +3,7 @@ import { applyMigration, shouldRetryOnError } from "../applyMigration";
 import { SqliteDatabase } from "../SqliteDatabase";
 import { DatabaseSchema } from "../DatabaseSchema";
 import Database from "better-sqlite3";
-import { Stream } from "@facetlayer/streams";
+import { nullDatabaseLogs } from "../DatabaseLoader";
 import * as migration from "../migration";
 import * as findDatabaseDriftModule from "../findDatabaseDrift";
 
@@ -55,7 +55,7 @@ describe("applyMigration retry behavior", () => {
 
   beforeEach(() => {
     const sqliteDb = new Database(":memory:");
-    db = new SqliteDatabase(sqliteDb, Stream.newNullStream());
+    db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
 
     schema = {
       name: "test-schema",

@@ -11,7 +11,7 @@ import {
 import { SqliteDatabase } from "../SqliteDatabase";
 import { DatabaseSchema } from "../DatabaseSchema";
 import Database from "better-sqlite3";
-import { Stream } from "@facetlayer/streams";
+import { nullDatabaseLogs } from "../DatabaseLoader";
 import type { DatabaseDrift, Drift } from "../migration";
 
 // Helper function to flatten drifts for testing
@@ -28,7 +28,7 @@ describe("runMigrationForCreateStatement", () => {
 
   beforeEach(() => {
     const sqliteDb = new Database(":memory:");
-    db = new SqliteDatabase(sqliteDb, Stream.newNullStream());
+    db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
   describe("PRAGMA statement handling", () => {
@@ -283,7 +283,7 @@ describe("getDatabaseDrift", () => {
 
   beforeEach(() => {
     const sqliteDb = new Database(":memory:");
-    db = new SqliteDatabase(sqliteDb, Stream.newNullStream());
+    db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
   it("should detect when a table needs to be created", () => {
@@ -389,7 +389,7 @@ describe("applySafeUpgrades", () => {
 
   beforeEach(() => {
     const sqliteDb = new Database(":memory:");
-    db = new SqliteDatabase(sqliteDb, Stream.newNullStream());
+    db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
   it("should create new tables", () => {
@@ -544,7 +544,7 @@ describe("applyFullDestructiveUpdates", () => {
 
   beforeEach(() => {
     const sqliteDb = new Database(":memory:");
-    db = new SqliteDatabase(sqliteDb, Stream.newNullStream());
+    db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
   it("should handle all drift types including destructive ones", () => {

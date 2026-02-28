@@ -42,7 +42,9 @@ export interface ChatMessage {
   /** Derived field: identifies internal message types like hooks and terminal control */
   internalMessageType?: 'terminal_control' | 'hook';
   /** Derived field: identifies permission check results */
-  permissionResult?: 'rejected';
+  permissionResult?: 'approved' | 'rejected';
+  /** Permission mode active when this message was sent (from user-typed messages) */
+  permissionMode?: string;
 }
 
 export interface ChatSession {

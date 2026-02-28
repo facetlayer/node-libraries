@@ -1,6 +1,7 @@
 import { listChatSessions } from './listChatSessions.ts';
 import { TextGrid } from './TextGrid.ts';
 import type { ChatMessage, ChatSession } from './types.ts';
+import { toolNeedsPermission } from './annotateMessages.ts';
 import { pathToProjectDir } from './printChatSessions.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -14,6 +15,8 @@ export interface PermissionCheck {
   /** Short summary of what the tool was trying to do */
   toolSummary: string;
   toolUseId: string;
+  /** Whether the permission check was approved or rejected by the user */
+  outcome: 'approved' | 'rejected';
 }
 
 export interface ListPermissionChecksOptions {
@@ -72,8 +75,8 @@ function shortPath(filePath: string): string {
  * Find the tool_use block that matches a given tool_use_id by searching
  * backwards through messages from the rejection.
  */
-function findToolUse(messages: ChatMessage[], rejectionIndex: number, toolUseId: string): { name: string; input: any } | null {
-  for (let i = rejectionIndex - 1; i >= 0; i--) {
+function findToolUse(messages: ChatMessage[], fromIndex: number, toolUseId: string): { name: string; input: any } | null {
+  for (let i = fromIndex - 1; i >= 0; i--) {
     const content = messages[i].message?.content;
     if (!Array.isArray(content)) continue;
 
@@ -88,6 +91,9 @@ function findToolUse(messages: ChatMessage[], rejectionIndex: number, toolUseId:
 
 /**
  * Extract all permission checks from a session's messages.
+ *
+ * Detects both approved and rejected permission checks based on the
+ * permissionResult annotation set by annotateMessages.
  */
 function extractPermissionChecks(session: ChatSession): PermissionCheck[] {
   const checks: PermissionCheck[] = [];
@@ -95,24 +101,51 @@ function extractPermissionChecks(session: ChatSession): PermissionCheck[] {
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
-    if (msg.permissionResult !== 'rejected') continue;
+    if (!msg.permissionResult) continue;
 
     const content = msg.message?.content;
     if (!Array.isArray(content)) continue;
 
     for (const block of content) {
-      if (block.type === 'tool_result' && block.is_error && block.tool_use_id) {
-        const toolUse = findToolUse(messages, i, block.tool_use_id);
-        const toolName = toolUse?.name || 'unknown';
+      if (block.type !== 'tool_result' || !block.tool_use_id) continue;
 
-        checks.push({
-          sessionId: session.sessionId,
-          projectPath: session.projectPath,
-          timestamp: msg.timestamp,
-          toolName,
-          toolSummary: summarizeToolInput(toolName, toolUse?.input),
-          toolUseId: block.tool_use_id,
-        });
+      const toolUse = findToolUse(messages, i, block.tool_use_id);
+      const toolName = toolUse?.name || 'unknown';
+
+      // For rejected checks, every tool_result with the rejection message is a check
+      if (msg.permissionResult === 'rejected') {
+        const REJECTION_MSG = "The user doesn't want to proceed with this tool use. The tool use was rejected";
+        if (
+          block.is_error === true &&
+          typeof block.content === 'string' &&
+          block.content.includes(REJECTION_MSG)
+        ) {
+          checks.push({
+            sessionId: session.sessionId,
+            projectPath: session.projectPath,
+            timestamp: msg.timestamp,
+            toolName,
+            toolSummary: summarizeToolInput(toolName, toolUse?.input),
+            toolUseId: block.tool_use_id,
+            outcome: 'rejected',
+          });
+        }
+      }
+
+      // For approved checks, the annotation already verified the tool needs permission
+      if (msg.permissionResult === 'approved' && toolUse) {
+        const permMode = msg.permissionMode || 'default';
+        if (toolNeedsPermission(toolName, permMode)) {
+          checks.push({
+            sessionId: session.sessionId,
+            projectPath: session.projectPath,
+            timestamp: msg.timestamp,
+            toolName,
+            toolSummary: summarizeToolInput(toolName, toolUse?.input),
+            toolUseId: block.tool_use_id,
+            outcome: 'approved',
+          });
+        }
       }
     }
   }
@@ -190,13 +223,15 @@ export async function printPermissionChecks(options: ListPermissionChecksOptions
   const checks = await listPermissionChecks(options);
 
   if (checks.length === 0) {
-    console.log('No permission rejections found.');
+    console.log('No permission checks found.');
     return;
   }
 
   // Print summary header
   const sessionCount = new Set(checks.map(c => c.sessionId)).size;
-  console.log(`Found ${checks.length} rejected permission check(s) across ${sessionCount} session(s)\n`);
+  const approvedCount = checks.filter(c => c.outcome === 'approved').length;
+  const rejectedCount = checks.filter(c => c.outcome === 'rejected').length;
+  console.log(`Found ${checks.length} permission check(s) across ${sessionCount} session(s) (${approvedCount} approved, ${rejectedCount} rejected)\n`);
 
   // Print tool breakdown
   const toolCounts = new Map<string, number>();
@@ -221,12 +256,14 @@ export async function printPermissionChecks(options: ListPermissionChecksOptions
         { header: 'Project' },
         { header: 'Session' },
         { header: 'Tool' },
+        { header: 'Outcome' },
         { header: 'Detail' },
       ]
     : [
         { header: 'When' },
         { header: 'Session' },
         { header: 'Tool' },
+        { header: 'Outcome' },
         { header: 'Detail' },
       ];
 
@@ -235,11 +272,12 @@ export async function printPermissionChecks(options: ListPermissionChecksOptions
   for (const check of checks) {
     const when = formatRelativeDate(new Date(check.timestamp));
     const shortSession = check.sessionId.slice(0, 8);
+    const outcome = check.outcome === 'rejected' ? 'REJECTED' : 'approved';
 
     if (showProject) {
-      grid.addRow([when, check.projectPath, shortSession, check.toolName, check.toolSummary]);
+      grid.addRow([when, check.projectPath, shortSession, check.toolName, outcome, check.toolSummary]);
     } else {
-      grid.addRow([when, shortSession, check.toolName, check.toolSummary]);
+      grid.addRow([when, shortSession, check.toolName, outcome, check.toolSummary]);
     }
   }
 

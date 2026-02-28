@@ -5,7 +5,7 @@ import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { upsert } from "../upsert";
 import { existsSync, unlinkSync, mkdirSync } from "fs";
 import { dirname } from "path";
-import { Stream } from "@facetlayer/streams";
+import { nullDatabaseLogs } from "../DatabaseLoader";
 
 const TEST_DB_PATH = "./test/upsert-test.db";
 
@@ -26,7 +26,7 @@ describe("SQL Operations", () => {
     cleanupTestDatabase();
     const loader = new DatabaseLoader({
       filename: TEST_DB_PATH,
-      logs: Stream.newNullStream(),
+      logs: nullDatabaseLogs,
       schema: {
         name: "sqlOperations.test.ts",
         statements: [

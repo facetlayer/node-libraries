@@ -1,6 +1,6 @@
 import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { DatabaseLoader } from "../DatabaseLoader";
-import { Stream } from "@facetlayer/streams";
+import { nullDatabaseLogs } from "../DatabaseLoader";
 import { describe, expect, it } from "vitest";
 
 const filename = ":memory:";
@@ -10,7 +10,7 @@ async function setupDatabase() {
   if (!db) {
     db = new DatabaseLoader({
       filename,
-      logs: Stream.newNullStream(),
+      logs: nullDatabaseLogs,
       schema: {
         name: "SqliteDatabase.test.ts",
         statements: [

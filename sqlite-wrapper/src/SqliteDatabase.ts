@@ -1,5 +1,6 @@
-import { ErrorDetails, Stream, captureError } from "@facetlayer/streams";
+import { captureError } from "@facetlayer/streams";
 import type { Database as BetterSqliteDatabase } from "better-sqlite3";
+import { DatabaseLogs } from "./DatabaseLoader";
 import { DatabaseSchema } from "./DatabaseSchema";
 import {
   MigrationOptions,
@@ -35,10 +36,10 @@ export interface RunResult {
 
 export class SqliteDatabase {
   db: BetterSqliteDatabase;
-  logs: Stream;
+  logs: DatabaseLogs;
   onRunStatement?: (sql: string, params: Array<any>) => void;
 
-  constructor(db: BetterSqliteDatabase, logs: Stream) {
+  constructor(db: BetterSqliteDatabase, logs: DatabaseLogs) {
     if (!db) throw new Error("db is required");
     if (!db.prepare) throw new Error("unexpected object for 'db' (missing .prepare): " + JSON.stringify(db));
     if (!logs) throw new Error("logs is required");
@@ -217,8 +218,8 @@ export class SqliteDatabase {
     runDatabaseSloppynessCheck(this, schema);
   }
 
-  error(error: ErrorDetails) {
-    this.logs.logError({
+  error(error: any) {
+    this.logs.error({
       errorMessage: "SqliteDatabase error",
       ...error,
     });

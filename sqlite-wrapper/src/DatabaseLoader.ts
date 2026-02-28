@@ -8,10 +8,27 @@ import { SqliteDatabase } from "./SqliteDatabase";
 
 export type LoadDatabaseFn = (filename: string) => BetterSqliteDatabase;
 
+export interface DatabaseLogs {
+  info(msg: string): void;
+  warn(msg: string): void;
+  error(error: { errorMessage: string; [key: string]: any }): void;
+}
+
+export const nullDatabaseLogs: DatabaseLogs = {
+  info() {},
+  warn() {},
+  error() {},
+};
+
 export interface DatabaseSetupOptions {
   filename: string;
   schema: DatabaseSchema;
-  logs: Stream;
+
+  // Logging callbacks
+  logs?: DatabaseLogs;
+
+  // Alternative: provide a Stream instance for logging (from @facetlayer/streams)
+  logsStream?: Stream;
 
   // Wrap up the better-sqlite constructor in a pluggable callback. This library has a native module,
   // and we want to support a pluggable version.
@@ -19,6 +36,20 @@ export interface DatabaseSetupOptions {
 
   onRunStatement?: (sql: string, params: Array<any>) => void;
   migrationBehavior: MigrationBehavior;
+}
+
+function logsFromStream(stream: Stream): DatabaseLogs {
+  return {
+    info: (msg) => stream.info(msg),
+    warn: (msg) => stream.warn(msg),
+    error: (err) => stream.logError(err),
+  };
+}
+
+export function resolveLogs(options: DatabaseSetupOptions): DatabaseLogs {
+  if (options.logsStream) return logsFromStream(options.logsStream);
+  if (options.logs) return options.logs;
+  return nullDatabaseLogs;
 }
 
 export class DatabaseLoader {
@@ -36,7 +67,8 @@ export class DatabaseLoader {
   load() {
     if (!this.db) {
       const sqliteDb = this.options.loadDatabase(this.options.filename);
-      this.db = new SqliteDatabase(sqliteDb, this.options.logs);
+      const logs = resolveLogs(this.options);
+      this.db = new SqliteDatabase(sqliteDb, logs);
 
       const behavior = this.options.migrationBehavior;
 

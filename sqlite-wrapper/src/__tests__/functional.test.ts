@@ -3,7 +3,7 @@ import { DatabaseLoader, DatabaseSchema } from "..";
 import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { existsSync, unlinkSync, readdirSync, mkdirSync } from "fs";
 import { join } from "path";
-import { Stream } from "@facetlayer/streams";
+import { nullDatabaseLogs } from "../DatabaseLoader";
 
 const TEST_DB_DIR = "./test/dbs";
 
@@ -38,7 +38,7 @@ describe("SQLite Helper Functional Tests", () => {
 
     const loader = new DatabaseLoader({
       filename: dbPath,
-      logs: Stream.newNullStream(),
+      logs: nullDatabaseLogs,
       schema: schema,
       loadDatabase: await loadBetterSqlite(),
       migrationBehavior: "safe-upgrades",
@@ -85,7 +85,7 @@ describe("SQLite Helper Functional Tests", () => {
     // Create database with initial schema
     const loader1 = new DatabaseLoader({
       filename: dbPath,
-      logs: Stream.newNullStream(),
+      logs: nullDatabaseLogs,
       schema: initialSchema,
       loadDatabase: await loadBetterSqlite(),
       migrationBehavior: "safe-upgrades",
@@ -123,7 +123,7 @@ describe("SQLite Helper Functional Tests", () => {
     // Load database with updated schema (should trigger migration)
     const loader2 = new DatabaseLoader({
       filename: dbPath,
-      logs: Stream.newNullStream(),
+      logs: nullDatabaseLogs,
       schema: updatedSchema,
       loadDatabase: await loadBetterSqlite(),
       migrationBehavior: "safe-upgrades",
