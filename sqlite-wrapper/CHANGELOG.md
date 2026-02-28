@@ -1,5 +1,5 @@
 
-# Unreleased
+# 1.2.2
  - Changed `logs` option from a `Stream` instance to a `DatabaseLogs` callback object.
 
 # 1.2.0
