@@ -12,14 +12,11 @@ description: Guide for setting up a new Prism Framework project with type-safe A
 This includes the following NPM libraries:
 
 ### `@facetlayer/prism-framework`
- - Base library with tooling for various development and testing tasks
- - Should be installed at the top level in the devDependencies section
- - First place to look for documentation (`prism list-docs`)
-
-### `@facetlayer/prism-framework-api`
- - Backend API framework
- - Can be hosted on HTTP with Express.js
+ - Base library with backend API framework, CLI tooling, and development tools
+ - Includes the server framework (Express.js), endpoint definitions, authorization, and more
  - Also supports other launch methods such as IPC for Electron
+ - Should be installed at the top level
+ - First place to look for documentation (`prism list-docs`)
 
 ### `@facetlayer/prism-framework-ui`
  - Helpers for React-based frontend web apps
@@ -41,7 +38,7 @@ Some ways to set up the repo for a Prism project:
 ### Option 1: API in separate directory
 
  - `./api` - Backend API
-   - `./api/package.json` - Contains prism-framework-api
+   - `./api/package.json` - Contains prism-framework
    - `./api/src/` - Backend service implementation
  - `./web` or `./ui` - Frontend web app
    - `./web/package.json` - Contains Next.js or Vite, and prism-framework-ui
@@ -49,7 +46,7 @@ Some ways to set up the repo for a Prism project:
 
 ### Option 2: API in top level directory
 
- - `./package.json` - Contains prism-framework-api
+ - `./package.json` - Contains prism-framework
  - `./src` - Backend API source code
  - `./web` or `./ui` - Frontend web app
    - `./web/package.json` - Contains Next.js or Vite, and prism-framework-ui
@@ -69,7 +66,7 @@ Some ways to set up the repo for a Prism project:
 
 The top level of the project should have these dependencies:
 
-    `pnpm add typescript dotenv @facetlayer/prism-framework`
+    `pnpm add typescript dotenv @facetlayer/prism-framework zod@^4`
 
 ## Local service management
 

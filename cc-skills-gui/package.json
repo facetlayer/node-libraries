@@ -1,0 +1,31 @@
+{
+  "name": "@facetlayer/cc-skills-gui",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Web GUI for editing Claude Code skills",
+  "main": "dist/main.js",
+  "bin": {
+    "cc-skills-gui": "dist/main.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node build.mts build",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "test": "vitest run",
+    "local:install": "pnpm build && npm i -g ."
+  },
+  "dependencies": {
+    "@facetlayer/prism-framework": "workspace:*",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.0",
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

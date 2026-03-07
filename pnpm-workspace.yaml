@@ -4,6 +4,7 @@ packages:
   - claude-ci-followup
   - cc-confidence
   - cc-headless
+  - cc-skills-gui
   - cc-session-history
   - cc-settings-tool
   - claude-settings-tidier
@@ -24,7 +25,6 @@ packages:
   - npm-status
   - parse-stdout-lines
   - port-assignment
-  - prism-framework-api
   - prism-framework
   - prism-framework-ui
   - react-elements

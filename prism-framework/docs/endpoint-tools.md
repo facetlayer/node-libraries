@@ -37,15 +37,11 @@ Available endpoints:
     Delete a user
 ```
 
-> **Note**: Endpoint paths should NOT start with `/api`. The framework mounts endpoints at the root path.
-
 ## prism call
 
 Calls an endpoint on a running server.
 
 ### Basic Usage
-
-**Important:** Do not use the `/api` prefix in endpoint paths. Use the path directly as defined in the endpoint.
 
 ```bash
 # GET request
