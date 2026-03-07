@@ -1,3 +1,8 @@
+import { modalJs } from './components/modal.ts';
+import { dropdownJs } from './components/dropdown.ts';
+import { filterChipJs } from './components/filterChip.ts';
+import { skillItemJs } from './components/skillItem.ts';
+
 export function buildHtmlPage(): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -5,354 +10,311 @@ export function buildHtmlPage(): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code Skills Editor</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #1a1a2e;
-  color: #e0e0e0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        surface: { DEFAULT: '#1a1a2e', light: '#16213e', lighter: '#1e2940', border: '#2a2a4a' },
+        accent: { DEFAULT: '#a78bfa', hover: '#8b6fdf' },
+      }
+    }
+  }
 }
-
-header {
-  background: #16213e;
-  padding: 12px 20px;
-  border-bottom: 1px solid #2a2a4a;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-header h1 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #a78bfa;
-}
-
-.layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  background: #16213e;
-  border-right: 1px solid #2a2a4a;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-group {
-  padding: 12px 0;
-}
-
-.sidebar-group + .sidebar-group {
-  border-top: 1px solid #2a2a4a;
-}
-
-.sidebar-group h3 {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #8888aa;
-  padding: 0 16px 8px;
-}
-
-.skill-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #c0c0d0;
-  transition: background 0.1s;
-}
-
-.skill-item:hover {
-  background: #1f2b47;
-}
-
-.skill-item.active {
-  background: #2a3a5c;
-  color: #fff;
-  border-left: 3px solid #a78bfa;
-  padding-left: 13px;
-}
-
-.skill-item .skill-name {
-  font-weight: 500;
-}
-
-.skill-item .skill-dir {
-  font-size: 11px;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-/* Editor */
-.editor {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.editor.empty {
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #9ca3af;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.form-group input[type="text"],
-.form-group textarea {
-  width: 100%;
-  background: #0f1629;
-  border: 1px solid #2a2a4a;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #e0e0e0;
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.form-group input[type="text"]:focus,
-.form-group textarea:focus {
-  border-color: #a78bfa;
-}
-
-.form-group textarea.description {
-  height: 60px;
-  resize: vertical;
-}
-
-.form-group textarea.content {
-  flex: 1;
-  min-height: 300px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  resize: vertical;
-  tab-size: 2;
-}
-
-.checkbox-row {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 16px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.checkbox-item input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #a78bfa;
-  cursor: pointer;
-}
-
-.checkbox-item span {
-  font-size: 13px;
-  color: #c0c0d0;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.btn-save {
-  background: #a78bfa;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn-save:hover {
-  background: #8b6fdf;
-}
-
-.btn-save:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.save-status {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.save-status.success { color: #34d399; }
-.save-status.error { color: #f87171; }
-
-.content-group {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
+</script>
+<style type="text/tailwindcss">
+  @layer base {
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  }
 </style>
 </head>
-<body>
-<header>
-  <h1>Claude Code Skills Editor</h1>
+<body class="bg-surface text-gray-200 h-screen flex flex-col">
+
+<header class="bg-surface-light px-5 py-3 border-b border-surface-border flex items-center gap-3">
+  <h1 class="text-sm font-semibold text-accent">Claude Code Skills Editor</h1>
 </header>
-<div class="layout">
-  <div class="sidebar" id="sidebar">
-    <div style="padding: 16px; color: #6b7280; font-size: 13px;">Loading skills...</div>
+
+<div class="flex flex-1 overflow-hidden">
+  <!-- Sidebar -->
+  <div class="w-[260px] min-w-[260px] bg-surface-light border-r border-surface-border flex flex-col">
+    <div class="px-4 py-3 border-b border-surface-border">
+      <input type="text" id="filter-search" placeholder="Search skills..."
+        class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-accent transition-colors mb-2">
+      <div class="flex flex-wrap gap-1.5" id="filter-chips"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto" id="sidebar">
+      <div class="p-4 text-gray-500 text-[13px]">Loading skills...</div>
+    </div>
   </div>
-  <div class="editor empty" id="editor">
-    <div>Select a skill from the sidebar to edit</div>
+
+  <!-- Editor -->
+  <div class="flex-1 overflow-y-auto flex flex-col" id="editor">
+    <div class="flex-1 flex items-center justify-center text-gray-500">
+      Select a skill from the sidebar to edit
+    </div>
   </div>
 </div>
 
+<!-- Overlay roots -->
+<div id="modal-root" class="hidden"></div>
+<div id="dropdown-root" class="hidden"></div>
+
 <script>
+// --- Utility functions ---
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// --- Components ---
+${modalJs()}
+${dropdownJs()}
+${filterChipJs()}
+${skillItemJs()}
+
+// --- App state ---
 let skills = [];
 let selectedKey = null;
+let filters = { search: '', discoverable: false, userInvocable: false };
 
+// --- Init ---
 async function loadSkills() {
   try {
     const res = await fetch('/skills');
     skills = await res.json();
+    renderFilterChips();
     renderSidebar();
   } catch (err) {
     document.getElementById('sidebar').innerHTML =
-      '<div style="padding:16px;color:#f87171;font-size:13px;">Failed to load skills</div>';
+      '<div class="p-4 text-red-400 text-[13px]">Failed to load skills</div>';
   }
 }
 
+// --- Filters ---
+function renderFilterChips() {
+  const container = document.getElementById('filter-chips');
+  container.innerHTML = FilterChip.render('discoverable', 'Agent-discoverable', filters.discoverable)
+    + FilterChip.render('user-invocable', 'User-invocable', filters.userInvocable);
+
+  FilterChip.bind('discoverable', (checked) => {
+    filters.discoverable = checked;
+    renderFilterChips();
+    renderSidebar();
+  });
+  FilterChip.bind('user-invocable', (checked) => {
+    filters.userInvocable = checked;
+    renderFilterChips();
+    renderSidebar();
+  });
+}
+
+document.getElementById('filter-search').addEventListener('input', (e) => {
+  filters.search = e.target.value.toLowerCase();
+  renderSidebar();
+});
+
+function filterSkills(list) {
+  return list.filter(s => {
+    if (filters.search) {
+      const q = filters.search;
+      const match = (s.name || '').toLowerCase().includes(q)
+        || (s.dirName || '').toLowerCase().includes(q)
+        || ((s.frontmatter && s.frontmatter.description) || '').toLowerCase().includes(q);
+      if (!match) return false;
+    }
+    if (filters.discoverable) {
+      if (s.frontmatter && s.frontmatter['disable-model-invocation']) return false;
+    }
+    if (filters.userInvocable) {
+      if (s.frontmatter && s.frontmatter['user-invocable'] === false) return false;
+    }
+    return true;
+  });
+}
+
+// --- Sidebar ---
 function skillKey(s) {
   return s.location + '/' + s.dirName;
 }
 
 function renderSidebar() {
-  const personal = skills.filter(s => s.location === 'personal');
-  const project = skills.filter(s => s.location === 'project');
+  const filtered = filterSkills(skills);
+  const personal = filtered.filter(s => s.location === 'personal');
+  const project = filtered.filter(s => s.location === 'project');
   let html = '';
 
   if (personal.length > 0) {
-    html += '<div class="sidebar-group"><h3>Personal Skills</h3>';
+    html += '<div class="py-3">'
+      + '<h3 class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8888aa]">Personal Skills</h3>';
     for (const s of personal) {
-      const key = skillKey(s);
-      const active = key === selectedKey ? ' active' : '';
-      html += '<div class="skill-item' + active + '" data-key="' + key + '">'
-        + '<div class="skill-name">' + esc(s.name) + '</div>'
-        + '<div class="skill-dir">' + esc(s.dirName) + '</div></div>';
+      html += SkillItem.render(s, skillKey(s) === selectedKey);
     }
     html += '</div>';
   }
 
   if (project.length > 0) {
-    html += '<div class="sidebar-group"><h3>Project Skills</h3>';
+    html += '<div class="py-3' + (personal.length > 0 ? ' border-t border-surface-border' : '') + '">'
+      + '<h3 class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8888aa]">Project Skills</h3>';
     for (const s of project) {
-      const key = skillKey(s);
-      const active = key === selectedKey ? ' active' : '';
-      html += '<div class="skill-item' + active + '" data-key="' + key + '">'
-        + '<div class="skill-name">' + esc(s.name) + '</div>'
-        + '<div class="skill-dir">' + esc(s.dirName) + '</div></div>';
+      html += SkillItem.render(s, skillKey(s) === selectedKey);
     }
     html += '</div>';
   }
 
-  if (skills.length === 0) {
-    html = '<div style="padding:16px;color:#6b7280;font-size:13px;">No skills found</div>';
+  if (filtered.length === 0) {
+    html = '<div class="p-4 text-gray-500 text-[13px]">'
+      + (skills.length === 0 ? 'No skills found' : 'No skills match filters') + '</div>';
   }
 
   document.getElementById('sidebar').innerHTML = html;
 
-  // Attach click handlers
-  document.querySelectorAll('.skill-item').forEach(el => {
-    el.addEventListener('click', () => {
+  // Bind skill item clicks
+  document.querySelectorAll('[data-key]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      // Don't select if clicking the menu button
+      if (e.target.closest('.skill-menu-btn')) return;
       selectedKey = el.dataset.key;
       renderSidebar();
       renderEditor();
     });
   });
+
+  // Bind menu buttons
+  document.querySelectorAll('.skill-menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.menuKey;
+      const skill = skills.find(s => skillKey(s) === key);
+      if (!skill) return;
+      showSkillMenu(btn, skill);
+    });
+  });
 }
 
+// --- Skill context menu ---
+function showSkillMenu(anchorEl, skill) {
+  Dropdown.show(anchorEl, [
+    {
+      label: 'Rename',
+      onClick: () => showRenameModal(skill),
+    },
+  ]);
+}
+
+function showRenameModal(skill) {
+  const currentName = skill.frontmatter.name || skill.dirName;
+  Modal.show({
+    title: 'Rename Skill',
+    body: '<label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Name</label>'
+      + '<input type="text" id="rename-input" value="' + escAttr(currentName) + '" '
+      + 'class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-sm text-gray-200 outline-none focus:border-accent transition-colors">',
+    confirmLabel: 'Rename',
+    onConfirm: async () => {
+      const newName = document.getElementById('rename-input').value.trim();
+      if (!newName || newName === currentName) {
+        Modal.hide();
+        return;
+      }
+
+      const fm = { ...skill.frontmatter, name: newName };
+      try {
+        const res = await fetch('/skills/' + skill.location + '/' + skill.dirName, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ frontmatter: fm, content: skill.content }),
+        });
+        if (!res.ok) throw new Error('Save failed');
+
+        skill.frontmatter = fm;
+        skill.name = newName;
+        Modal.hide();
+        renderSidebar();
+        renderEditor();
+      } catch (err) {
+        const input = document.getElementById('rename-input');
+        if (input) input.style.borderColor = '#f87171';
+      }
+    },
+  });
+
+  // Enter key to confirm
+  const input = document.getElementById('rename-input');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('modal-confirm').click();
+      }
+    });
+    input.select();
+  }
+}
+
+// --- Editor ---
 function getSelected() {
   return skills.find(s => skillKey(s) === selectedKey);
 }
 
 function renderEditor() {
   const s = getSelected();
+  const editorEl = document.getElementById('editor');
+
   if (!s) {
-    document.getElementById('editor').className = 'editor empty';
-    document.getElementById('editor').innerHTML = '<div>Select a skill from the sidebar to edit</div>';
+    editorEl.innerHTML = '<div class="flex-1 flex items-center justify-center text-gray-500">Select a skill from the sidebar to edit</div>';
     return;
   }
 
   const fm = s.frontmatter || {};
   const agentDiscoverable = !fm['disable-model-invocation'];
-  const userInvocable = !!fm['user-invocable'];
+  const userInvocable = fm['user-invocable'] !== false;
 
-  document.getElementById('editor').className = 'editor';
-  document.getElementById('editor').innerHTML = ''
-    + '<div class="form-group">'
-    + '  <label>Name</label>'
-    + '  <input type="text" id="field-name" value="' + escAttr(fm.name || s.dirName) + '">'
+  editorEl.innerHTML = ''
+    + '<div class="p-6 flex flex-col flex-1">'
+    // Name
+    + '<div class="mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Name</label>'
+    + '  <input type="text" id="field-name" value="' + escAttr(fm.name || s.dirName) + '"'
+    + '    class="w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-sm text-gray-200 outline-none focus:border-accent transition-colors">'
     + '</div>'
-    + '<div class="form-group">'
-    + '  <label>Description</label>'
-    + '  <textarea class="description" id="field-description">' + esc(fm.description || '') + '</textarea>'
+    // Description
+    + '<div class="mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Description</label>'
+    + '  <textarea id="field-description" rows="2"'
+    + '    class="w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-sm text-gray-200 outline-none focus:border-accent transition-colors resize-y">' + esc(fm.description || '') + '</textarea>'
     + '</div>'
-    + '<div class="checkbox-row">'
-    + '  <label class="checkbox-item">'
-    + '    <input type="checkbox" id="field-discoverable"' + (agentDiscoverable ? ' checked' : '') + '>'
-    + '    <span>Agent-discoverable</span>'
+    // Checkboxes
+    + '<div class="flex gap-6 mb-4">'
+    + '  <label class="flex items-center gap-2 cursor-pointer">'
+    + '    <input type="checkbox" id="field-discoverable" class="w-4 h-4 accent-accent cursor-pointer"' + (agentDiscoverable ? ' checked' : '') + '>'
+    + '    <span class="text-[13px] text-[#c0c0d0]">Agent-discoverable</span>'
     + '  </label>'
-    + '  <label class="checkbox-item">'
-    + '    <input type="checkbox" id="field-user-invocable"' + (userInvocable ? ' checked' : '') + '>'
-    + '    <span>User-invocable</span>'
+    + '  <label class="flex items-center gap-2 cursor-pointer">'
+    + '    <input type="checkbox" id="field-user-invocable" class="w-4 h-4 accent-accent cursor-pointer"' + (userInvocable ? ' checked' : '') + '>'
+    + '    <span class="text-[13px] text-[#c0c0d0]">User-invocable</span>'
     + '  </label>'
     + '</div>'
-    + '<div class="content-group">'
-    + '  <div class="form-group" style="flex:1;display:flex;flex-direction:column;">'
-    + '    <label>Content</label>'
-    + '    <textarea class="content" id="field-content">' + esc(s.content) + '</textarea>'
-    + '  </div>'
+    // Content
+    + '<div class="flex-1 flex flex-col mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Content</label>'
+    + '  <textarea id="field-content"'
+    + '    class="flex-1 min-h-[300px] w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-[13px] leading-relaxed text-gray-200 outline-none focus:border-accent transition-colors resize-y font-mono"'
+    + '    style="tab-size:2">' + esc(s.content) + '</textarea>'
     + '</div>'
-    + '<div class="actions">'
-    + '  <button class="btn-save" id="btn-save">Save</button>'
-    + '  <span class="save-status" id="save-status"></span>'
+    // Actions
+    + '<div class="flex items-center gap-3">'
+    + '  <button id="btn-save" class="px-5 py-2 text-[13px] font-semibold text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save</button>'
+    + '  <span id="save-status" class="text-xs text-gray-500"></span>'
+    + '</div>'
     + '</div>';
 
   document.getElementById('btn-save').addEventListener('click', saveSkill);
 
-  // Handle tab key in content textarea
+  // Tab key in content textarea
   document.getElementById('field-content').addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -365,6 +327,7 @@ function renderEditor() {
   });
 }
 
+// --- Save ---
 async function saveSkill() {
   const s = getSelected();
   if (!s) return;
@@ -373,25 +336,22 @@ async function saveSkill() {
   const status = document.getElementById('save-status');
   btn.disabled = true;
   status.textContent = 'Saving...';
-  status.className = 'save-status';
+  status.className = 'text-xs text-gray-500';
 
-  // Build frontmatter from current skill's frontmatter plus edits
   const fm = { ...s.frontmatter };
   fm.name = document.getElementById('field-name').value;
   fm.description = document.getElementById('field-description').value;
 
-  const discoverable = document.getElementById('field-discoverable').checked;
-  if (discoverable) {
+  if (document.getElementById('field-discoverable').checked) {
     delete fm['disable-model-invocation'];
   } else {
     fm['disable-model-invocation'] = true;
   }
 
-  const userInvocable = document.getElementById('field-user-invocable').checked;
-  if (userInvocable) {
-    fm['user-invocable'] = true;
-  } else {
+  if (document.getElementById('field-user-invocable').checked) {
     delete fm['user-invocable'];
+  } else {
+    fm['user-invocable'] = false;
   }
 
   const content = document.getElementById('field-content').value;
@@ -405,33 +365,23 @@ async function saveSkill() {
 
     if (!res.ok) throw new Error('Save failed');
 
-    // Update local state
     s.frontmatter = fm;
     s.content = content;
     s.name = fm.name || s.dirName;
 
     status.textContent = 'Saved';
-    status.className = 'save-status success';
+    status.className = 'text-xs text-emerald-400';
     renderSidebar();
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
-    status.className = 'save-status error';
+    status.className = 'text-xs text-red-400';
   } finally {
     btn.disabled = false;
-    setTimeout(() => { status.textContent = ''; }, 3000);
+    setTimeout(() => { if (status) status.textContent = ''; }, 3000);
   }
 }
 
-function esc(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function escAttr(str) {
-  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
+// --- Boot ---
 loadSkills();
 </script>
 </body>
