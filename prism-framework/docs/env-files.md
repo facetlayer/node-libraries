@@ -61,4 +61,4 @@ Example:
 
     npx @facetlayer/port-assignment claim --name <project name>
 
-Run `npx @facetlayer/port-assigment list-docs` for more documentation.
+Run `npx @facetlayer/port-assignment list-docs` for more documentation.

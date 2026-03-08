@@ -1,11 +1,11 @@
 ---
 name: authorization
-description: Authorization system with resources, credentials, and permissions
+description: Authorization system with resources, auth sources, and permissions
 ---
 
 # Authorization System
 
-Prism Framework includes a flexible authorization system based on resources, credentials, and permissions.
+Prism Framework includes a flexible authorization system based on resources, auth sources, and permissions.
 
 ## Core Concepts
 
@@ -20,16 +20,16 @@ interface Resource {
 }
 ```
 
-### Credentials
+### Auth Sources
 
-Credentials represent how a user authenticated:
+Auth sources represent how a user authenticated:
 
 ```typescript
-interface Credential {
+interface AuthSource {
   type: string;
 }
 
-interface CookieCredential extends Credential {
+interface CookieAuthSource extends AuthSource {
   type: 'cookie';
   sessionId: string;
 }
@@ -50,7 +50,7 @@ interface UserPermissions {
 
 ## Authorization Class
 
-The `Authorization` class manages resources, credentials, and permissions:
+The `Authorization` class manages resources, auth sources, and permissions:
 
 ```typescript
 import { Authorization } from '@facetlayer/prism-framework';
@@ -67,8 +67,8 @@ if (auth.hasResource('user')) {
   console.log(user.id); // '123'
 }
 
-// Add credentials
-auth.addCredential({
+// Add auth sources
+auth.addAuthSource({
   type: 'cookie',
   sessionId: 'session-xyz',
 });
@@ -121,8 +121,8 @@ export const authMiddleware: MiddlewareDefinition = {
       // Look up session
       const session = await getSession(sessionId);
       if (session) {
-        // Add credential
-        context.auth.addCredential({
+        // Add auth source
+        context.auth.addAuthSource({
           type: 'cookie',
           sessionId,
         });

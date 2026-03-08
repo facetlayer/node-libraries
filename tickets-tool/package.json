@@ -1,0 +1,37 @@
+{
+  "name": "@facetlayer/tickets-tool",
+  "version": "0.1.0",
+  "description": "CLI tool for locally storing and searching tickets and bug reports",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "tickets": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "node build.mts build",
+    "test": "vitest --passWithNoTests",
+    "prepublishOnly": "node build.mts build && node build.mts validate",
+    "local:install": "pnpm build && npm i -g ."
+  },
+  "keywords": [
+    "tickets",
+    "bug-reports",
+    "issue-tracker",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@facetlayer/user-state-db": "^0.1.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.2",
+    "@facetlayer/sqlite-wrapper": "^1.2.1",
+    "@types/node": "^22.10.0",
+    "@types/yargs": "^17.0.34",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

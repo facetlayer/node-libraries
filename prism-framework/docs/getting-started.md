@@ -78,6 +78,6 @@ Examples:
    `candle list-docs`
 
  Set up services in the .candle.json file:
-   `candle add-service api "node --watch src/_main/api.ts" --root ./api
-   `candle add-service web "pnpm dev" --root ./web
+   `candle add-service api "node --watch src/_main/api.ts" --root ./api`
+   `candle add-service web "pnpm dev" --root ./web`
 

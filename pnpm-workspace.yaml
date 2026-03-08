@@ -37,6 +37,8 @@ packages:
   - user-state-db
   - user-state-dir
   - userdata-db
+  - tickets-gui
+  - tickets-tool
   - userdata-db/docs-site
 
 onlyBuiltDependencies:

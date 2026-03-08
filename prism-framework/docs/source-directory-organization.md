@@ -39,7 +39,7 @@ import { ALL_SERVICES } from './services.ts';
 async function main() {
   config({ path: '.env' });
 
-  const app = new App(ALL_SERVICES);
+  const app = new App({ services: ALL_SERVICES });
 
   await startServer({
     app,

@@ -14,7 +14,7 @@ Prism Framework is a TypeScript framework for building web-based SaaS applicatio
 3. **Launch Configuration** - Single configuration system that works for both web and desktop
 4. **Database Management** - Integration with `@facetlayer/sqlite-wrapper` for database operations
 5. **Request Context** - AsyncLocalStorage-based request context tracking
-6. **Authorization** - Built-in authorization system with resources and credentials
+6. **Authorization** - Built-in authorization system with resources and auth sources
 7. **Metrics** - Prometheus metrics integration
 8. **SSE Support** - Server-Sent Events for real-time communication
 9. **Error Handling** - Comprehensive HTTP error classes
@@ -96,12 +96,15 @@ A typical project using Prism Framework:
 ```
 your-app/
 ├── src/
-│   ├── services/          # Application services
-│   │   ├── auth/
-│   │   ├── users/
-│   │   └── projects/
-│   ├── main.ts           # Application entry point
-│   └── databases/        # Database initialization
+│   ├── _main/            # Application bootstrap
+│   │   ├── api.ts        # Entry point - starts the server
+│   │   └── services.ts   # Exports ALL_SERVICES array
+│   ├── users/            # One folder per service
+│   │   └── index.ts
+│   ├── projects/
+│   │   └── index.ts
+│   └── user-database/    # Shared resources (databases, utils)
+│       └── db.ts
 ├── package.json
 └── tsconfig.json
 ```

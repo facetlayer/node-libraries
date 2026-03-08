@@ -824,6 +824,34 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(@types/node@20.19.23)(terser@5.44.1)
 
+  tickets-tool:
+    dependencies:
+      '@facetlayer/user-state-db':
+        specifier: ^0.1.0
+        version: 0.1.0
+      yargs:
+        specifier: ^18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@facetlayer/build-config-nodejs':
+        specifier: ^0.3.2
+        version: 0.3.2(jiti@1.21.7)(typescript@5.7.3)
+      '@facetlayer/sqlite-wrapper':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.13.0
+      '@types/yargs':
+        specifier: ^17.0.34
+        version: 17.0.35
+      typescript:
+        specifier: ^5.7.0
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.0)(terser@5.44.1)
+
   user-state-db:
     dependencies:
       '@facetlayer/sqlite-wrapper':
@@ -2464,6 +2492,9 @@ packages:
 
   '@facetlayer/subprocess@1.1.1':
     resolution: {integrity: sha512-wqutokTn4PCEyRqsFpkCmJ+eNmpka3ENF7nnwlMzOoHo87yF9Tz2g72WyATnY4wq8unNyZbXK5FBQOO6PVGOdA==}
+
+  '@facetlayer/user-state-db@0.1.0':
+    resolution: {integrity: sha512-SRFLPZvr9AO4sRORITc9mSu1Ow/2iw/sTSYnKyuJTu5FtYciV6IBDv5dJohidQPg40ufFZNaKajlNUi46d4DvQ==}
 
   '@facetlayer/user-state-dir@0.1.0':
     resolution: {integrity: sha512-jliVKqPZYC05XAvpUWGMdqpsuVF0QrRYRJ5nI3GKqkLKgvdV9VQQlIsncblZ1z5mtHku35Z6mG0Wjqyoknsm0g==}
@@ -9925,6 +9956,13 @@ snapshots:
       '@facetlayer/parse-stdout-lines': 1.1.0
       '@facetlayer/streams': 1.0.1
 
+  '@facetlayer/user-state-db@0.1.0':
+    dependencies:
+      '@facetlayer/sqlite-wrapper': 1.2.1
+      '@facetlayer/streams': 1.0.1
+      '@facetlayer/user-state-dir': 0.1.0
+      better-sqlite3: 11.8.1
+
   '@facetlayer/user-state-dir@0.1.0': {}
 
   '@facetlayer/userdata-db@0.1.1':
@@ -9974,7 +10012,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -10452,7 +10490,7 @@ snapshots:
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/chai@5.2.3':
     dependencies:
@@ -10462,11 +10500,11 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 5.1.0
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/cookie-parser@1.4.10(@types/express@5.0.3)':
     dependencies:
@@ -10496,14 +10534,14 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.7':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
   '@types/express-serve-static-core@5.1.0':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -10537,7 +10575,7 @@ snapshots:
 
   '@types/http-proxy@1.17.17':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -10563,7 +10601,7 @@ snapshots:
 
   '@types/node-forge@1.3.14':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/node@17.0.45': {}
 
@@ -10618,16 +10656,16 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/serve-index@1.9.4':
     dependencies:
@@ -10636,12 +10674,12 @@ snapshots:
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       '@types/send': 0.17.6
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/swagger-ui-express@4.1.8':
     dependencies:
@@ -10656,7 +10694,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12128,7 +12166,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       require-like: 0.1.2
 
   event-stream@3.3.4:
@@ -12897,7 +12935,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -12905,13 +12943,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 22.13.0
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1

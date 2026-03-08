@@ -73,7 +73,7 @@ type MigrationBehavior =
 
 ```typescript
 // main.ts (backend server)
-import { setLaunchConfig, startServer } from '@facetlayer/prism-framework';
+import { setLaunchConfig, startServer, App } from '@facetlayer/prism-framework';
 import { loadBetterSqlite } from '@facetlayer/sqlite-wrapper';
 import path from 'path';
 import fs from 'fs';
@@ -104,7 +104,8 @@ async function main() {
   });
 
   // Start server
-  await startServer({ services: ALL_SERVICES });
+  const app = new App({ services: ALL_SERVICES });
+  await startServer({ app, port: parseInt(process.env.PRISM_API_PORT!, 10) });
 }
 
 main().catch(console.error);
