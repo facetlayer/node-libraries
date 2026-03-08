@@ -18,7 +18,7 @@ import {
   NotFoundError,
   BadRequestError,
   ForbiddenError,
-} from '../../src/index.ts';
+} from '@facetlayer/prism-framework';
 import { z } from 'zod';
 
 // --- Users service (from creating-services.md) ---

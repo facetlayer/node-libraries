@@ -15,19 +15,17 @@ interface SidebarProps {
 function AutoSizeText({ text }: { text: string }) {
   const containerRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
-  const [fontSize, setFontSize] = useState(14);
+  const [fontSize, setFontSize] = useState(15);
 
   useEffect(() => {
     const container = containerRef.current;
     const textEl = textRef.current;
     if (!container || !textEl) return;
 
-    // Reset to max size and measure
-    let size = 14;
+    let size = 15;
     textEl.style.fontSize = `${size}px`;
 
-    // Shrink until text fits or we hit minimum
-    while (textEl.scrollWidth > container.clientWidth && size > 9) {
+    while (textEl.scrollWidth > container.clientWidth && size > 10) {
       size -= 0.5;
       textEl.style.fontSize = `${size}px`;
     }
@@ -70,32 +68,32 @@ export function Sidebar({ selectedLibrary, onSelectLibrary, refreshKey }: Sideba
   const totalCount = libraries.reduce((sum, l) => sum + l.count, 0);
 
   const itemClass = (isSelected: boolean) =>
-    `flex items-center justify-between py-2.5 px-4 cursor-pointer border-b border-border-light transition-colors duration-150 hover:bg-bg-hover ${
+    `flex items-center justify-between py-3 px-4 cursor-pointer border-b border-border-light transition-colors duration-150 hover:bg-bg-hover ${
       isSelected ? 'bg-bg-hover border-l-3 border-l-accent pl-[13px]' : ''
     }`;
 
   const countClass = (isSelected: boolean) =>
-    `text-[11px] py-0.5 px-2 rounded-full min-w-6 text-center shrink-0 ${
-      isSelected ? 'bg-border text-[#ccc]' : 'bg-bg-hover text-text-secondary'
+    `text-xs py-0.5 px-2.5 rounded-full min-w-7 text-center shrink-0 font-medium ${
+      isSelected ? 'bg-accent text-white' : 'bg-bg-hover text-text-secondary'
     }`;
 
   return (
-    <div className="w-60 min-w-60 border-r border-border flex flex-col bg-bg-secondary">
+    <div className="w-64 min-w-64 border-r border-border flex flex-col bg-bg-secondary">
       <div className="px-4 py-3 border-b border-border">
-        <h2 className="text-[13px] uppercase tracking-wide text-text-secondary font-medium">
+        <h2 className="text-xs uppercase tracking-widest text-text-secondary font-semibold">
           Libraries
         </h2>
       </div>
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="text-text-muted p-5 text-center text-[13px]">Loading...</div>
+          <div className="text-text-muted p-5 text-center text-sm">Loading...</div>
         ) : (
           <>
             <div
               className={itemClass(selectedLibrary === null)}
               onClick={() => onSelectLibrary(null)}
             >
-              <span className="text-sm font-medium">All</span>
+              <span className="text-[15px] font-medium">All</span>
               <span className={countClass(selectedLibrary === null)}>{totalCount}</span>
             </div>
             {libraries.map(lib => (

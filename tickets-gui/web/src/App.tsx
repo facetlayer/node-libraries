@@ -17,8 +17,8 @@ export function App() {
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]">
       <header className="flex items-baseline gap-3 px-6 py-4 bg-bg-secondary border-b border-border">
-        <h1 className="text-xl font-semibold text-accent">Feedback</h1>
-        <span className="text-[13px] text-text-secondary">Manager</span>
+        <h1 className="text-2xl font-bold text-accent tracking-tight">Feedback</h1>
+        <span className="text-sm text-text-secondary font-medium">Manager</span>
       </header>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

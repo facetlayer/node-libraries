@@ -1,7 +1,7 @@
 import { App, startServer } from '@facetlayer/prism-framework';
 import { ticketsService } from './services/tickets-service.ts';
 
-const PORT = parseInt(process.env.PRISM_API_PORT || '4810', 10);
+const PORT = parseInt(process.env.PRISM_API_PORT || '4014', 10);
 
 async function main() {
   const app = new App({

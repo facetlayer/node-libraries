@@ -38,6 +38,7 @@ packages:
   - user-state-dir
   - userdata-db
   - tickets-gui
+  - tickets-gui/web
   - tickets-tool
   - userdata-db/docs-site
 
