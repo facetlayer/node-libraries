@@ -18,8 +18,12 @@ import {
   NotFoundError,
   BadRequestError,
   ForbiddenError,
-} from '@facetlayer/prism-framework';
+} from '../../src/index.ts';
 import { z } from 'zod';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // --- Users service (from creating-services.md) ---
 
@@ -30,7 +34,7 @@ const users = [
 
 const listUsersEndpoint = createEndpoint({
   method: 'GET',
-  path: '/api/users',
+  path: '/users',
   description: 'List all users',
   responseSchema: z.array(z.object({ id: z.string(), name: z.string(), email: z.string() })),
   handler: async () => {
@@ -40,7 +44,7 @@ const listUsersEndpoint = createEndpoint({
 
 const getUserEndpoint = createEndpoint({
   method: 'GET',
-  path: '/api/users/:id',
+  path: '/users/:id',
   description: 'Get a user by ID',
   requestSchema: z.object({ id: z.string() }),
   responseSchema: z.object({ id: z.string(), name: z.string(), email: z.string() }),
@@ -55,7 +59,7 @@ const getUserEndpoint = createEndpoint({
 
 const createUserEndpoint = createEndpoint({
   method: 'POST',
-  path: '/api/users',
+  path: '/users',
   description: 'Create a user',
   requestSchema: z.object({
     name: z.string(),
@@ -103,7 +107,7 @@ const helloService: ServiceDefinition = {
 
 const authTestEndpoint = createEndpoint({
   method: 'GET',
-  path: '/api/auth-test',
+  path: '/auth-test',
   description: 'Test the authorization API',
   responseSchema: z.object({ success: z.boolean(), message: z.string() }),
   handler: async () => {
@@ -171,19 +175,24 @@ async function main() {
       enable: true,
       enableSwagger: true,
     },
+    web: {
+      dir: join(__dirname, 'web'),
+    },
   });
 
   console.log('Sample server running at http://localhost:19999');
   console.log('');
   console.log('Try these endpoints:');
-  console.log('  GET  http://localhost:19999/hello');
-  console.log('  GET  http://localhost:19999/hello?name=Prism');
+  console.log('  GET  http://localhost:19999/api/hello');
+  console.log('  GET  http://localhost:19999/api/hello?name=Prism');
   console.log('  GET  http://localhost:19999/api/users');
   console.log('  GET  http://localhost:19999/api/users/1');
   console.log('  POST http://localhost:19999/api/users  (body: {"name":"Charlie","email":"charlie@example.com"})');
   console.log('  GET  http://localhost:19999/api/auth-test');
-  console.log('  GET  http://localhost:19999/openapi.json');
-  console.log('  GET  http://localhost:19999/swagger');
+  console.log('  GET  http://localhost:19999/api/openapi.json');
+  console.log('  GET  http://localhost:19999/api/swagger');
+  console.log('');
+  console.log('Web UI at http://localhost:19999');
 }
 
 main().catch(console.error);

@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { Request, Response } from 'express';
-import { Authorization } from './authorization/Authorization.ts';
+import type { Request, Response } from 'express';
+import type { Authorization } from './authorization/Authorization.ts';
 
 /*
  * RequestContext

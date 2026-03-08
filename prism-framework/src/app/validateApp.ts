@@ -1,4 +1,4 @@
-import { PrismApp } from './PrismApp.ts';
+import type { PrismApp } from './PrismApp.ts';
 import { getEffectiveOperationId } from '../endpoints/createEndpoint.ts';
 
 export interface ValidationError {

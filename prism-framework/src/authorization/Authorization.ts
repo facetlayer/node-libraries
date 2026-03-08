@@ -1,5 +1,5 @@
-import { CookieAuthSource, AuthSource } from './AuthSource.ts';
-import { Resource } from './Resource.ts';
+import type { CookieAuthSource, AuthSource } from './AuthSource.ts';
+import type { Resource } from './Resource.ts';
 
 // Base permission type - applications can extend this
 export type Permission = string;

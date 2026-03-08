@@ -1,4 +1,4 @@
-import { EndpointDefinition } from "../web/ExpressEndpointSetup.ts";
+import type { EndpointDefinition } from "../web/ExpressEndpointSetup.ts";
 
 /**
  * Known bad values for operationId that indicate the user didn't set it properly.

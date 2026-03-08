@@ -1,7 +1,7 @@
-import { createEndpoint, EndpointDefinition } from './ExpressEndpointSetup.ts';
+import { createEndpoint, type EndpointDefinition } from './ExpressEndpointSetup.ts';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Response } from 'express';
+import type { Response } from 'express';
 
 export function createListingEndpoints(endpoints: EndpointDefinition[]) {
   return [

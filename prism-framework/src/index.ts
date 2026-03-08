@@ -15,7 +15,7 @@ export {
 
 
 export { createExpressApp, startServer } from './web/ExpressAppSetup.ts';
-export type { ServerSetupConfig } from './web/ExpressAppSetup.ts';
+export type { ServerSetupConfig, WebConfig } from './web/ExpressAppSetup.ts';
 
 export { getMetrics, recordHttpRequest, recordHttpResponse } from './Metrics.ts';
 

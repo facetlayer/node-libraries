@@ -1,0 +1,8 @@
+{
+  "services": [
+    {
+      "name": "basic-sample",
+      "shell": "node samples/basicServer/index.ts"
+    }
+  ]
+}

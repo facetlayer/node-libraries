@@ -9,6 +9,7 @@
   },
   "files": [
     "dist",
+    "web",
     "README.md"
   ],
   "scripts": {
@@ -18,8 +19,7 @@
     "local:install": "pnpm build && npm i -g ."
   },
   "dependencies": {
-    "@facetlayer/prism-framework": "workspace:*",
-    "express": "^4.21.1"
+    "@facetlayer/prism-framework": "workspace:*"
   },
   "devDependencies": {
     "@facetlayer/build-config-nodejs": "^0.3.0",

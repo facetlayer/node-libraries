@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Skills Editor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        surface: { DEFAULT: '#1a1a2e', light: '#16213e', lighter: '#1e2940', border: '#2a2a4a' },
+        accent: { DEFAULT: '#a78bfa', hover: '#8b6fdf' },
+      }
+    }
+  }
+}
+</script>
+<style type="text/tailwindcss">
+  @layer base {
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  }
+</style>
+</head>
+<body class="bg-surface text-gray-200 h-screen flex flex-col">
+
+<header class="bg-surface-light px-5 py-3 border-b border-surface-border flex items-center gap-3">
+  <h1 class="text-sm font-semibold text-accent">Claude Code Skills Editor</h1>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+  <!-- Sidebar -->
+  <div class="w-[260px] min-w-[260px] bg-surface-light border-r border-surface-border flex flex-col">
+    <div class="px-4 py-3 border-b border-surface-border">
+      <input type="text" id="filter-search" placeholder="Search skills..."
+        class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-accent transition-colors mb-2">
+      <div class="flex flex-wrap gap-1.5" id="filter-chips"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto" id="sidebar">
+      <div class="p-4 text-gray-500 text-[13px]">Loading skills...</div>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="flex-1 overflow-y-auto flex flex-col" id="editor">
+    <div class="flex-1 flex items-center justify-center text-gray-500">
+      Select a skill from the sidebar to edit
+    </div>
+  </div>
+</div>
+
+<!-- Overlay roots -->
+<div id="modal-root" class="hidden"></div>
+<div id="dropdown-root" class="hidden"></div>
+
+<script>
+// --- Utility functions ---
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// --- Components ---
+
+const Modal = {
+  _el: null,
+
+  _getEl() {
+    if (!this._el) {
+      this._el = document.getElementById('modal-root');
+    }
+    return this._el;
+  },
+
+  show(opts) {
+    const root = this._getEl();
+    root.innerHTML = ''
+      + '<div class="fixed inset-0 z-50 flex items-center justify-center">'
+      + '  <div class="fixed inset-0 bg-black/60" id="modal-backdrop"></div>'
+      + '  <div class="relative z-10 bg-[#1e2940] border border-[#2a2a4a] rounded-lg shadow-xl w-full max-w-md mx-4">'
+      + '    <div class="px-5 py-4 border-b border-[#2a2a4a]">'
+      + '      <h2 class="text-sm font-semibold text-gray-200">' + esc(opts.title || '') + '</h2>'
+      + '    </div>'
+      + '    <div class="px-5 py-4" id="modal-body">' + (opts.body || '') + '</div>'
+      + '    <div class="px-5 py-3 border-t border-[#2a2a4a] flex justify-end gap-2">'
+      + '      <button id="modal-cancel" class="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-gray-200 rounded border border-[#2a2a4a] hover:border-[#4a4a6a] transition-colors">Cancel</button>'
+      + '      <button id="modal-confirm" class="px-3 py-1.5 text-xs font-medium text-white bg-purple-500 hover:bg-purple-600 rounded transition-colors">' + esc(opts.confirmLabel || 'Confirm') + '</button>'
+      + '    </div>'
+      + '  </div>'
+      + '</div>';
+
+    root.classList.remove('hidden');
+
+    const hide = () => this.hide();
+
+    document.getElementById('modal-backdrop').addEventListener('click', () => {
+      if (opts.onCancel) opts.onCancel();
+      hide();
+    });
+    document.getElementById('modal-cancel').addEventListener('click', () => {
+      if (opts.onCancel) opts.onCancel();
+      hide();
+    });
+    document.getElementById('modal-confirm').addEventListener('click', () => {
+      if (opts.onConfirm) opts.onConfirm();
+    });
+
+    const firstInput = root.querySelector('input');
+    if (firstInput) firstInput.focus();
+
+    this._escHandler = (e) => {
+      if (e.key === 'Escape') {
+        if (opts.onCancel) opts.onCancel();
+        hide();
+      }
+    };
+    document.addEventListener('keydown', this._escHandler);
+  },
+
+  hide() {
+    const root = this._getEl();
+    root.classList.add('hidden');
+    root.innerHTML = '';
+    if (this._escHandler) {
+      document.removeEventListener('keydown', this._escHandler);
+      this._escHandler = null;
+    }
+  }
+};
+
+const Dropdown = {
+  _el: null,
+  _outsideHandler: null,
+
+  _getEl() {
+    if (!this._el) {
+      this._el = document.getElementById('dropdown-root');
+    }
+    return this._el;
+  },
+
+  show(anchorEl, items) {
+    this.hide();
+    const root = this._getEl();
+    const rect = anchorEl.getBoundingClientRect();
+
+    let itemsHtml = '';
+    items.forEach((item, i) => {
+      itemsHtml += '<button data-dropdown-idx="' + i + '" class="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-[#2a3a5c] hover:text-white transition-colors">'
+        + esc(item.label) + '</button>';
+    });
+
+    root.innerHTML = '<div class="fixed inset-0 z-40" id="dropdown-backdrop"></div>'
+      + '<div class="fixed z-50 bg-[#1e2940] border border-[#2a2a4a] rounded-md shadow-lg py-1 min-w-[140px]" '
+      + 'style="top:' + rect.bottom + 'px; left:' + Math.min(rect.left, window.innerWidth - 160) + 'px;">'
+      + itemsHtml + '</div>';
+
+    root.classList.remove('hidden');
+
+    root.querySelectorAll('[data-dropdown-idx]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.dropdownIdx);
+        this.hide();
+        items[idx].onClick();
+      });
+    });
+
+    document.getElementById('dropdown-backdrop').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.hide();
+    });
+  },
+
+  hide() {
+    const root = this._getEl();
+    root.classList.add('hidden');
+    root.innerHTML = '';
+  }
+};
+
+const FilterChip = {
+  render(id, label, checked) {
+    const activeClasses = checked
+      ? 'bg-[#2a3a5c] border-purple-400 text-gray-200'
+      : 'border-[#2a2a4a] text-[#8888aa] hover:border-[#4a4a6a] hover:text-[#c0c0d0]';
+    return '<label class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] cursor-pointer border transition-all select-none ' + activeClasses + '" id="chip-' + id + '">'
+      + '<input type="checkbox" class="hidden" id="filter-' + id + '"' + (checked ? ' checked' : '') + '>'
+      + esc(label)
+      + '</label>';
+  },
+
+  bind(id, onChange) {
+    const checkbox = document.getElementById('filter-' + id);
+    const chip = document.getElementById('chip-' + id);
+    if (!checkbox || !chip) return;
+    checkbox.addEventListener('change', () => {
+      onChange(checkbox.checked);
+    });
+  }
+};
+
+const SkillItem = {
+  render(skill, isActive) {
+    const key = skillKey(skill);
+    const baseCls = 'group flex items-center justify-between px-4 py-2 cursor-pointer text-[13px] transition-colors';
+    const activeCls = isActive
+      ? ' bg-[#2a3a5c] text-white border-l-[3px] border-purple-400 pl-[13px]'
+      : ' text-[#c0c0d0] hover:bg-[#1f2b47]';
+
+    return '<div class="' + baseCls + activeCls + '" data-key="' + escAttr(key) + '">'
+      + '<div class="min-w-0 flex-1">'
+      + '  <div class="font-medium truncate">' + esc(skill.name) + '</div>'
+      + '  <div class="text-[11px] text-gray-500 truncate mt-0.5">' + esc(skill.dirName) + '</div>'
+      + '</div>'
+      + '<button class="skill-menu-btn opacity-0 group-hover:opacity-100 shrink-0 ml-2 p-1 rounded hover:bg-[#2a2a4a] text-gray-500 hover:text-gray-300 transition-all" data-menu-key="' + escAttr(key) + '" title="Actions">'
+      + '  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>'
+      + '</button>'
+      + '</div>';
+  }
+};
+
+// --- App state ---
+let skills = [];
+let selectedKey = null;
+let filters = { search: '', discoverable: false, userInvocable: false };
+
+// --- Init ---
+async function loadSkills() {
+  try {
+    const res = await fetch('/api/skills');
+    skills = await res.json();
+    renderFilterChips();
+    renderSidebar();
+  } catch (err) {
+    document.getElementById('sidebar').innerHTML =
+      '<div class="p-4 text-red-400 text-[13px]">Failed to load skills</div>';
+  }
+}
+
+// --- Filters ---
+function renderFilterChips() {
+  const container = document.getElementById('filter-chips');
+  container.innerHTML = FilterChip.render('discoverable', 'Agent-discoverable', filters.discoverable)
+    + FilterChip.render('user-invocable', 'User-invocable', filters.userInvocable);
+
+  FilterChip.bind('discoverable', (checked) => {
+    filters.discoverable = checked;
+    renderFilterChips();
+    renderSidebar();
+  });
+  FilterChip.bind('user-invocable', (checked) => {
+    filters.userInvocable = checked;
+    renderFilterChips();
+    renderSidebar();
+  });
+}
+
+document.getElementById('filter-search').addEventListener('input', (e) => {
+  filters.search = e.target.value.toLowerCase();
+  renderSidebar();
+});
+
+function filterSkills(list) {
+  return list.filter(s => {
+    if (filters.search) {
+      const q = filters.search;
+      const match = (s.name || '').toLowerCase().includes(q)
+        || (s.dirName || '').toLowerCase().includes(q)
+        || ((s.frontmatter && s.frontmatter.description) || '').toLowerCase().includes(q);
+      if (!match) return false;
+    }
+    if (filters.discoverable) {
+      if (s.frontmatter && s.frontmatter['disable-model-invocation']) return false;
+    }
+    if (filters.userInvocable) {
+      if (s.frontmatter && s.frontmatter['user-invocable'] === false) return false;
+    }
+    return true;
+  });
+}
+
+// --- Sidebar ---
+function skillKey(s) {
+  return s.location + '/' + s.dirName;
+}
+
+function renderSidebar() {
+  const filtered = filterSkills(skills);
+  const personal = filtered.filter(s => s.location === 'personal');
+  const project = filtered.filter(s => s.location === 'project');
+  let html = '';
+
+  if (personal.length > 0) {
+    html += '<div class="py-3">'
+      + '<h3 class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8888aa]">Personal Skills</h3>';
+    for (const s of personal) {
+      html += SkillItem.render(s, skillKey(s) === selectedKey);
+    }
+    html += '</div>';
+  }
+
+  if (project.length > 0) {
+    html += '<div class="py-3' + (personal.length > 0 ? ' border-t border-surface-border' : '') + '">'
+      + '<h3 class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8888aa]">Project Skills</h3>';
+    for (const s of project) {
+      html += SkillItem.render(s, skillKey(s) === selectedKey);
+    }
+    html += '</div>';
+  }
+
+  if (filtered.length === 0) {
+    html = '<div class="p-4 text-gray-500 text-[13px]">'
+      + (skills.length === 0 ? 'No skills found' : 'No skills match filters') + '</div>';
+  }
+
+  document.getElementById('sidebar').innerHTML = html;
+
+  // Bind skill item clicks
+  document.querySelectorAll('[data-key]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.skill-menu-btn')) return;
+      selectedKey = el.dataset.key;
+      renderSidebar();
+      renderEditor();
+    });
+  });
+
+  // Bind menu buttons
+  document.querySelectorAll('.skill-menu-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.menuKey;
+      const skill = skills.find(s => skillKey(s) === key);
+      if (!skill) return;
+      showSkillMenu(btn, skill);
+    });
+  });
+}
+
+// --- Skill context menu ---
+function showSkillMenu(anchorEl, skill) {
+  Dropdown.show(anchorEl, [
+    {
+      label: 'Rename',
+      onClick: () => showRenameModal(skill),
+    },
+  ]);
+}
+
+function showRenameModal(skill) {
+  const currentName = skill.frontmatter.name || skill.dirName;
+  Modal.show({
+    title: 'Rename Skill',
+    body: '<label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Name</label>'
+      + '<input type="text" id="rename-input" value="' + escAttr(currentName) + '" '
+      + 'class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-sm text-gray-200 outline-none focus:border-accent transition-colors">',
+    confirmLabel: 'Rename',
+    onConfirm: async () => {
+      const newName = document.getElementById('rename-input').value.trim();
+      if (!newName || newName === currentName) {
+        Modal.hide();
+        return;
+      }
+
+      const fm = { ...skill.frontmatter, name: newName };
+      try {
+        const res = await fetch('/api/skills/' + skill.location + '/' + skill.dirName, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ frontmatter: fm, content: skill.content }),
+        });
+        if (!res.ok) throw new Error('Save failed');
+
+        skill.frontmatter = fm;
+        skill.name = newName;
+        Modal.hide();
+        renderSidebar();
+        renderEditor();
+      } catch (err) {
+        const input = document.getElementById('rename-input');
+        if (input) input.style.borderColor = '#f87171';
+      }
+    },
+  });
+
+  const input = document.getElementById('rename-input');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('modal-confirm').click();
+      }
+    });
+    input.select();
+  }
+}
+
+// --- Editor ---
+function getSelected() {
+  return skills.find(s => skillKey(s) === selectedKey);
+}
+
+function renderEditor() {
+  const s = getSelected();
+  const editorEl = document.getElementById('editor');
+
+  if (!s) {
+    editorEl.innerHTML = '<div class="flex-1 flex items-center justify-center text-gray-500">Select a skill from the sidebar to edit</div>';
+    return;
+  }
+
+  const fm = s.frontmatter || {};
+  const agentDiscoverable = !fm['disable-model-invocation'];
+  const userInvocable = fm['user-invocable'] !== false;
+
+  editorEl.innerHTML = ''
+    + '<div class="p-6 flex flex-col flex-1">'
+    // Name
+    + '<div class="mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Name</label>'
+    + '  <input type="text" id="field-name" value="' + escAttr(fm.name || s.dirName) + '"'
+    + '    class="w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-sm text-gray-200 outline-none focus:border-accent transition-colors">'
+    + '</div>'
+    // Description
+    + '<div class="mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Description</label>'
+    + '  <textarea id="field-description" rows="2"'
+    + '    class="w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-sm text-gray-200 outline-none focus:border-accent transition-colors resize-y">' + esc(fm.description || '') + '</textarea>'
+    + '</div>'
+    // Checkboxes
+    + '<div class="flex gap-6 mb-4">'
+    + '  <label class="flex items-center gap-2 cursor-pointer">'
+    + '    <input type="checkbox" id="field-discoverable" class="w-4 h-4 accent-accent cursor-pointer"' + (agentDiscoverable ? ' checked' : '') + '>'
+    + '    <span class="text-[13px] text-[#c0c0d0]">Agent-discoverable</span>'
+    + '  </label>'
+    + '  <label class="flex items-center gap-2 cursor-pointer">'
+    + '    <input type="checkbox" id="field-user-invocable" class="w-4 h-4 accent-accent cursor-pointer"' + (userInvocable ? ' checked' : '') + '>'
+    + '    <span class="text-[13px] text-[#c0c0d0]">User-invocable</span>'
+    + '  </label>'
+    + '</div>'
+    // Content
+    + '<div class="flex-1 flex flex-col mb-4">'
+    + '  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Content</label>'
+    + '  <textarea id="field-content"'
+    + '    class="flex-1 min-h-[300px] w-full bg-[#0f1629] border border-surface-border rounded-md px-3 py-2 text-[13px] leading-relaxed text-gray-200 outline-none focus:border-accent transition-colors resize-y font-mono"'
+    + '    style="tab-size:2">' + esc(s.content) + '</textarea>'
+    + '</div>'
+    // Actions
+    + '<div class="flex items-center gap-3">'
+    + '  <button id="btn-save" class="px-5 py-2 text-[13px] font-semibold text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Save</button>'
+    + '  <span id="save-status" class="text-xs text-gray-500"></span>'
+    + '</div>'
+    + '</div>';
+
+  document.getElementById('btn-save').addEventListener('click', saveSkill);
+
+  // Tab key in content textarea
+  document.getElementById('field-content').addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = e.target;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+    }
+  });
+}
+
+// --- Save ---
+async function saveSkill() {
+  const s = getSelected();
+  if (!s) return;
+
+  const btn = document.getElementById('btn-save');
+  const status = document.getElementById('save-status');
+  btn.disabled = true;
+  status.textContent = 'Saving...';
+  status.className = 'text-xs text-gray-500';
+
+  const fm = { ...s.frontmatter };
+  fm.name = document.getElementById('field-name').value;
+  fm.description = document.getElementById('field-description').value;
+
+  if (document.getElementById('field-discoverable').checked) {
+    delete fm['disable-model-invocation'];
+  } else {
+    fm['disable-model-invocation'] = true;
+  }
+
+  if (document.getElementById('field-user-invocable').checked) {
+    delete fm['user-invocable'];
+  } else {
+    fm['user-invocable'] = false;
+  }
+
+  const content = document.getElementById('field-content').value;
+
+  try {
+    const res = await fetch('/api/skills/' + s.location + '/' + s.dirName, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ frontmatter: fm, content }),
+    });
+
+    if (!res.ok) throw new Error('Save failed');
+
+    s.frontmatter = fm;
+    s.content = content;
+    s.name = fm.name || s.dirName;
+
+    status.textContent = 'Saved';
+    status.className = 'text-xs text-emerald-400';
+    renderSidebar();
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.className = 'text-xs text-red-400';
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { if (status) status.textContent = ''; }, 3000);
+  }
+}
+
+// --- Boot ---
+loadSkills();
+</script>
+</body>
+</html>

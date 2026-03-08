@@ -13,97 +13,131 @@ Brief summary of the steps to setup a Prism server:
 
  - Use the `@facetlayer/prism-framework` library
  - Create an instance of `App` and use `startServer`
- - Use the `dotenv` library to load the local .env file
+ - API endpoints are automatically mounted at `/api/`
+ - Optionally serve web files (HTML/JS/CSS) from the same server
  - Use the env var `PRISM_API_PORT` as the service port.
 
 ## Server Setup Example
 
-This setup file will typically be stored in `./src/_main/api.ts`:
+### API-only server
 
 ```typescript
 import { App, startServer } from '@facetlayer/prism-framework';
-import { config } from 'dotenv';
-import { ALL_SERVICES } from './services';
 
-async function main() {
-  // Load environment variables from .env file
-  config({ path: '.env' });
+const app = new App({ services: ALL_SERVICES });
 
-  if (!process.env.PRISM_API_PORT) {
-    throw new Error('PRISM_API_PORT is not set');
-  }
-
-  const app = new App({ services: ALL_SERVICES });
-
-  await startServer({
-    app,
-    port: parseInt(process.env.PRISM_API_PORT, 10),
-    openapiConfig: {
-        enable: true,
-        enableSwagger: true,
-    },
-    corsConfig: {
-        webBaseUrl: process.env.WEB_BASE_URL,
-        allowLocalhost: process.env.ALLOW_LOCALHOST === 'true',
-    },
-  });
-}
-
-main().catch(error => {
-    console.error('Failed to start server:', error);
-    process.exitCode = -1;
+await startServer({
+  app,
+  port: parseInt(process.env.PRISM_API_PORT || '4000', 10),
+  openapiConfig: {
+    enable: true,
+    enableSwagger: true,
+  },
 });
 ```
 
+All endpoints are mounted under `/api/`. For example, an endpoint defined with
+`path: '/users'` is accessible at `GET /api/users`.
+
+### Unified server with web files
+
+To serve both API and web pages from a single process on one port, add the
+`web` config option:
+
+```typescript
+import { App, startServer } from '@facetlayer/prism-framework';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const app = new App({ services: ALL_SERVICES });
+
+await startServer({
+  app,
+  port: parseInt(process.env.PRISM_API_PORT || '4000', 10),
+  openapiConfig: {
+    enable: true,
+    enableSwagger: true,
+  },
+  web: {
+    dir: join(__dirname, '..', 'web'),
+  },
+});
+```
+
+When `web` is configured:
+ - API endpoints are served under `/api/` (e.g. `/api/users`, `/api/health`)
+ - Web files are served from the specified directory at the root path (`/`)
+ - In development: uses Vite dev server middleware if `vite` is installed (for HMR)
+ - In production: serves static files from `web/dist/` (or `web/` if no dist folder)
+ - SPA fallback: unmatched GET requests serve `index.html`
+
+### Available framework endpoints
+
+These are automatically available under `/api/`:
+
+| Path | Description |
+|------|-------------|
+| `/api/health` | Health check (localhost only) |
+| `/api/metrics` | Prometheus metrics (localhost only) |
+| `/api/endpoints` | HTML endpoint listing |
+| `/api/endpoints.json` | JSON endpoint listing |
+| `/api/openapi.json` | OpenAPI schema (if enabled) |
+| `/api/swagger` | Swagger UI (if enabled) |
+
 ## Launching with Candle
 
-A Prism app needs both an API server and a frontend dev server running simultaneously. Use the `candle` process manager to coordinate them.
+Use the `candle` process manager to run the server:
 
 ### Setup
 
-Register each service in your `.candle.json`:
+Register the service in your `.candle.json`:
 
-```bash
-candle add-service api "node --watch src/_main/api.ts" --root ./api
-candle add-service ui "pnpm dev" --root ./ui
+```json
+{
+  "services": [
+    {
+      "name": "my-app",
+      "shell": "node src/main.ts"
+    }
+  ]
+}
 ```
 
 ### Usage
 
 ```bash
-# Start both services
-candle start api
-candle start ui
+# Start the service
+candle start my-app
 
 # Check status
 candle ls
 
 # View logs
-candle logs api
-candle logs ui
+candle logs my-app
 
-# Restart a service after changes
-candle restart api
+# Restart after changes
+candle restart my-app
 ```
 
 ### Recommended .env setup
 
-The API server reads from `./api/.env` (or root `.env`):
-
 ```bash
 PRISM_API_PORT=4000
-ALLOW_LOCALHOST=true
 ```
 
-The frontend reads from `./ui/.env` (Vite) or `./web/.env` (Next.js):
+## Vite Integration
 
-```bash
-# Vite
-VITE_API_URL=http://localhost:4000
+To use Vite for frontend development with HMR:
 
-# Next.js
-NEXT_PUBLIC_API_URL=http://localhost:4000
-```
+1. Install `vite` as a dependency in your project
+2. Place your web files in a `web/` directory with an `index.html`
+3. Pass `web: { dir: './web' }` to `startServer`
+
+In development mode, Vite's dev server middleware handles all non-API requests,
+providing hot module replacement. In production, the built static files from
+`web/dist/` are served.
 
 ## Testing
 

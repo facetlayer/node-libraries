@@ -8,15 +8,15 @@
 import {
   OpenAPIRegistry,
   OpenApiGeneratorV31,
-  RouteConfig,
+  type RouteConfig,
   extendZodWithOpenApi,
 } from '@asteasolutions/zod-to-openapi';
 import swaggerUi from 'swagger-ui-express';
-import { OpenAPIObject } from 'openapi3-ts/oas31';
+import type { OpenAPIObject } from 'openapi3-ts/oas31';
 import z from 'zod';
-import { ServiceDefinition } from '../../ServiceDefinition.ts';
+import type { ServiceDefinition } from '../../ServiceDefinition.ts';
 import { PrismApp } from '../../app/PrismApp.ts';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import { captureError } from '@facetlayer/Streams'
 import { validateServicesForOpenapi } from './validateServicesForOpenapi.ts';
 import { getEffectiveOperationId } from '../../endpoints/createEndpoint.ts';
@@ -194,6 +194,9 @@ export function generateOpenAPISchema(
       title: documentInfo.title,
       description: documentInfo.description,
     },
+    servers: [
+      { url: '/api', description: 'API server' },
+    ],
     security: [
       {
         bearer_auth: [],
@@ -202,9 +205,10 @@ export function generateOpenAPISchema(
   });
 }
 
-export function setupSwaggerUI(app: express.Application, openApiJsonPath: string = '/openapi.json'): void {
+export function setupSwaggerUI(app: express.Application | express.Router, openApiJsonPath: string = '/openapi.json'): void {
+  const router = app as express.Router;
   // Serve Swagger UI on /swagger
-  app.use(
+  router.use(
     '/swagger',
     swaggerUi.serve,
     swaggerUi.setup(null, {
@@ -215,8 +219,9 @@ export function setupSwaggerUI(app: express.Application, openApiJsonPath: string
   );
 }
 
-export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express.Application, prismApp: PrismApp): void {
-  expressApp.get('/openapi.json', (req: Request, res: Response) => {
+export function mountOpenAPIEndpoints(config: OpenAPIConfig, target: express.Application | express.Router, prismApp: PrismApp): void {
+  const router = target as express.Router;
+  router.get('/openapi.json', (req: Request, res: Response) => {
     const services = prismApp.getAllServices();
     try {
       res.json(generateOpenAPISchema(services, {
@@ -238,6 +243,6 @@ export function mountOpenAPIEndpoints(config: OpenAPIConfig, expressApp: express
   });
 
   if (config.enableSwagger) {
-    setupSwaggerUI(expressApp);
+    setupSwaggerUI(router, '/api/openapi.json');
   }
 }

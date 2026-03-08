@@ -1,5 +1,5 @@
 import { logWarn } from "../logging/index.ts";
-import { EndpointDefinition } from "../web/ExpressEndpointSetup.ts";
+import type { EndpointDefinition } from "../web/ExpressEndpointSetup.ts";
 import { validateEndpointForOpenapi } from "../web/openapi/validateServicesForOpenapi.ts";
 import { isValidOperationId } from "./getEffectiveOperationId.ts";
 

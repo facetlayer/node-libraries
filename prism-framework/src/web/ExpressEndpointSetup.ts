@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { isHttpError, NotFoundError } from '../Errors.ts';
 import { recordHttpRequest, recordHttpResponse } from '../Metrics.ts';
@@ -125,9 +125,10 @@ function getOneHandler(
 }
 
 export function mountPrismApp(
-  app: express.Application,
+  app: express.Application | express.Router,
   prismApp: PrismApp,
 ): void {
+  const router = app as express.Router;
 
   // Register each endpoint with Express to support path parameters
   const endpoints = prismApp.listAllEndpoints();
@@ -137,19 +138,19 @@ export function mountPrismApp(
 
     switch (endpoint.method) {
       case 'GET':
-        app.get(endpoint.path, handler);
+        router.get(endpoint.path, handler);
         break;
       case 'POST':
-        app.post(endpoint.path, handler);
+        router.post(endpoint.path, handler);
         break;
       case 'PUT':
-        app.put(endpoint.path, handler);
+        router.put(endpoint.path, handler);
         break;
       case 'DELETE':
-        app.delete(endpoint.path, handler);
+        router.delete(endpoint.path, handler);
         break;
       case 'PATCH':
-        app.patch(endpoint.path, handler);
+        router.patch(endpoint.path, handler);
         break;
     }
   }

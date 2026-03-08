@@ -82,8 +82,8 @@ describe('prism list-endpoints', () => {
     expect(output).toContain('/users/:id');
   });
 
-  it('should return endpoints via /endpoints.json', async () => {
-    const response = await fetch(`http://localhost:${port}/endpoints.json`);
+  it('should return endpoints via /api/endpoints.json', async () => {
+    const response = await fetch(`http://localhost:${port}/api/endpoints.json`);
     const data = await response.json();
 
     expect(data.endpoints).toBeDefined();

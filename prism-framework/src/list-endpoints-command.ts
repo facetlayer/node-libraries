@@ -7,7 +7,7 @@ export async function listEndpoints(baseUrl: string): Promise<void> {
   try {
     const response = await callEndpoint({
       baseUrl,
-      positionalArgs: ['GET', '/endpoints.json'],
+      positionalArgs: ['GET', '/api/endpoints.json'],
       namedArgs: {},
       quiet: true,
     });

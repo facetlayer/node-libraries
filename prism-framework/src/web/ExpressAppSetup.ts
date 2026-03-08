@@ -1,23 +1,28 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import { Server } from 'http';
+import type { Server } from 'http';
 import { PrismApp } from '../app/PrismApp.ts';
 import { getMetrics } from '../Metrics.ts';
-import { corsMiddleware, CorsConfig } from './corsMiddleware.ts';
+import { corsMiddleware, type CorsConfig } from './corsMiddleware.ts';
 import { mountPrismApp, } from './ExpressEndpointSetup.ts';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware.ts';
 import { requestContextMiddleware } from './requestContextMiddleware.ts';
-import { mountOpenAPIEndpoints, OpenAPIConfig } from './openapi/OpenAPI.ts';
+import { mountOpenAPIEndpoints, type OpenAPIConfig } from './openapi/OpenAPI.ts';
 import { createListingEndpoints } from './EndpointListing.ts';
 import { captureError } from '@facetlayer/Streams';
 import { logError, logInfo } from '../logging/index.ts';
 import { validateAppOrThrow } from '../app/validateApp.ts';
+import { setupWebMiddleware, type WebConfig } from './ViteIntegration.ts';
+
+export type { WebConfig } from './ViteIntegration.ts';
 
 export interface ServerSetupConfig {
   port: number;
   app: PrismApp;
   openapiConfig?: OpenAPIConfig;
   corsConfig?: CorsConfig;
+  /** Serve web files alongside the API. When provided, API endpoints are mounted at /api/. */
+  web?: WebConfig;
 }
 
 export function createExpressApp(config: ServerSetupConfig): express.Application {
@@ -29,13 +34,16 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
   app.use(requestContextMiddleware);
   app.use(cookieParser());
 
+  // Create the API router - all API endpoints live under /api/
+  const apiRouter = express.Router();
+
   // Health check endpoint
-  app.get('/health', localhostOnlyMiddleware, (req, res) => {
+  apiRouter.get('/health', localhostOnlyMiddleware, (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
   // Prometheus metrics endpoint (localhost only)
-  app.get('/metrics', localhostOnlyMiddleware, async (req, res) => {
+  apiRouter.get('/metrics', localhostOnlyMiddleware, async (req, res) => {
     try {
       const metrics = await getMetrics();
       res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
@@ -46,7 +54,7 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
   });
 
   if (config.openapiConfig) {
-    mountOpenAPIEndpoints(config.openapiConfig, app, config.app);
+    mountOpenAPIEndpoints(config.openapiConfig, apiRouter, config.app);
   }
 
   // Mount endpoint listing endpoints
@@ -70,17 +78,19 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
       }
     };
     if (endpoint.method === 'GET') {
-      app.get(endpoint.path, handler);
+      apiRouter.get(endpoint.path, handler);
     }
   }
 
-  mountPrismApp(app, config.app);
+  mountPrismApp(apiRouter, config.app);
 
-  // 404 handling
-  app.use((req, res) => {
-      res.status(404);
-      res.json({ error: "Not found" });
+  // API 404 handler (only for /api/* routes)
+  apiRouter.use((req: express.Request, res: express.Response) => {
+    res.status(404).json({ error: "Not found" });
   });
+
+  // Mount the API router at /api
+  app.use('/api', apiRouter);
 
   return app;
 }
@@ -92,6 +102,11 @@ export async function startServer(config: ServerSetupConfig): Promise<Server> {
   const port = config.port;
 
   const app = createExpressApp(config);
+
+  // Set up web serving if configured (after API routes)
+  if (config.web) {
+    await setupWebMiddleware(app, config.web);
+  }
 
   const server = app.listen(port, () => {
     logInfo(`Server now listening on port ${port}`);

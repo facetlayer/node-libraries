@@ -1,6 +1,6 @@
-import { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
-import { ServiceDefinition } from '../ServiceDefinition.ts';
-import { callEndpoint, CallEndpointOptions } from './callEndpoint.ts';
+import type { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
+import type { ServiceDefinition } from '../ServiceDefinition.ts';
+import { callEndpoint, type CallEndpointOptions } from './callEndpoint.ts';
 
 export interface PrismAppConfig {
   name?: string;
