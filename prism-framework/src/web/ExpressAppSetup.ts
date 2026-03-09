@@ -9,7 +9,7 @@ import { localhostOnlyMiddleware } from './localhostOnlyMiddleware.ts';
 import { requestContextMiddleware } from './requestContextMiddleware.ts';
 import { mountOpenAPIEndpoints, type OpenAPIConfig } from './openapi/OpenAPI.ts';
 import { createListingEndpoints } from './EndpointListing.ts';
-import { captureError } from '@facetlayer/Streams';
+import { captureError } from '@facetlayer/streams';
 import { logError, logInfo } from '../logging/index.ts';
 import { validateAppOrThrow } from '../app/validateApp.ts';
 import { setupWebMiddleware, type WebConfig } from './ViteIntegration.ts';

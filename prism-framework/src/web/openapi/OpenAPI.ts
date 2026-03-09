@@ -17,7 +17,7 @@ import z from 'zod';
 import type { ServiceDefinition } from '../../ServiceDefinition.ts';
 import { PrismApp } from '../../app/PrismApp.ts';
 import express, { type Request, type Response } from 'express';
-import { captureError } from '@facetlayer/Streams'
+import { captureError } from '@facetlayer/streams'
 import { validateServicesForOpenapi } from './validateServicesForOpenapi.ts';
 import { getEffectiveOperationId } from '../../endpoints/createEndpoint.ts';
 
