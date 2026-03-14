@@ -29,30 +29,7 @@ src/
 
 The `_main` folder contains the application entry point and service aggregation. The underscore prefix ensures it sorts to the top of the directory listing.
 
-**`_main/api.ts`** - The main entry point:
-
-```typescript
-import { startServer, App } from '@facetlayer/prism-framework';
-import { config } from 'dotenv';
-import { ALL_SERVICES } from './services.ts';
-
-async function main() {
-  config({ path: '.env' });
-
-  const app = new App({ services: ALL_SERVICES });
-
-  await startServer({
-    app,
-    port: parseInt(process.env.PRISM_API_PORT!),
-    openapiConfig: {
-      enable: true,
-      enableSwagger: true,
-    },
-  });
-}
-
-main().catch(console.error);
-```
+**`_main/api.ts`** - The main entry point. Loads environment variables, creates the App, and starts the server. See the `server-setup` doc for full `startServer` examples and the `env-files` doc for environment configuration.
 
 **`_main/services.ts`** - Aggregates all services:
 

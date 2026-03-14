@@ -23,91 +23,31 @@ Prism Framework is a TypeScript framework for building web-based SaaS applicatio
 
 ### Services
 
-A service is a self-contained module that can include:
-- API endpoints
-- Middleware
-- Database schemas
-- Background jobs
+A service is a self-contained module that can include API endpoints, middleware, database schemas, and background jobs. Services are the building blocks of a Prism application.
 
-```typescript
-import { ServiceDefinition, createEndpoint } from '@facetlayer/prism-framework';
-
-export const myService: ServiceDefinition = {
-  name: 'my-service',
-  endpoints: [
-    createEndpoint({
-      method: 'GET',
-      path: '/hello',
-      handler: async () => ({ message: 'Hello World' }),
-    }),
-  ],
-  databases: {
-    user: {
-      statements: [
-        `CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY,
-          email TEXT NOT NULL
-        )`,
-      ],
-    },
-  },
-};
-```
+See the `creating-services` doc for the full `ServiceDefinition` interface and examples.
 
 ### Launch Configuration
 
-The launch configuration system allows the same code to work in different contexts (backend server, Electron desktop app):
+The launch configuration system allows the same code to work in different contexts (backend server, Electron desktop app). Call `setLaunchConfig()` early in your app to configure logging and database settings.
 
-```typescript
-import { setLaunchConfig } from '@facetlayer/prism-framework';
-
-setLaunchConfig({
-  logging: {
-    databaseFilename: '/path/to/logs.db',
-    enableConsoleLogging: true,
-    loadDatabase: await loadBetterSqlite(),
-  },
-  database: {
-    user: {
-      migrationBehavior: 'safe-upgrades',
-      databasePath: '/path/to/databases',
-      services: [myService],
-      loadDatabase: await loadBetterSqlite(),
-    },
-  },
-});
-```
+See the `launch-configuration` doc for setup details and examples.
 
 ### Request Context
 
-Every request has an associated context that flows through all async operations:
+Every request has an associated context (via AsyncLocalStorage) that flows through all async operations. Access it with `getCurrentRequestContext()` to get request ID, auth info, and more.
 
-```typescript
-import { getCurrentRequestContext } from '@facetlayer/prism-framework';
+See the `authorization` doc for how auth integrates with request context.
 
-const context = getCurrentRequestContext();
-// Access request ID, auth info, etc.
-```
+### Error Handling
+
+The framework provides built-in HTTP error classes (`BadRequestError`, `NotFoundError`, `ForbiddenError`, etc.) that automatically map to the correct status codes.
+
+See the `error-handling` doc for available error classes and usage patterns.
 
 ## Project Structure
 
-A typical project using Prism Framework:
-
-```
-your-app/
-├── src/
-│   ├── _main/            # Application bootstrap
-│   │   ├── api.ts        # Entry point - starts the server
-│   │   └── services.ts   # Exports ALL_SERVICES array
-│   ├── users/            # One folder per service
-│   │   └── index.ts
-│   ├── projects/
-│   │   └── index.ts
-│   └── user-database/    # Shared resources (databases, utils)
-│       └── db.ts
-├── package.json
-└── tsconfig.json
-```
+See the `source-directory-organization` doc for the recommended directory layout and conventions.
 
 ## Getting Started
 
@@ -116,6 +56,7 @@ your-app/
 pnpm add @facetlayer/prism-framework zod@^4
 ```
 
-2. Create your first service (see creating-services doc)
-3. Set up the launch configuration (see launch-configuration doc)
-4. Start the server (see server-setup doc)
+2. Set up environment variables (see `env-files` doc)
+3. Create your first service (see `creating-services` doc)
+4. Set up the launch configuration (see `launch-configuration` doc)
+5. Start the server (see `server-setup` doc)

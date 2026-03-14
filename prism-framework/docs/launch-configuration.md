@@ -103,7 +103,7 @@ async function main() {
     },
   });
 
-  // Start server
+  // Start server (see server-setup doc for full startServer options)
   const app = new App({ services: ALL_SERVICES });
   await startServer({ app, port: parseInt(process.env.PRISM_API_PORT!, 10) });
 }

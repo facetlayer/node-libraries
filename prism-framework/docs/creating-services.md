@@ -217,32 +217,4 @@ export const definition: ServiceDefinition = {
 
 ## Error Handling
 
-Use the built-in HTTP error classes:
-
-```typescript
-import { NotFoundError, BadRequestError } from '@facetlayer/prism-framework';
-
-handler: async (input) => {
-  if (!input.userId) {
-    throw new BadRequestError('User ID is required');
-  }
-
-  const user = await getUserById(input.userId);
-  if (!user) {
-    throw new NotFoundError('User not found');
-  }
-
-  return user;
-}
-```
-
-Available error classes:
-- `BadRequestError` (400)
-- `UnauthorizedError` (401)
-- `ForbiddenError` (403)
-- `NotFoundError` (404)
-- `ConflictError` (409)
-- `ValidationError` (422)
-- `NotImplementedError` (501)
-- `ServiceUnavailableError` (503)
-- `HttpError` (custom status code)
+Use the built-in HTTP error classes to return proper status codes from handlers. See the `error-handling` doc for the full list of available error classes and usage patterns.

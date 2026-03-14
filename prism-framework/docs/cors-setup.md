@@ -13,17 +13,14 @@ CORS controls which web origins can make requests to your API. The Prism Framewo
 
 ## Configuration Options
 
-Pass a `corsConfig` object to `startServer`:
+Pass a `corsConfig` object to `startServer` (see `server-setup` doc for full `startServer` details):
 
 ```typescript
-import { startServer, App } from '@facetlayer/prism-framework';
-
 await startServer({
   app,
   port: 4000,
   corsConfig: {
     webBaseUrl: 'example.com',
-    enableTestEndpoints: false,
   },
 });
 ```

@@ -99,15 +99,7 @@ Response: {"id":"123","name":"John","email":"john@example.com"}
 
 1. **Check the server is running** - Start your API server
 2. **Verify PRISM_API_PORT** - Ensure `.env` contains `PRISM_API_PORT` matching your server port
-3. **Check dotenv is loaded** - Your server must load the `.env` file:
-
-```typescript
-import { config } from 'dotenv';
-config({ path: '.env' });
-
-const PORT = parseInt(process.env.PRISM_API_PORT, 10);
-await startServer({ app, port: PORT });
-```
+3. **Check dotenv is loaded** - Your server must load the `.env` file (see `env-files` doc)
 
 ### "Endpoint not found"
 

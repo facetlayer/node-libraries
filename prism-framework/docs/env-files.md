@@ -53,6 +53,17 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 See the `vite-setup` doc in `@facetlayer/prism-framework-ui` for more details.
 
+## Loading .env in the Backend
+
+Use `dotenv` to load your `.env` file early in your server entry point:
+
+```typescript
+import { config } from 'dotenv';
+config({ path: '.env' });
+```
+
+This should be called before accessing any `process.env` values. The `dotenv` package is included when you install `@facetlayer/prism-framework`'s recommended dependencies (see `getting-started` doc).
+
 # Port assignment
 
 It's recommended to use the `@facetlayer/port-assignment` tool if you need to assign new unique port numbers.
