@@ -87,6 +87,40 @@ async function main() {
         }
       }
     )
+    .command(
+      'search <target> <term>',
+      'Search doc files for a term and show matches with context',
+      (yargs) => {
+        return yargs
+          .positional('target', {
+            type: 'string',
+            describe: 'Directory path (starts with . or /) or NPM package name',
+            demandOption: true,
+          })
+          .positional('term', {
+            type: 'string',
+            describe: 'Search term to look for',
+            demandOption: true,
+          });
+      },
+      async (argv) => {
+        const target = argv.target as string;
+        const term = argv.term as string;
+        const parsed = parseTarget(target);
+
+        if (parsed.type === 'directory') {
+          const local = browseLocalLibrary(parsed.value);
+          local.helper.printSearchResults(term);
+        } else {
+          const docs = await browseNpmLibrary(parsed.value);
+          if (!docs) {
+            console.error(`Could not find library: ${parsed.value}`);
+            process.exit(1);
+          }
+          docs.helper.printSearchResults(term);
+        }
+      }
+    )
     .strictCommands()
     .demandCommand(1, 'You must specify a command')
     .help()
@@ -98,6 +132,8 @@ async function main() {
       ['$0 list lodash', 'List all doc files for the lodash NPM package'],
       ['$0 show ./docs project-setup', 'Display the project-setup doc from ./docs'],
       ['$0 show lodash', 'Display the README for the lodash NPM package'],
+      ['$0 search ./docs config', 'Search for "config" in docs under ./docs'],
+      ['$0 search lodash debounce', 'Search lodash docs for "debounce"'],
     ])
     .parse();
 }

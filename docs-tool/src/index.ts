@@ -232,6 +232,73 @@ export class DocFilesHelper {
   }
 
   /**
+   * Search all doc files for a term, returning matches with context lines.
+   */
+  searchDocs(term: string, contextLines: number = 2): { filename: string; fullPath: string; lineNumber: number; line: string; context: string[] }[] {
+    const results: { filename: string; fullPath: string; lineNumber: number; line: string; context: string[] }[] = [];
+    const lowerTerm = term.toLowerCase();
+
+    for (const [baseFilename, fullPath] of this.fileMap) {
+      let rawContent: string;
+      try {
+        rawContent = readFileSync(fullPath, 'utf-8');
+      } catch (err: any) {
+        if (err.code === 'ENOENT') continue;
+        throw err;
+      }
+
+      const lines = rawContent.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].toLowerCase().includes(lowerTerm)) {
+          const start = Math.max(0, i - contextLines);
+          const end = Math.min(lines.length - 1, i + contextLines);
+          const context: string[] = [];
+          for (let j = start; j <= end; j++) {
+            const prefix = j === i ? '>' : ' ';
+            context.push(`${prefix} ${String(j + 1).padStart(4)}| ${lines[j]}`);
+          }
+          results.push({
+            filename: baseFilename,
+            fullPath,
+            lineNumber: i + 1,
+            line: lines[i],
+            context,
+          });
+        }
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Print search results to stdout.
+   */
+  printSearchResults(term: string, contextLines: number = 2): void {
+    const results = this.searchDocs(term, contextLines);
+
+    if (results.length === 0) {
+      console.log(`No matches found for "${term}".`);
+      return;
+    }
+
+    console.log(`Found ${results.length} match${results.length === 1 ? '' : 'es'} for "${term}":\n`);
+
+    let lastFile = '';
+    for (const result of results) {
+      if (result.filename !== lastFile) {
+        if (lastFile) console.log('');
+        console.log(`── ${result.filename} ──`);
+        lastFile = result.filename;
+      }
+      console.log('');
+      for (const line of result.context) {
+        console.log(line);
+      }
+    }
+  }
+
+  /**
    * Print the raw contents of a specific doc file to stdout.
    *
    * Used by the 'get-doc' command.

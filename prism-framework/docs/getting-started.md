@@ -68,6 +68,19 @@ The top level of the project should have these dependencies:
 
     `pnpm add typescript dotenv @facetlayer/prism-framework zod@^4`
 
+## Environment setup
+
+Create a `.env` file next to your backend code with at minimum:
+
+    PRISM_API_PORT=<port number>
+    DATABASE_DIR=data
+
+Use `@facetlayer/port-assignment` to claim a unique port for your project:
+
+    npx @facetlayer/port-assignment claim --name <project name>
+
+See the `env-files` doc (`prism get-doc env-files`) for the full list of recommended environment variables for both backend and frontend.
+
 ## Local service management
 
 Prism projects usually use the `candle` tool (from @facetlayer/candle) to run local services.
