@@ -150,9 +150,6 @@ importers:
       '@facetlayer/prism-framework':
         specifier: workspace:*
         version: link:../prism-framework
-      express:
-        specifier: ^4.21.1
-        version: 4.21.2
     devDependencies:
       '@facetlayer/build-config-nodejs':
         specifier: ^0.3.0
@@ -618,6 +615,9 @@ importers:
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
       yargs:
         specifier: 18.0.0
         version: 18.0.0

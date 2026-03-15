@@ -96,6 +96,7 @@ Available documentation includes:
 - `launch-configuration` - App configuration options
 - `endpoint-tools` - CLI tools for calling endpoints
 - `env-files` - Environment configuration strategy
+- `stdin-protocol` - Stdin/stdout protocol for subprocess communication
 
 ## Testing Endpoints
 
@@ -169,6 +170,31 @@ createEndpoint({
   },
 });
 ```
+
+## Stdin/Stdout Protocol Mode
+
+Prism apps can run as subprocesses communicating over stdin/stdout instead of opening an HTTP port. This is useful for composing multiple Prism apps into a single web UI.
+
+```typescript
+import { App, startServer, startStdinServer } from '@facetlayer/prism-framework';
+
+const app = new App({ services: [myService] });
+
+if (process.argv.includes('--stdin')) {
+  // Communicate via JSON-over-stdin instead of HTTP
+  startStdinServer({ app });
+} else {
+  await startServer({ app, port: 3000 });
+}
+```
+
+When running in stdin mode, send newline-delimited JSON requests to stdin and receive JSON responses on stdout:
+
+```json
+{"id":"req-1","method":"GET","path":"/items"}
+```
+
+See `prism get-doc stdin-protocol` for full protocol details.
 
 ## Zod Version Requirements
 

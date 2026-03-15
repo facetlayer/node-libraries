@@ -69,3 +69,10 @@ export { getStatementsForDatabase } from './databases/DatabaseSetup.ts';
 // Endpoint calling exports
 export type { CallEndpointOptions } from './app/callEndpoint.ts';
 export { callEndpoint } from './app/callEndpoint.ts';
+
+// Stdin/stdout protocol exports
+export type { StdinRequest, StdinResponse, StdinServerConfig } from './stdin/StdinServer.ts';
+export { startStdinServer } from './stdin/StdinServer.ts';
+
+// Logging exports
+export { setLogStderr } from './logging/index.ts';
