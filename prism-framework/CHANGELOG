@@ -1,5 +1,5 @@
 
-Unreleased
+0.4.1
  - Added stdin/stdout protocol mode (`startStdinServer`) for running apps as subprocesses
  - Apps can use `--stdin` flag to communicate via JSON over stdin/stdout instead of HTTP
  - Logging redirected to stderr in stdin mode to keep stdout clean for protocol messages

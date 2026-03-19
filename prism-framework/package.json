@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Base library, server framework, and CLI tools for the Prism app framework",
   "type": "module",
   "main": "dist/index.js",
