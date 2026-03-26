@@ -189,3 +189,18 @@ describe("with sample: 'theattr:'", () => {
     });
 });
 
+it("parses --flag and roundtrips correctly", () => {
+    const parsed = parseQueryTag("--production");
+    expect(parsed.attr).toEqual("production");
+    expect(parsed.value).toEqual(true);
+    expect(parsed.isFlag).toEqual(true);
+    expect(parsed.toQueryString()).toEqual("--production");
+});
+
+it("roundtrips shell command with --flag inside taglist", () => {
+    const parsed = parseQueryTag("shell(npm install --production)");
+    expect(parsed.attr).toEqual("shell");
+    expect(parsed.isTagList()).toEqual(true);
+    expect(parsed.toOriginalString()).toEqual("npm install --production");
+});
+

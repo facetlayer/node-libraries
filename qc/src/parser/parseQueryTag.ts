@@ -55,6 +55,7 @@ export function parseQueryTagFromTokens(it: TokenIterator): Tag {
         // Check for --flag syntax
         if (it.tryConsume(t_double_dash)) {
             isFlag = true;
+            result.isFlag = true;
             result.value = true;
         }
 

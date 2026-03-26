@@ -15,4 +15,6 @@ it("handles bidirectional tests", () => {
     bidirectionalTest("cmd a=1 b");
     bidirectionalTest("cmd func(a)");   // The serializer uses parentheses format
     bidirectionalTest("cmd func(a b)");
+    bidirectionalTest("cmd --flag");
+    bidirectionalTest("cmd --flag othertag");
 });

@@ -17,6 +17,7 @@ export class Tag {
     isValueOptional: boolean = false
     isAttrOptional: boolean = false
     paramName: string | undefined = undefined
+    isFlag: boolean = false
     frozen: boolean = false
 
     constructor(attr?: string, value?: TagValue) {
@@ -136,6 +137,10 @@ export class Tag {
 
         if (this.isParameter() && this.paramName !== this.attr)
             out += `=$${this.paramName}`;
+
+        else if (this.isFlag) {
+            out = `--${out}`;
+        }
 
         else if (this.hasValue()) {
             if (this.isQuery()) {
