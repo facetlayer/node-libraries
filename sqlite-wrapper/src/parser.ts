@@ -257,8 +257,66 @@ function pragmaStatement(it: TokenIterator): SqlStatement {
   };
 }
 
+/**
+ * Strip SQL comments from a string. Handles:
+ *  - Line comments: -- ... (to end of line)
+ *  - Block comments: /* ... * /
+ * Preserves content inside single-quoted strings.
+ */
+export function stripSqlComments(sql: string): string {
+  let result = "";
+  let i = 0;
+
+  while (i < sql.length) {
+    // Single-quoted string literal - preserve as-is
+    if (sql[i] === "'") {
+      result += sql[i];
+      i++;
+      while (i < sql.length) {
+        if (sql[i] === "'" && sql[i + 1] === "'") {
+          // Escaped quote
+          result += "''";
+          i += 2;
+        } else if (sql[i] === "'") {
+          result += sql[i];
+          i++;
+          break;
+        } else {
+          result += sql[i];
+          i++;
+        }
+      }
+      continue;
+    }
+
+    // Line comment: --
+    if (sql[i] === "-" && sql[i + 1] === "-") {
+      // Skip until end of line
+      while (i < sql.length && sql[i] !== "\n") {
+        i++;
+      }
+      continue;
+    }
+
+    // Block comment: /* ... */
+    if (sql[i] === "/" && sql[i + 1] === "*") {
+      i += 2;
+      while (i < sql.length && !(sql[i] === "*" && sql[i + 1] === "/")) {
+        i++;
+      }
+      i += 2; // skip */
+      continue;
+    }
+
+    result += sql[i];
+    i++;
+  }
+
+  return result;
+}
+
 function tokenizeSql(sql: string) {
-  const tokens = lexifyString(sql, {
+  const tokens = lexifyString(stripSqlComments(sql), {
     autoSkipSpaces: true,
     autoSkipNewlines: true,
   });

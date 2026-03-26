@@ -1,4 +1,7 @@
 
+# Unreleased
+ - Fix SQL parser failing on CREATE TABLE statements that contain SQL comments (-- or /* */)
+
 # 1.2.2
  - Changed `logs` option from a `Stream` instance to a `DatabaseLogs` callback object.
 
