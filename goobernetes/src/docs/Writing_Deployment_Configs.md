@@ -66,7 +66,7 @@ The URL of the Goobernetes server API endpoint where deployments will be sent.
 
 ```
 deploy-settings
-  dest-url=http://production-server:4715/api
+  dest-url=http://production-server:4800
 ```
 
 ### Optional Settings
@@ -78,7 +78,7 @@ When set, deployments update the same directory instead of creating new timestam
 ```
 deploy-settings
   project-name=my-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   update-in-place
 ```
 
@@ -93,7 +93,7 @@ Specifies a directory within your deployment that should be served as static fil
 ```
 deploy-settings
   project-name=my-web-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   web-static-dir=public
 ```
 
@@ -107,7 +107,7 @@ This is particularly useful for:
 ```
 deploy-settings
   project-name=nextjs-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   web-static-dir=web/out
 ```
 
@@ -116,7 +116,7 @@ deploy-settings
 ```
 deploy-settings
   project-name=production-api
-  dest-url=http://api.example.com:4715/api
+  dest-url=http://api.example.com:4800
   update-in-place
   web-static-dir=public/dist
 ```
@@ -213,7 +213,7 @@ ignore temp-data.txt
 ```
 deploy-settings
   project-name=my-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   update-in-place
 
 include src
@@ -370,7 +370,7 @@ after-deploy
 2. **Subsequent deployments:**
    - If command unchanged: Restarts the existing process
    - If command changed: Deletes old process and creates new one
-3. **Environment variables:** The `PORT` is automatically assigned by Goobernetes
+3. **Environment variables:** Your app is responsible for managing its own port. You can use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim a port, or define it in a `.env` file on the server. Use `ignore` in your `.goob` config to preserve the server-side `.env` across deployments
 
 **Common patterns:**
 
@@ -398,7 +398,7 @@ after-deploy
 **Important notes:**
 - PM2 must be installed on the server
 - Process names must be unique across all deployments
-- The assigned PORT is available via `process.env.PORT`
+- Your app is responsible for its own port. Use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim one, or define it in a `.env` file on the server (use `ignore .env` in your config to preserve it across deploys)
 
 #### Combining Shell and PM2
 
@@ -424,7 +424,7 @@ after-deploy
 ```
 deploy-settings
   project-name=fullstack-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   update-in-place
   web-static-dir=web/out
 
@@ -524,7 +524,7 @@ npx goobernetes preview-deploy deploy.goob
 ```
 deploy-settings
   project-name=simple-api
-  dest-url=http://production:4715/api
+  dest-url=http://production:4800
   update-in-place
 
 before-deploy
@@ -549,7 +549,7 @@ exclude .git
 ```
 deploy-settings
   project-name=nextjs-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   update-in-place
   web-static-dir=web/out
 
@@ -596,7 +596,7 @@ ignore data/uploads
 ```
 deploy-settings
   project-name=monorepo-services
-  dest-url=http://production:4715/api
+  dest-url=http://production:4800
   update-in-place
 
 before-deploy
@@ -642,7 +642,7 @@ ignore logs
 ```
 deploy-settings
   project-name=marketing-site
-  dest-url=http://web-server:4715/api
+  dest-url=http://web-server:4800
   update-in-place
   web-static-dir=dist
 
@@ -660,7 +660,7 @@ include dist
 ```
 deploy-settings
   project-name=app-with-migrations
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
   update-in-place
 
 before-deploy
@@ -690,7 +690,7 @@ ignore data/app.db
 ```
 deploy-settings
   project-name=complex-build
-  dest-url=http://staging:4715/api
+  dest-url=http://staging:4800
   update-in-place
   web-static-dir=frontend/build
 
@@ -729,7 +729,7 @@ Begin with a minimal configuration and add complexity as needed:
 ```
 deploy-settings
   project-name=my-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
 
 include dist
 exclude node_modules
@@ -826,7 +826,7 @@ Add a comment block at the top of your `.goob` file (not currently supported, bu
 # Production deployment configuration
 # Builds: Next.js frontend + Express API
 # Serves: Static files from web/out
-# Runs: API server via PM2 on assigned port
+# Runs: API server via PM2
 ```
 
 ### 11. Test in Stages
@@ -890,13 +890,13 @@ pm2 describe ProcessName
 
 ### Environment Variables
 
-The Goobernetes server automatically provides:
-- `PORT` - Assigned port for your service (when using PM2)
+Your app is responsible for its own environment variables and port. You can use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim a port, or manage environment via a `.env` file on the server. Use `ignore` in your `.goob` config to preserve the server-side `.env` file across deployments:
 
-Access in your Node.js app:
-```javascript
-const port = process.env.PORT || 3000;
 ```
+ignore .env
+```
+
+This way you can configure settings per-environment without them being overwritten on each deploy.
 
 ### Working with Multiple Environments
 
@@ -918,7 +918,7 @@ npx goobernetes deploy deploy.production.goob
 You can override the destination URL at deploy time:
 
 ```bash
-npx goobernetes deploy deploy.goob --override-dest http://other-server:4715/api
+npx goobernetes deploy deploy.goob --override-dest http://other-server:4800
 ```
 
 This is useful for testing or deploying to different environments with the same config file.

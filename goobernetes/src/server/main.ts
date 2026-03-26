@@ -7,12 +7,12 @@ import { getDeploymentsDir } from './Database.ts'
 
 export interface StartServerOptions {
     disableAPIKeyCheck?: boolean;
-    port?: number;
+    port: number;
 }
 
-export async function startServer(options: StartServerOptions = {}) {
+export async function startServer(options: StartServerOptions) {
     const disableAPIKeyCheck = options.disableAPIKeyCheck ?? false;
-    const port = options.port ?? 4715;
+    const port = options.port;
 
     if (disableAPIKeyCheck) {
         console.warn('️warning: API key check is disabled');

@@ -39,13 +39,12 @@ npx goobernetes create-secret-key
 
 ### Running the server
 
-Start the Goobernetes server:
+The server requires a `--port` argument. You can use a tool like
+[port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim a port:
 
 ```bash
-npx goobernetes serve
+npx goobernetes serve --port 4800
 ```
-
-The server will listen on port 4715 by default at `http://localhost:4715/api`.
 
 ### Server Data Storage
 
@@ -76,7 +75,7 @@ The .goob configuration file has the following format:
 ```
 deploy-settings
   project-name=my-app
-  dest-url=http://localhost:4715/api
+  dest-url=http://localhost:4800
 
 include src
 include web
@@ -94,7 +93,7 @@ ignore web/.next
 #### deploy-settings block
 
 - `project-name`: Name of the project being deployed
-- `dest-url`: Destination URL of the Goobernetes server API endpoint
+- `dest-url`: Destination URL of the Goobernetes server (e.g. `http://your-server:PORT`)
 
 #### File inclusion/exclusion
 
@@ -107,7 +106,7 @@ ignore web/.next
 ```
 deploy-settings
   project-name=my-web-app
-  dest-url=http://production-server:4715/api
+  dest-url=http://production-server:4800
 
 include src
 include public

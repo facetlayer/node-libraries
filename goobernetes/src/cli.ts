@@ -28,7 +28,7 @@ yargs(hideBin(process.argv))
                 })
                 .option('port', {
                     type: 'number',
-                    default: 4715,
+                    demandOption: true,
                     describe: 'Port number for the server'
                 });
         },

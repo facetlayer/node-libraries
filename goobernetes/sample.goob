@@ -1,6 +1,6 @@
 deploy-settings
   project-name=sample
-  dest-url=http://localhost:4715
+  dest-url=http://localhost:4800
   update-in-place
   web-static-dir=web/out
 

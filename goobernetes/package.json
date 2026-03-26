@@ -8,13 +8,14 @@
   },
   "main": "./dist/cli.js",
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node ./dist/cli.js serve --disable-api-key-check\"",
+    "dev": "tsc-watch --onSuccess \"node ./dist/cli.js serve --disable-api-key-check --port 4800\"",
     "build": "pnpm run typecheck && node build.mts build",
     "test": "vitest run --testTimeout=30000",
     "serve": "node dist/cli.js serve",
     "deploy": "node dist/cli.js deploy",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "node build.mts validate && node build.mts build"
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "local:install": "pnpm build && npm i -g ."
   },
   "author": "",
   "license": "ISC",

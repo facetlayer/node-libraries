@@ -56,11 +56,13 @@ Save the key that is printed -- you'll need it on the client side.
 
 ### Start the server
 
+The server requires a `--port` argument. You can use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim a port:
+
 ```bash
-npx goobernetes serve
+npx goobernetes serve --port 4800
 ```
 
-The server listens on port 4715 by default. It stores metadata in a SQLite database at `~/.local/state/goobernetes/db.sqlite`.
+It stores metadata in a SQLite database at `~/.local/state/goobernetes/db.sqlite`.
 
 ## Step 3: Set Up the Client
 
@@ -79,7 +81,7 @@ Create a `.goob` file in your project root. Here's a minimal example for a Node.
 ```
 deploy-settings
   project-name=my-app
-  dest-url=http://your-server:4715
+  dest-url=http://your-server:PORT
 
 include src
 include package.json
@@ -94,7 +96,7 @@ exclude .env*
 
 **deploy-settings** (required):
 - `project-name` -- Identifies your project. Each project tracks its own deployment history.
-- `dest-url` -- The URL of your Goobernetes server.
+- `dest-url` -- The URL of your Goobernetes server (including the port it's running on).
 - `update-in-place` -- (optional) Overwrites files in the same directory instead of creating a new versioned directory for each deploy.
 - `web-static-dir` -- (optional) Path to a static file directory within your project.
 
@@ -160,7 +162,7 @@ Here's a complete `.goob` file for a web application:
 ```
 deploy-settings
   project-name=my-web-app
-  dest-url=http://production-server:4715
+  dest-url=http://production-server:4800
   web-static-dir=public
 
 before-deploy
