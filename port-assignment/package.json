@@ -13,7 +13,8 @@
   "scripts": {
     "build": "node build.mts build",
     "test": "vitest run --testTimeout=30000",
-    "prepublishOnly": "node build.mts build && node build.mts validate"
+    "prepublishOnly": "node build.mts build && node build.mts validate",
+    "local:install": "npm run build && npm i -g ."
   },
   "files": [
     "src",
