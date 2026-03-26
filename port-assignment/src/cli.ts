@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import {
   claimUnusedPort,
   getPortAssignments,
+  getPortAssignmentsByProjectDir,
   releasePort,
   resetPortAssignments,
   isPortAssigned,
@@ -23,6 +24,25 @@ const docFiles = new DocFilesHelper({
   files: [join(__packageRoot, 'README.md')],
 })
 
+import type { PortAssignment } from './index.ts'
+
+function printAssignments(assignments: PortAssignment[], options: { showProjectDir?: boolean } = {}) {
+  console.log('\nPort Assignments:')
+  console.log('─'.repeat(80))
+  for (const assignment of assignments) {
+    const date = new Date(assignment.assigned_at).toLocaleString()
+    console.log(`Port: ${assignment.port}`)
+    console.log(`  Assigned: ${date}`)
+    if (options.showProjectDir) {
+      console.log(`  Project: ${assignment.project_dir}`)
+    }
+    if (assignment.name) {
+      console.log(`  Name: ${assignment.name}`)
+    }
+    console.log()
+  }
+}
+
 async function main() {
   const args = yargs(hideBin(process.argv))
     .scriptName('port-assignment')
@@ -31,8 +51,8 @@ async function main() {
       'Claim the next available port',
       (yargs) => {
         return yargs
-          .option('cwd', {
-            describe: 'Working directory to associate with this port',
+          .option('project-dir', {
+            describe: 'Project directory to associate with this port',
             type: 'string',
             default: process.cwd()
           })
@@ -43,8 +63,10 @@ async function main() {
       },
       async (argv) => {
         try {
+          const projectDir = argv.projectDir as string
           const port = await claimUnusedPort({
-            cwd: argv.cwd,
+            cwd: projectDir,
+            project_dir: projectDir,
             name: argv.name
           })
           console.log(port)
@@ -56,7 +78,34 @@ async function main() {
     )
     .command(
       'list',
-      'List all port assignments',
+      'List port assignments for the current project directory',
+      (yargs) => {
+        return yargs
+          .option('project-dir', {
+            describe: 'Project directory to filter by',
+            type: 'string',
+            default: process.cwd()
+          })
+      },
+      async (argv) => {
+        try {
+          const projectDir = argv.projectDir as string
+          const assignments = await getPortAssignmentsByProjectDir(projectDir)
+          if (assignments.length === 0) {
+            console.log('No port assignments found for this project')
+            return
+          }
+
+          printAssignments(assignments)
+        } catch (error) {
+          console.error(`Error listing assignments: ${error instanceof Error ? error.message : String(error)}`)
+          process.exit(1)
+        }
+      }
+    )
+    .command(
+      'list-all',
+      'List all port assignments across all projects',
       () => {},
       async () => {
         try {
@@ -66,18 +115,7 @@ async function main() {
             return
           }
 
-          console.log('\nPort Assignments:')
-          console.log('─'.repeat(80))
-          for (const assignment of assignments) {
-            const date = new Date(assignment.assigned_at).toLocaleString()
-            console.log(`Port: ${assignment.port}`)
-            console.log(`  Assigned: ${date}`)
-            console.log(`  CWD: ${assignment.cwd}`)
-            if (assignment.name) {
-              console.log(`  Name: ${assignment.name}`)
-            }
-            console.log()
-          }
+          printAssignments(assignments, { showProjectDir: true })
         } catch (error) {
           console.error(`Error listing assignments: ${error instanceof Error ? error.message : String(error)}`)
           process.exit(1)

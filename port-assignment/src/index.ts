@@ -17,10 +17,13 @@ const PORT_ASSIGNMENT_SCHEMA = {
       port INTEGER PRIMARY KEY,
       assigned_at INTEGER NOT NULL,
       cwd TEXT NOT NULL,
-      name TEXT
+      name TEXT,
+      project_dir TEXT
     )`,
     `CREATE INDEX idx_port_assignments_assigned_at
      ON port_assignments(assigned_at)`,
+    `CREATE INDEX idx_port_assignments_project_dir
+     ON port_assignments(project_dir)`,
     `CREATE TABLE next_unused_port (
       id INTEGER PRIMARY KEY CHECK (id = 1),
       port INTEGER NOT NULL
@@ -32,17 +35,20 @@ export interface PortAssignment {
   port: number
   assigned_at: number
   cwd: string
+  project_dir: string
   name?: string
 }
 
 export interface AssignPortOptions {
   port: number
   cwd: string
+  project_dir: string
   name?: string
 }
 
 export interface ClaimPortOptions {
   cwd?: string
+  project_dir?: string
   name?: string
 }
 
@@ -129,6 +135,7 @@ export async function assignPort(options: AssignPortOptions): Promise<void> {
     port: options.port,
     assigned_at: Date.now(),
     cwd: options.cwd,
+    project_dir: options.project_dir,
     name: options.name || null
   })
 }
@@ -148,6 +155,14 @@ export async function isPortAssigned(port: number): Promise<boolean> {
 export async function getPortAssignments(): Promise<PortAssignment[]> {
   const db = await getDatabase()
   return db.list('SELECT * FROM port_assignments ORDER BY assigned_at DESC')
+}
+
+/**
+ * Get port assignments filtered by project directory
+ */
+export async function getPortAssignmentsByProjectDir(projectDir: string): Promise<PortAssignment[]> {
+  const db = await getDatabase()
+  return db.list('SELECT * FROM port_assignments WHERE project_dir = ? ORDER BY assigned_at DESC', [projectDir])
 }
 
 /**
@@ -181,7 +196,7 @@ export async function releasePort(port: number): Promise<void> {
  * @returns The claimed port number
  */
 export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<number> {
-  const { cwd = process.cwd(), name } = options
+  const { cwd = process.cwd(), project_dir = process.cwd(), name } = options
   const maxAttempts = MAX_PORT - MIN_PORT + 1
   const maxRetries = 10
 
@@ -202,7 +217,7 @@ export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<n
       // Try to assign the port with retry logic for race conditions
       for (let retry = 0; retry < maxRetries; retry++) {
         try {
-          await assignPort({ port, cwd, name })
+          await assignPort({ port, cwd, project_dir, name })
           return port
         } catch (error: any) {
           // Check if it's a unique constraint error

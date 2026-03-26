@@ -21,7 +21,7 @@ port-assignment claim [options]
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `--cwd` | string | current directory | Working directory to associate with this port |
+| `--project-dir` | string | current directory | Project directory to associate with this port |
 | `--name` | string | - | Optional name to associate with this port |
 
 **Examples:**
@@ -34,7 +34,7 @@ port-assignment claim
 port-assignment claim --name my-api-server
 
 # Claim a port for a specific directory
-port-assignment claim --cwd /path/to/project --name frontend
+port-assignment claim --project-dir /path/to/project --name frontend
 ```
 
 The command outputs just the port number, making it easy to use in scripts:
@@ -46,13 +46,19 @@ echo "Starting server on port $PORT"
 
 ### list
 
-List all port assignments.
+List port assignments for the current project directory.
 
 ```bash
-port-assignment list
+port-assignment list [options]
 ```
 
-Displays all currently assigned ports with their assignment date, working directory, and optional name.
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--project-dir` | string | current directory | Project directory to filter by |
+
+Displays ports assigned to the current project directory (or the directory specified via `--project-dir`).
 
 **Example output:**
 
@@ -61,12 +67,35 @@ Port Assignments:
 ────────────────────────────────────────────────────────────────────────────────
 Port: 4001
   Assigned: 12/20/2025, 10:30:45 AM
-  CWD: /Users/me/projects/api
   Name: backend-api
 
 Port: 4000
   Assigned: 12/20/2025, 10:25:12 AM
-  CWD: /Users/me/projects/frontend
+```
+
+### list-all
+
+List all port assignments across all projects.
+
+```bash
+port-assignment list-all
+```
+
+Displays all currently assigned ports with their assignment date, project directory, and optional name.
+
+**Example output:**
+
+```
+Port Assignments:
+────────────────────────────────────────────────────────────────────────────────
+Port: 4001
+  Assigned: 12/20/2025, 10:30:45 AM
+  Project: /Users/me/projects/api
+  Name: backend-api
+
+Port: 4000
+  Assigned: 12/20/2025, 10:25:12 AM
+  Project: /Users/me/projects/frontend
 ```
 
 ### release
