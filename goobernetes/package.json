@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "bin": {
-    "goobernetes": "./dist/cli.js"
+    "goobernetes": "./dist/cli.js",
+    "goob": "./dist/cli.js"
   },
   "main": "./dist/cli.js",
   "scripts": {
