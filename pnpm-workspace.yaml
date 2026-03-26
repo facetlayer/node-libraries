@@ -14,6 +14,7 @@ packages:
   - docs-tool
   - env-file-rewrite
   - fetch-sse-stream
+  - fl-sdlc
   - file-manifest
   - generic-lexer
   - goob-static-web-server

@@ -92,13 +92,12 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
                         startCommand: command,
                         env: {
                             ...process.env,
-                            PORT: projectRecord.assigned_port + '',
                         },
                     });
                 } else {
                     // Process exists, check if command is the same
                     const existingCommand = existingProcess.pm2_env?.exec_command || '';
-                    
+
                     if (existingCommand !== command) {
                         // Command is different, delete and recreate
                         console.log(`Command changed for ${name}, recreating process`);
@@ -109,7 +108,6 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
                             startCommand: command,
                             env: {
                                 ...process.env,
-                                PORT: projectRecord.assigned_port + '',
                             },
                         });
                     } else {
