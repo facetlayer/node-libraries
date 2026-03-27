@@ -379,8 +379,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@facetlayer/qc':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@facetlayer/sqlite-wrapper':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2581,6 +2581,10 @@ packages:
 
   '@facetlayer/qc@0.1.0':
     resolution: {integrity: sha512-zJ7dfWepReatNzwaTizhzeD5l5xsjmr8YU19cPEq6rTylrZOKSm+fAUGVC+0CVpNDmf/jdP4kwfnConDwmKsvw==}
+    hasBin: true
+
+  '@facetlayer/qc@0.1.1':
+    resolution: {integrity: sha512-Kb3Lr72y2vvu2l5N0t7aNKP8tG6oepLhlxr/D7T7s7oMDz6JE/yBFT57hGD7uKZEb9x2VkO9sohLrYXUeRdRDg==}
     hasBin: true
 
   '@facetlayer/sqlite-wrapper@1.2.0':
@@ -10321,7 +10325,7 @@ snapshots:
   '@facetlayer/file-manifest@0.1.0':
     dependencies:
       '@facetlayer/concurrency-limit': 0.1.0
-      '@facetlayer/qc': 0.1.0
+      '@facetlayer/qc': 0.1.1
       '@facetlayer/streams': 1.0.1
 
   '@facetlayer/generic-lexer@1.0.0': {}
@@ -10348,6 +10352,8 @@ snapshots:
       - '@types/react-dom'
 
   '@facetlayer/qc@0.1.0': {}
+
+  '@facetlayer/qc@0.1.1': {}
 
   '@facetlayer/sqlite-wrapper@1.2.0':
     dependencies:
