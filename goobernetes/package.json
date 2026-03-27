@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/goobernetes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "type": "module",
   "bin": {
@@ -23,7 +23,7 @@
   "dependencies": {
     "@facetlayer/concurrency-limit": "^0.1.0",
     "@facetlayer/file-manifest": "^0.1.0",
-    "@facetlayer/qc": "^0.1.0",
+    "@facetlayer/qc": "^0.1.1",
     "@facetlayer/sqlite-wrapper": "^1.2.0",
     "@facetlayer/streams": "^1.0.1",
     "@facetlayer/subprocess": "^1.1.1",
