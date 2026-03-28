@@ -1,5 +1,5 @@
 
-Unreleased
+0.2.0
  - Added project_dir column to track which project claimed each port
  - `list` now filters by current project directory (use `--project-dir` to override)
  - Added `list-all` command to show ports across all projects
