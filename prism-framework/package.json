@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Base library, server framework, and CLI tools for the Prism app framework",
   "type": "module",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@facetlayer/doc-files-helper": "0.1.2",
-    "@facetlayer/port-assignment": "workspace:*",
+    "@facetlayer/port-assignment": "0.2.0",
     "@facetlayer/qc": "^0.1.0",
     "@facetlayer/sqlite-wrapper": "^1.2.0",
     "@facetlayer/streams": "^1.0.0",

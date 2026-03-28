@@ -611,8 +611,8 @@ importers:
         specifier: 0.1.2
         version: 0.1.2
       '@facetlayer/port-assignment':
-        specifier: workspace:*
-        version: link:../port-assignment
+        specifier: 0.2.0
+        version: 0.2.0
       '@facetlayer/qc':
         specifier: ^0.1.0
         version: 0.1.0
