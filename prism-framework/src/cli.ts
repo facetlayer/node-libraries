@@ -33,7 +33,7 @@ async function main() {
       async () => {
         try {
           const cwd = process.cwd();
-          const config = loadEnv(cwd);
+          const config = await loadEnv(cwd);
           console.log(`Using API server at: ${config.baseUrl}\n`);
           await listEndpoints(config.baseUrl);
         } catch (error) {
@@ -55,7 +55,7 @@ async function main() {
       async (argv) => {
         try {
           const cwd = process.cwd();
-          const config = loadEnv(cwd);
+          const config = await loadEnv(cwd);
 
           // Collect all other arguments as request body data
           const requestData: Record<string, any> = {};
@@ -110,7 +110,7 @@ async function main() {
       async (argv) => {
         try {
           const cwd = process.cwd();
-          const envConfig = loadEnv(cwd);
+          const envConfig = await loadEnv(cwd);
           console.log(`Using API server at: ${envConfig.baseUrl}\n`);
 
           let outputFiles: string[] = [];

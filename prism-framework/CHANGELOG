@@ -1,4 +1,9 @@
 
+Unreleased
+ - Replaced PRISM_API_PORT env var with automatic port assignment via @facetlayer/port-assignment
+ - Port is now looked up by project directory with service name "api"
+ - loadEnv() is now async
+
 0.4.1
  - Added stdin/stdout protocol mode (`startStdinServer`) for running apps as subprocesses
  - Apps can use `--stdin` flag to communicate via JSON over stdin/stdout instead of HTTP

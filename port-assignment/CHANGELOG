@@ -4,6 +4,8 @@ Unreleased
  - `list` now filters by current project directory (use `--project-dir` to override)
  - Added `list-all` command to show ports across all projects
  - Replaced `--cwd` CLI option with `--project-dir`
+ - Added `getOrClaimPort()` - looks up existing port by project_dir + name, or claims a new one
+ - Added `getPortByName()` - looks up a port assignment by project_dir + name
 
 0.1.1
  - Fix broken package.json deps

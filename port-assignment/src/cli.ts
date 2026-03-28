@@ -6,6 +6,7 @@ import { DocFilesHelper } from '@facetlayer/doc-files-helper'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import {
+  assignPort,
   claimUnusedPort,
   getPortAssignments,
   getPortAssignmentsByProjectDir,
@@ -118,6 +119,42 @@ async function main() {
           printAssignments(assignments, { showProjectDir: true })
         } catch (error) {
           console.error(`Error listing assignments: ${error instanceof Error ? error.message : String(error)}`)
+          process.exit(1)
+        }
+      }
+    )
+    .command(
+      'assign <port>',
+      'Assign a specific port',
+      (yargs) => {
+        return yargs
+          .positional('port', {
+            describe: 'Port number to assign',
+            type: 'number',
+            demandOption: true
+          })
+          .option('project-dir', {
+            describe: 'Project directory to associate with this port',
+            type: 'string',
+            default: process.cwd()
+          })
+          .option('name', {
+            describe: 'Name to associate with this port',
+            type: 'string'
+          })
+      },
+      async (argv) => {
+        try {
+          const projectDir = argv.projectDir as string
+          await assignPort({
+            port: argv.port,
+            cwd: projectDir,
+            project_dir: projectDir,
+            name: argv.name
+          })
+          console.log(`Port ${argv.port} assigned`)
+        } catch (error) {
+          console.error(`Error assigning port: ${error instanceof Error ? error.message : String(error)}`)
           process.exit(1)
         }
       }

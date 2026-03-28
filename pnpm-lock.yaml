@@ -610,6 +610,9 @@ importers:
       '@facetlayer/doc-files-helper':
         specifier: 0.1.2
         version: 0.1.2
+      '@facetlayer/port-assignment':
+        specifier: workspace:*
+        version: link:../port-assignment
       '@facetlayer/qc':
         specifier: ^0.1.0
         version: 0.1.0

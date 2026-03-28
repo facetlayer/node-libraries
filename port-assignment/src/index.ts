@@ -52,6 +52,12 @@ export interface ClaimPortOptions {
   name?: string
 }
 
+export interface GetOrClaimPortOptions {
+  project_dir: string
+  name: string
+  cwd?: string
+}
+
 let _db: SqliteDatabase | null = null
 
 /**
@@ -179,6 +185,35 @@ export async function resetPortAssignments(): Promise<void> {
 export async function releasePort(port: number): Promise<void> {
   const db = await getDatabase()
   db.run('DELETE FROM port_assignments WHERE port = ?', port)
+}
+
+/**
+ * Get an existing port assignment by project directory and name
+ */
+export async function getPortByName(projectDir: string, name: string): Promise<PortAssignment | null> {
+  const db = await getDatabase()
+  const row = db.get(
+    'SELECT * FROM port_assignments WHERE project_dir = ? AND name = ?',
+    [projectDir, name]
+  ) as PortAssignment | undefined
+  return row ?? null
+}
+
+/**
+ * Get an existing port or claim a new one for a project directory + name pair.
+ *
+ * If a port is already assigned for the given project_dir and name, returns it.
+ * Otherwise, claims a new unused port.
+ */
+export async function getOrClaimPort(options: GetOrClaimPortOptions): Promise<number> {
+  const { project_dir, name, cwd = project_dir } = options
+
+  const existing = await getPortByName(project_dir, name)
+  if (existing) {
+    return existing.port
+  }
+
+  return claimUnusedPort({ project_dir, name, cwd })
 }
 
 /**

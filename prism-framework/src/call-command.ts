@@ -138,7 +138,7 @@ export async function callEndpoint(looseOptions: CallEndpointLooseOptions) {
         throw new Error(
           `Failed to connect to ${url}\n\n` +
           'Make sure your Prism API server is running.\n' +
-          `The server should be listening on the port specified in .env (PRISM_API_PORT)`
+          'Check your port assignment with: port-assignment list'
         );
       }
     }

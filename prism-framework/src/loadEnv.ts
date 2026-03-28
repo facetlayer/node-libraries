@@ -1,6 +1,4 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import { config } from 'dotenv';
+import { getOrClaimPort } from '@facetlayer/port-assignment';
 
 export interface EnvConfig {
   port: number;
@@ -8,52 +6,19 @@ export interface EnvConfig {
 }
 
 /**
- * Load and parse the .env file from the project directory
- * @param cwd - Current working directory to search from
+ * Load the port configuration for a Prism project.
+ * Uses port-assignment to find or claim a port associated with this project directory.
+ * @param cwd - Project directory
  * @returns Configuration object with port and baseUrl
- * @throws Error if .env file is missing or PRISM_API_PORT is not defined
  */
-export function loadEnv(cwd: string): EnvConfig {
-  const envPath = path.resolve(cwd, '.env');
-
-  if (!fs.existsSync(envPath)) {
-    throw new Error(
-      `No .env file found at ${envPath}\n\n` +
-      'Please create a .env file with PRISM_API_PORT defined.\n' +
-      'Example:\n' +
-      '  PRISM_API_PORT=3000'
-    );
-  }
-
-  // Load the .env file
-  const result = config({ path: envPath });
-
-  if (result.error) {
-    throw new Error(`Failed to load .env file: ${result.error.message}`);
-  }
-
-  const port = process.env.PRISM_API_PORT;
-
-  if (!port) {
-    throw new Error(
-      'PRISM_API_PORT is not defined in .env file\n\n' +
-      'Please add PRISM_API_PORT to your .env file.\n' +
-      'Example:\n' +
-      '  PRISM_API_PORT=3000'
-    );
-  }
-
-  const portNumber = parseInt(port, 10);
-
-  if (isNaN(portNumber) || portNumber <= 0 || portNumber > 65535) {
-    throw new Error(
-      `Invalid PRISM_API_PORT value: ${port}\n\n` +
-      'Port must be a number between 1 and 65535'
-    );
-  }
+export async function loadEnv(cwd: string): Promise<EnvConfig> {
+  const port = await getOrClaimPort({
+    project_dir: cwd,
+    name: 'api',
+  });
 
   return {
-    port: portNumber,
-    baseUrl: `http://localhost:${portNumber}`,
+    port,
+    baseUrl: `http://localhost:${port}`,
   };
 }

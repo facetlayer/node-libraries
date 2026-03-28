@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { runShellCommand } from '@facetlayer/subprocess';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync } from 'fs';
 import { join } from 'path';
 import { Server } from 'http';
 import { App, createEndpoint, createExpressApp, startServer } from '../index.ts';
+import { assignPort, releasePort } from '@facetlayer/port-assignment';
 
 describe('prism list-endpoints', () => {
   let server: Server;
@@ -11,10 +12,10 @@ describe('prism list-endpoints', () => {
   const tempDir = join(__dirname, '../../test/temp');
 
   beforeAll(async () => {
-    // Create temp directory with .env file for prism CLI
+    // Create temp directory and register port via port-assignment
     console.log('Creating temp directory:', tempDir);
     mkdirSync(tempDir, { recursive: true });
-    writeFileSync(join(tempDir, '.env'), `PRISM_API_PORT=${port}`);
+    await assignPort({ port, cwd: tempDir, project_dir: tempDir, name: 'api' });
 
     // Create a simple test app with some endpoints
     const testService = {
@@ -57,6 +58,7 @@ describe('prism list-endpoints', () => {
   });
 
   afterAll(async () => {
+    await releasePort(port);
     await new Promise<void>((resolve, reject) => {
       server.close((err) => {
         if (err) reject(err);
