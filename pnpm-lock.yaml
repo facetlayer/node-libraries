@@ -148,8 +148,8 @@ importers:
   cc-skills-gui:
     dependencies:
       '@facetlayer/prism-framework':
-        specifier: workspace:*
-        version: link:../prism-framework
+        specifier: ^0.5.0
+        version: 0.5.0(vite@5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1))(zod@4.1.12)
     devDependencies:
       '@facetlayer/build-config-nodejs':
         specifier: ^0.3.0
@@ -2573,11 +2573,25 @@ packages:
   '@facetlayer/parse-stdout-lines@1.1.0':
     resolution: {integrity: sha512-FjoSb3VDDoWAymXtfrRAGKaHMVHTx+4f8Jf58NUEFItmZ3qpOvrMl4MQM7cz9gyoI579iaKKRRQjfnsmzdXRbg==}
 
+  '@facetlayer/port-assignment@0.2.0':
+    resolution: {integrity: sha512-VsZGPLzbBE8CW5H+WyWkDCp3FFK6WMb3JNUuonZVfNVqJYAQoSB+YhlBGWYvHY98eaqZDgQUOOA9+sIp167X9w==}
+    hasBin: true
+
   '@facetlayer/prism-framework-ui@0.2.2':
     resolution: {integrity: sha512-2d5kJ8O4RP1uI8uL0vvhP6Ve+BwRxdf4OwAUoSYr14y7IPfCewyQ6lZ9n4XM4bOBcQj2WhXTyNaQqg06ZaVOTg==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
+
+  '@facetlayer/prism-framework@0.5.0':
+    resolution: {integrity: sha512-rybgPYv01K+UpvMj5JVEWUQiCnEMRqaJP+MKKWLdKdMA8deM1jz233NgpoE7k18xY5XDfItgZIhctcrylgSnrw==}
+    hasBin: true
+    peerDependencies:
+      vite: ^6.0.0
+      zod: ^4.0.5
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   '@facetlayer/qc@0.1.0':
     resolution: {integrity: sha512-zJ7dfWepReatNzwaTizhzeD5l5xsjmr8YU19cPEq6rTylrZOKSm+fAUGVC+0CVpNDmf/jdP4kwfnConDwmKsvw==}
@@ -6657,6 +6671,7 @@ packages:
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
   prelude-ls@1.2.1:
@@ -10332,6 +10347,12 @@ snapshots:
 
   '@facetlayer/parse-stdout-lines@1.1.0': {}
 
+  '@facetlayer/port-assignment@0.2.0':
+    dependencies:
+      '@facetlayer/doc-files-helper': 0.1.1
+      '@facetlayer/userdata-db': 0.1.1
+      yargs: 18.0.0
+
   '@facetlayer/prism-framework-ui@0.2.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/react-checkbox': 1.3.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -10350,6 +10371,28 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
+
+  '@facetlayer/prism-framework@0.5.0(vite@5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1))(zod@4.1.12)':
+    dependencies:
+      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
+      '@facetlayer/doc-files-helper': 0.1.2
+      '@facetlayer/port-assignment': 0.2.0
+      '@facetlayer/qc': 0.1.1
+      '@facetlayer/sqlite-wrapper': 1.2.1
+      '@facetlayer/streams': 1.0.1
+      cookie-parser: 1.4.7
+      dotenv: 16.6.1
+      express: 4.21.2
+      openapi3-ts: 4.5.0
+      prom-client: 15.1.3
+      swagger-ui-express: 5.0.1(express@4.21.2)
+      uuid: 11.1.0
+      yargs: 18.0.0
+      zod: 4.1.12
+    optionalDependencies:
+      vite: 5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1)
+    transitivePeerDependencies:
+      - supports-color
 
   '@facetlayer/qc@0.1.0': {}
 

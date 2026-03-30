@@ -19,7 +19,7 @@
     "local:install": "pnpm build && npm i -g ."
   },
   "dependencies": {
-    "@facetlayer/prism-framework": "workspace:*"
+    "@facetlayer/prism-framework": "^0.5.0"
   },
   "devDependencies": {
     "@facetlayer/build-config-nodejs": "^0.3.0",
