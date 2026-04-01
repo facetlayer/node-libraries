@@ -7,7 +7,6 @@ This guide walks you through setting up a new project to deploy with Goobernetes
 - Node.js (v18 or later)
 - npm or pnpm
 - A server machine where your code will be deployed
-- (Optional) pm2, if you want Goobernetes to manage your process
 
 ## Overview
 
@@ -143,18 +142,6 @@ after-deploy
 
 `after-deploy` commands run on the **server** after the deployment is activated. Use this for installing dependencies or restarting services.
 
-### Managing processes with pm2
-
-If your app runs as a long-lived process, you can have Goobernetes manage it with pm2:
-
-```
-after-deploy
-  pm2-start name=MyApp
-    command(node src/index.js)
-```
-
-This will start (or restart) a pm2 process named "MyApp" after each deploy.
-
 ## Full Example
 
 Here's a complete `.goob` file for a web application:
@@ -169,8 +156,8 @@ before-deploy
   shell(npm run build)
 
 after-deploy
-  pm2-start name=MyWebApp
-    command(npm start)
+  shell(npm install --production)
+  shell(npm start)
 
 include src
 include public

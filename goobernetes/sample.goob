@@ -8,8 +8,7 @@ before-deploy
   shell(pnpm build)
 
 after-deploy
-  pm2-start name=SampleAPI
-    command(pnpm start)
+  shell(pnpm start)
 
 include web
 include package.json

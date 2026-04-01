@@ -19,7 +19,6 @@ Goobernetes uses `.goob` configuration files to define how your application shou
 - Project metadata and deployment destinations
 - Which files to include/exclude from deployments
 - Pre and post-deployment commands
-- Process management with PM2
 - Static file serving configuration
 
 The configuration format is declarative and uses a block-based syntax that's easy to read and maintain.
@@ -37,8 +36,7 @@ before-deploy
   shell(command)
 
 after-deploy
-  pm2-start name=ProcessName
-    command(start command)
+  shell(command)
 
 include path
 exclude path
@@ -344,80 +342,18 @@ after-deploy
   shell(npm ci && npm run migrate)
 ```
 
-#### PM2 Process Management
+#### Multiple Shell Commands
 
-The `pm2-start` directive integrates with PM2 for process management. This is the recommended way to run Node.js services.
-
-**Basic syntax:**
-
-```
-after-deploy
-  pm2-start name=ProcessName
-    command(start command)
-```
-
-**Example:**
-
-```
-after-deploy
-  pm2-start name=MyAPI
-    command(node dist/server.js)
-```
-
-**How it works:**
-
-1. **First deployment:** Creates a new PM2 process with the specified name
-2. **Subsequent deployments:**
-   - If command unchanged: Restarts the existing process
-   - If command changed: Deletes old process and creates new one
-3. **Environment variables:** Your app is responsible for managing its own port. You can use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim a port, or define it in a `.env` file on the server. Use `ignore` in your `.goob` config to preserve the server-side `.env` across deployments
-
-**Common patterns:**
-
-```
-# Node.js API server
-after-deploy
-  pm2-start name=ProductionAPI
-    command(node server.js)
-```
-
-```
-# Using npm script
-after-deploy
-  pm2-start name=MyApp
-    command(npm start)
-```
-
-```
-# Using pnpm
-after-deploy
-  pm2-start name=WebService
-    command(pnpm start)
-```
-
-**Important notes:**
-- PM2 must be installed on the server
-- Process names must be unique across all deployments
-- Your app is responsible for its own port. Use a tool like [port-assignment](https://www.npmjs.com/package/@facetlayer/port-assignment) to claim one, or define it in a `.env` file on the server (use `ignore .env` in your config to preserve it across deploys)
-
-#### Combining Shell and PM2
-
-You can combine shell commands and PM2 process management:
+You can run multiple shell commands in sequence:
 
 ```
 after-deploy
   shell(npm ci)
   shell(npm run migrate)
-  pm2-start name=MyAPI
-    command(npm start)
+  shell(npm start)
 ```
 
-**Note:** Currently, only one `shell()` command and one `pm2-start` block are supported per `after-deploy` block. For multiple shell commands, chain them:
-
-```
-after-deploy
-  shell(npm ci && npm run migrate && npm run seed)
-```
+Each command runs sequentially. If any command fails (non-zero exit code), the deployment is aborted.
 
 ### Complete Lifecycle Example
 
@@ -433,8 +369,7 @@ before-deploy
 
 after-deploy
   shell(pnpm install --prod)
-  pm2-start name=FullstackAPI
-    command(pnpm start)
+  shell(pnpm start)
 
 include web/out
 include api/dist
@@ -531,8 +466,7 @@ before-deploy
   shell(npm run build)
 
 after-deploy
-  pm2-start name=SimpleAPI
-    command(node dist/server.js)
+  shell(node dist/server.js)
 
 include dist
 include package.json
@@ -557,8 +491,7 @@ before-deploy
   shell(cd web && npm run build && cd .. && npm run build:api)
 
 after-deploy
-  pm2-start name=NextjsAPI
-    command(npm run start:api)
+  shell(npm run start:api)
 
 # Include built frontend
 include web/out
@@ -604,8 +537,7 @@ before-deploy
 
 after-deploy
   shell(pnpm install --prod --frozen-lockfile)
-  pm2-start name=APIGateway
-    command(pnpm run start:gateway)
+  shell(pnpm run start:gateway)
 
 # Include compiled services
 include packages/gateway/dist
@@ -667,9 +599,9 @@ before-deploy
   shell(npm run build)
 
 after-deploy
-  shell(npm ci && npm run migrate:up)
-  pm2-start name=AppWithDB
-    command(npm start)
+  shell(npm ci)
+  shell(npm run migrate:up)
+  shell(npm start)
 
 include dist
 include migrations
@@ -699,8 +631,7 @@ before-deploy
 
 after-deploy
   shell(npm ci --production)
-  pm2-start name=ComplexAPI
-    command(node backend/dist/index.js)
+  shell(node backend/dist/index.js)
 
 include frontend/build
 include backend/dist
@@ -799,23 +730,15 @@ Never commit `.goob` files with sensitive data. Use environment variables instea
 export GOOBERNETES_API_KEY=your-secret-key
 ```
 
-### 8. Name PM2 Processes Clearly
+### 8. Use Multiple Shell Commands
 
-Use descriptive names that indicate the service and environment:
-
-```
-pm2-start name=ProductionAPI
-pm2-start name=StagingWebService
-pm2-start name=DevAuthService
-```
-
-### 9. Chain Related Commands
-
-When you need multiple shell commands in sequence:
+When you need multiple commands in sequence, use separate `shell()` directives:
 
 ```
 after-deploy
-  shell(npm ci && npm run migrate && npm run seed)
+  shell(npm ci)
+  shell(npm run migrate)
+  shell(npm run seed)
 ```
 
 ### 10. Document Your Config
@@ -826,7 +749,7 @@ Add a comment block at the top of your `.goob` file (not currently supported, bu
 # Production deployment configuration
 # Builds: Next.js frontend + Express API
 # Serves: Static files from web/out
-# Runs: API server via PM2
+# Runs: API server via after-deploy shell command
 ```
 
 ### 11. Test in Stages
@@ -835,16 +758,6 @@ Add a comment block at the top of your `.goob` file (not currently supported, bu
 2. Deploy to a staging environment
 3. Verify the deployment
 4. Deploy to production
-
-### 12. Monitor Your Deployments
-
-After deploying with PM2, check the process status:
-
-```bash
-pm2 list
-pm2 logs MyAPI
-pm2 monit
-```
 
 ## Troubleshooting
 
@@ -865,20 +778,6 @@ pm2 monit
 3. Is the working directory correct?
 
 **Solution:** Test the command manually in your terminal first.
-
-### PM2 Process Not Starting
-
-**Check:**
-1. Is PM2 installed on the server?
-2. Is the command correct?
-3. Are there any logs in `pm2 logs`?
-
-**Solution:** SSH to the server and debug with PM2 directly:
-
-```bash
-pm2 logs ProcessName
-pm2 describe ProcessName
-```
 
 ### Sensitive Files Being Blocked
 
@@ -930,7 +829,7 @@ A well-crafted `.goob` configuration should:
 - Exclude unnecessary files with `exclude` rules
 - Protect server data with `ignore` rules
 - Build on the client with `before-deploy` hooks
-- Manage processes with `after-deploy` and PM2
+- Run post-deploy commands with `after-deploy` hooks
 - Keep secrets secure and out of deployments
 
 Start simple, iterate, and use `preview-deploy` liberally to ensure you're deploying exactly what you intend.

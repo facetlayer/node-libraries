@@ -78,18 +78,22 @@ export async function deploy(options: DeployOptions) {
     // Execute before-deploy shell commands
     for (const query of configs) {
         if (query.command === 'before-deploy') {
-            const shell = query.getAttr('shell').toOriginalString();
-            if (shell) {
-                console.log('Running before-deploy command:', shell);
-                const result = await runShellCommand(shell, [], {
-                    cwd: localDir,
-                    shell: true,
-                });
+            for (const tag of query.tags) {
+                if (tag.attr === 'shell') {
+                    const shell = tag.toOriginalString();
+                    if (shell) {
+                        console.log('Running before-deploy command:', shell);
+                        const result = await runShellCommand(shell, [], {
+                            cwd: localDir,
+                            shell: true,
+                        });
 
-                if (result.exitCode !== 0) {
-                    console.error('before-deploy command failed with exit code:', result.exitCode);
-                    console.error('Stderr:', result.stderr);
-                    process.exit(1);
+                        if (result.exitCode !== 0) {
+                            console.error('before-deploy command failed with exit code:', result.exitCode);
+                            console.error('Stderr:', result.stderr);
+                            process.exit(1);
+                        }
+                    }
                 }
             }
         }

@@ -1,18 +1,8 @@
 import { Stream } from "@facetlayer/streams";
 import { getDatabase, getDeploymentsDir } from "./Database.ts";
-import { pm2start, pm2delete, pm2restart, findPm2Process } from "./pm2.ts";
 import { parseFile } from "@facetlayer/qc";
 import Path from 'path';
 import { runShellCommand } from "@facetlayer/subprocess";
-
-interface Pm2StartAction {
-    name: string;
-    command: string;
-}
-
-type AfterDeployAction =
-    | { type: 'shell'; shell: string }
-    | { type: 'pm2-start'; pm2: Pm2StartAction };
 
 async function executeShellCommand(command: string, workingDir: string, hookType: string) {
     console.log(`Running ${hookType} command (cwd: ${workingDir}):`, command);
@@ -41,7 +31,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
         const configs = parseFile(deploymentRecord.source_config_file);
 
         let projectName: string;
-        const afterDeployActions: AfterDeployAction[] = [];
+        const shellCommands: string[] = [];
 
         for (const config of configs) {
             switch (config.command) {
@@ -49,19 +39,12 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
                     projectName = config.getStringValue('project-name');
                     break;
                 case 'after-deploy':
-                    if (config.hasAttr('shell')) {
-                        const shell = config.getAttr('shell').toOriginalString();
-                        if (shell) {
-                            afterDeployActions.push({ type: 'shell', shell });
-                        }
-                    }
-
-                    if (config.hasAttr('pm2-start')) {
-                        const name = config.getStringValue('name');
-                        const command = config.getAttr('command').toOriginalString();
-
-                        if (name && command) {
-                            afterDeployActions.push({ type: 'pm2-start', pm2: { name, command } });
+                    for (const tag of config.tags) {
+                        if (tag.attr === 'shell') {
+                            const shell = tag.toOriginalString();
+                            if (shell) {
+                                shellCommands.push(shell);
+                            }
                         }
                     }
                     break;
@@ -74,49 +57,8 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             throw new Error(`No record found for project ${projectName}`);
         }
 
-        for (const action of afterDeployActions) {
-            if (action.type === 'shell') {
-                await executeShellCommand(action.shell, deployDir, 'after-deploy');
-            } else if (action.type === 'pm2-start') {
-                const { name, command } = action.pm2;
-                
-                // Check if there's an existing pm2 process with this name
-                const existingProcess = await findPm2Process(name);
-                
-                if (!existingProcess) {
-                    // Create new process
-                    console.log(`Creating new pm2 process: ${name}`);
-                    await pm2start({
-                        deployName: name,
-                        deployDir,
-                        startCommand: command,
-                        env: {
-                            ...process.env,
-                        },
-                    });
-                } else {
-                    // Process exists, check if command is the same
-                    const existingCommand = existingProcess.pm2_env?.exec_command || '';
-
-                    if (existingCommand !== command) {
-                        // Command is different, delete and recreate
-                        console.log(`Command changed for ${name}, recreating process`);
-                        await pm2delete({ deployName: name });
-                        await pm2start({
-                            deployName: name,
-                            deployDir,
-                            startCommand: command,
-                            env: {
-                                ...process.env,
-                            },
-                        });
-                    } else {
-                        // Command is the same, just restart
-                        console.log(`Restarting existing pm2 process: ${name}`);
-                        await pm2restart({ deployName: name });
-                    }
-                }
-            }
+        for (const shell of shellCommands) {
+            await executeShellCommand(shell, deployDir, 'after-deploy');
         }
 
         getDatabase().upsert('active_deployment', {
