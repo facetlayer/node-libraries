@@ -39,8 +39,14 @@ tailwind.config = {
   <!-- Sidebar -->
   <div class="w-[260px] min-w-[260px] bg-surface-light border-r border-surface-border flex flex-col">
     <div class="px-4 py-3 border-b border-surface-border">
-      <input type="text" id="filter-search" placeholder="Search skills..."
-        class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-accent transition-colors mb-2">
+      <div class="flex items-center gap-2 mb-2">
+        <input type="text" id="filter-search" placeholder="Search skills..."
+          class="flex-1 bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-accent transition-colors">
+        <button id="btn-new-skill" title="New Skill"
+          class="shrink-0 w-7 h-7 flex items-center justify-center rounded bg-accent hover:bg-accent-hover text-white transition-colors">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a1 1 0 011 1v4h4a1 1 0 110 2H9v4a1 1 0 11-2 0V9H3a1 1 0 010-2h4V3a1 1 0 011-1z"/></svg>
+        </button>
+      </div>
       <div class="flex flex-wrap gap-1.5" id="filter-chips"></div>
     </div>
     <div class="flex-1 overflow-y-auto" id="sidebar">
@@ -99,17 +105,19 @@ async function loadSkills() {
 // --- Filters ---
 function renderFilterChips() {
   const container = document.getElementById('filter-chips');
-  container.innerHTML = FilterChip.render('discoverable', 'Agent-discoverable', filters.discoverable)
+  const html = FilterChip.render('discoverable', 'Agent-discoverable', filters.discoverable)
     + FilterChip.render('user-invocable', 'User-invocable', filters.userInvocable);
+
+  if (container.innerHTML !== html) {
+    container.innerHTML = html;
+  }
 
   FilterChip.bind('discoverable', (checked) => {
     filters.discoverable = checked;
-    renderFilterChips();
     renderSidebar();
   });
   FilterChip.bind('user-invocable', (checked) => {
     filters.userInvocable = checked;
-    renderFilterChips();
     renderSidebar();
   });
 }
@@ -172,7 +180,9 @@ function renderSidebar() {
       + (skills.length === 0 ? 'No skills found' : 'No skills match filters') + '</div>';
   }
 
-  document.getElementById('sidebar').innerHTML = html;
+  const sidebarEl = document.getElementById('sidebar');
+  if (sidebarEl.innerHTML === html) return;
+  sidebarEl.innerHTML = html;
 
   // Bind skill item clicks
   document.querySelectorAll('[data-key]').forEach(el => {
@@ -252,6 +262,71 @@ function showRenameModal(skill) {
       }
     });
     input.select();
+  }
+}
+
+// --- New Skill ---
+document.getElementById('btn-new-skill').addEventListener('click', showNewSkillModal);
+
+function showNewSkillModal() {
+  Modal.show({
+    title: 'New Skill',
+    body: '<label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Name</label>'
+      + '<input type="text" id="new-skill-name" placeholder="my-skill"'
+      + ' class="w-full bg-[#0f1629] border border-surface-border rounded px-2.5 py-1.5 text-sm text-gray-200 outline-none focus:border-accent transition-colors mb-3">'
+      + '<label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Location</label>'
+      + '<div class="flex gap-4">'
+      + '  <label class="flex items-center gap-2 cursor-pointer">'
+      + '    <input type="radio" name="new-skill-location" value="personal" checked class="accent-accent cursor-pointer">'
+      + '    <span class="text-[13px] text-[#c0c0d0]">Personal</span>'
+      + '  </label>'
+      + '  <label class="flex items-center gap-2 cursor-pointer">'
+      + '    <input type="radio" name="new-skill-location" value="project" class="accent-accent cursor-pointer">'
+      + '    <span class="text-[13px] text-[#c0c0d0]">Project</span>'
+      + '  </label>'
+      + '</div>',
+    confirmLabel: 'Create',
+    onConfirm: async () => {
+      const name = document.getElementById('new-skill-name').value.trim();
+      if (!name) return;
+
+      const location = document.querySelector('input[name="new-skill-location"]:checked').value;
+      const statusEl = document.getElementById('new-skill-name');
+
+      try {
+        const res = await fetch('/skills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, location }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Create failed');
+        }
+
+        const skill = await res.json();
+        skills.push(skill);
+        selectedKey = skillKey(skill);
+        Modal.hide();
+        renderSidebar();
+        renderEditor();
+      } catch (err) {
+        statusEl.style.borderColor = '#f87171';
+        statusEl.setCustomValidity(err.message);
+        statusEl.reportValidity();
+      }
+    },
+  });
+
+  const input = document.getElementById('new-skill-name');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('modal-confirm').click();
+      }
+    });
+    input.focus();
   }
 }
 

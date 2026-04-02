@@ -27,6 +27,7 @@ packages:
   - parse-stdout-lines
   - port-assignment
   - prism-framework
+  - prism-framework-expo
   - prism-framework-ui
   - react-elements
   - sqlite-migration

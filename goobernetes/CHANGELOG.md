@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.1
  - Added: `preview-deploy` command that contacts the server to show deployment drift (files to upload, files to delete)
  - Added: `copy-back` command to download a file from the server's active deployment back to the local filesystem
  - Renamed: `preview-deploy` (local-only file list) is now `preview-deploy-files`

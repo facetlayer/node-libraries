@@ -87,3 +87,35 @@ export function saveSkill(
   const fileContent = serializeFrontmatter(frontmatter, content);
   writeFileSync(skillFile, fileContent, 'utf-8');
 }
+
+export function createSkill(location: 'personal' | 'project', name: string): SkillInfo {
+  const dirName = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+  if (!dirName) {
+    throw new Error('Invalid skill name');
+  }
+
+  const baseDir = location === 'personal' ? getPersonalSkillsDir() : getProjectSkillsDir();
+  const skillDir = join(baseDir, dirName);
+
+  if (existsSync(join(skillDir, 'SKILL.md'))) {
+    throw new Error('A skill with this name already exists');
+  }
+
+  const frontmatter: Record<string, any> = { name };
+  const content = '';
+
+  mkdirSync(skillDir, { recursive: true });
+  const fileContent = serializeFrontmatter(frontmatter, content);
+  const skillFile = join(skillDir, 'SKILL.md');
+  writeFileSync(skillFile, fileContent, 'utf-8');
+
+  return {
+    name,
+    location,
+    dirName,
+    path: skillFile,
+    content,
+    frontmatter,
+  };
+}

@@ -1,6 +1,9 @@
 import { App, startServer } from '@facetlayer/prism-framework';
 import { ticketsService } from './services/tickets-service.ts';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PRISM_API_PORT || '4014', 10);
 
 async function main() {
@@ -14,11 +17,14 @@ async function main() {
     port: PORT,
     app,
     corsConfig: {
-      enableTestEndpoints: true,
+      allowLocalhost: true,
+    },
+    web: {
+      dir: join(__dirname, '..', 'web'),
     },
   });
 
-  console.log(`Tickets Manager API running at http://localhost:${PORT}`);
+  console.log(`Tickets Manager running at http://localhost:${PORT}`);
 }
 
 main().catch(console.error);

@@ -1,5 +1,5 @@
 import { createEndpoint, ServiceDefinition } from '@facetlayer/prism-framework';
-import { loadAllSkills, saveSkill } from '../lib/loadSkills.ts';
+import { loadAllSkills, saveSkill, createSkill } from '../lib/loadSkills.ts';
 
 const listSkills = createEndpoint({
   method: 'GET',
@@ -26,7 +26,27 @@ const updateSkill = createEndpoint({
   },
 });
 
+const newSkill = createEndpoint({
+  method: 'POST',
+  path: '/skills',
+  description: 'Create a new skill',
+  handler: async (input: { name: string; location: string }) => {
+    const { name, location } = input;
+
+    if (location !== 'personal' && location !== 'project') {
+      throw new Error('Location must be "personal" or "project"');
+    }
+
+    if (!name || !name.trim()) {
+      throw new Error('Name is required');
+    }
+
+    const skill = createSkill(location as 'personal' | 'project', name.trim());
+    return skill;
+  },
+});
+
 export const skillsService: ServiceDefinition = {
   name: 'skills',
-  endpoints: [listSkills, updateSkill],
+  endpoints: [listSkills, updateSkill, newSkill],
 };
