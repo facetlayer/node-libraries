@@ -1,4 +1,4 @@
-import type { EndpointDefinition } from '../web/ExpressEndpointSetup.ts';
+import type { EndpointDefinition } from '../endpoints/EndpointDefinition.ts';
 import type { ServiceDefinition } from '../ServiceDefinition.ts';
 import { callEndpoint, type CallEndpointOptions } from './callEndpoint.ts';
 

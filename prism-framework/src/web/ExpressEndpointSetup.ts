@@ -1,5 +1,4 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
-import { z } from 'zod';
 import { isHttpError, NotFoundError } from '../Errors.ts';
 import { recordHttpRequest, recordHttpResponse } from '../Metrics.ts';
 import { getCurrentRequestContext } from '../RequestContext.ts';
@@ -9,23 +8,9 @@ import { logError } from '../logging/index.ts';
 
 export { createEndpoint } from '../endpoints/createEndpoint.ts';
 
-type EndpointRequireOption = 'authenticated-user';
-
-export interface EndpointDefinition {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  path: string;
-  handler: (input: any) => Promise<any> | any;
-  requestSchema?: z.ZodSchema;
-  responseSchema?: z.ZodSchema;
-  description?: string;
-  requires?: EndpointRequireOption[];
-  /**
-   * Unique identifier for this endpoint in the OpenAPI schema.
-   * If not provided, one will be generated from the method and path.
-   * Must be unique across all endpoints in the app.
-   */
-  operationId?: string;
-}
+// Re-export EndpointDefinition from its canonical location for backward compatibility
+import type { EndpointDefinition } from '../endpoints/EndpointDefinition.ts';
+export type { EndpointDefinition, EndpointRequireOption } from '../endpoints/EndpointDefinition.ts';
 
 export function getRequestDataFromReq(req: Request): any {
   let result = {};

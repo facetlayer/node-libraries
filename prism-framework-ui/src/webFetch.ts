@@ -15,6 +15,30 @@ export function configureWebFetch(config: WebFetchConfig) {
     globalConfig = { ...config };
 }
 
+export type FetchFunction = (endpoint: string, options?: ApiRequestOptions) => Promise<any>;
+
+let customFetchImpl: FetchFunction | null = null;
+
+/**
+ * Set a custom fetch implementation. This allows non-HTTP transports
+ * (e.g. in-process calls in Expo/React Native) to be used with the
+ * same API surface as webFetch.
+ */
+export function setFetchImplementation(fn: FetchFunction) {
+    customFetchImpl = fn;
+}
+
+/**
+ * Universal API fetch that uses either a custom implementation (if set via
+ * setFetchImplementation) or falls back to the default HTTP-based webFetch.
+ */
+export async function apiFetch(endpoint: string, options?: ApiRequestOptions): Promise<any> {
+    if (customFetchImpl) {
+        return customFetchImpl(endpoint, options);
+    }
+    return webFetch(endpoint, options);
+}
+
 export interface ApiRequestOptions {
     params?: any;
     host?: string;

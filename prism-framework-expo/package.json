@@ -1,0 +1,42 @@
+{
+  "name": "@facetlayer/prism-framework-expo",
+  "version": "0.1.0",
+  "description": "Expo/React Native integration for Prism Framework applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "tsc -p . --watch",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "framework",
+    "expo",
+    "react-native",
+    "mobile",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "dependencies": {
+    "@facetlayer/prism-framework": "^0.5.0"
+  },
+  "peerDependencies": {
+    "expo-sqlite": ">=14.0.0",
+    "zod": "^4.0.5"
+  },
+  "peerDependenciesMeta": {
+    "expo-sqlite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

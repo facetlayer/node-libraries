@@ -1,5 +1,5 @@
 import type { ServiceDefinition } from "../../ServiceDefinition.ts";
-import type { EndpointDefinition } from "../ExpressEndpointSetup.ts";
+import type { EndpointDefinition } from "../../endpoints/EndpointDefinition.ts";
 import { generateOpenAPISchema } from "./OpenAPI.ts";
 import { captureError, type ErrorDetails } from "@facetlayer/streams";
 

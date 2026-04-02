@@ -23,7 +23,8 @@ export type { RequestContext } from './RequestContext.ts';
 export { getCurrentRequestContext, withRequestContext } from './RequestContext.ts';
 export { requestContextMiddleware } from './web/requestContextMiddleware.ts';
 
-export type { MiddlewareDefinition, ServiceDefinition } from './ServiceDefinition.ts';
+export type { ServiceDefinition } from './ServiceDefinition.ts';
+export type { MiddlewareDefinition } from './web/MiddlewareDefinition.ts';
 
 // Authorization exports
 export type { CookieAuthSource, AuthSource, Permission, Resource, UserPermissions } from './authorization/index.ts';
@@ -32,7 +33,7 @@ export { Authorization } from './authorization/index.ts';
 // Web framework exports
 export { corsMiddleware } from './web/corsMiddleware.ts';
 export type { CorsConfig } from './web/corsMiddleware.ts';
-export type { EndpointDefinition } from './web/ExpressEndpointSetup.ts';
+export type { EndpointDefinition } from './endpoints/EndpointDefinition.ts';
 export {
   getRequestDataFromReq,
   mountMiddleware,
@@ -60,6 +61,9 @@ export type { PrismAppConfig as AppConfig } from './app/PrismApp.ts';
 // Launch configuration exports
 export type { LoggingSettings, LaunchConfig } from './launch/launchConfig.ts';
 export { getDatabaseConfig, getLaunchConfig, getLoggingConfig, setLaunchConfig } from './launch/launchConfig.ts';
+
+// Database interface
+export type { PrismDatabase } from './databases/DatabaseInterface.ts';
 
 // Database setup exports
 export type { DatabaseInitializationOptions } from './databases/DatabaseInitializationOptions.ts';

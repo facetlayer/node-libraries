@@ -1,17 +1,11 @@
-import type { NextFunction, Request, Response } from 'express';
-import type { EndpointDefinition } from './web/ExpressEndpointSetup.ts';
-
-export interface MiddlewareDefinition {
-  path: string;
-  handler: (req: Request, res: Response, next: NextFunction) => void;
-}
+import type { EndpointDefinition } from './endpoints/EndpointDefinition.ts';
 
 /*
  * ServiceDefinition
  *
  * A service is a self-contained module that can contain:
  *  - API endpoints
- *  - Middleware
+ *  - Middleware (transport-specific, e.g. Express middleware)
  *  - Database schemas
  *  - Background jobs
  */
@@ -22,8 +16,8 @@ export interface ServiceDefinition {
   // API endpoints
   endpoints?: EndpointDefinition[];
 
-  // Middleware
-  middleware?: MiddlewareDefinition[];
+  // Middleware (transport-specific, typed as any[] to avoid Express dependency in core)
+  middleware?: any[];
 
   // Database schemas
   databases?: Record<string, {

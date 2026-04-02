@@ -1,4 +1,10 @@
 
+Unreleased
+ - Added /core export path (`@facetlayer/prism-framework/core`) for transport-agnostic imports without Express dependency
+ - Extracted EndpointDefinition to its own file (src/endpoints/EndpointDefinition.ts)
+ - Decoupled ServiceDefinition from Express types (MiddlewareDefinition moved to src/web/)
+ - Added PrismDatabase interface for cross-platform database adapters
+
 0.5.0
  - Replaced PRISM_API_PORT env var with automatic port assignment via @facetlayer/port-assignment
  - Port is now looked up by project directory with service name "api"
