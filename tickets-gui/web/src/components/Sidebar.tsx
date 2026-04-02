@@ -52,7 +52,7 @@ export function Sidebar({ selectedLibrary, onSelectLibrary, refreshKey }: Sideba
 
   const fetchLibraries = useCallback(async () => {
     try {
-      const data = await webFetch('/feedback/libraries');
+      const data = await webFetch('/api/feedback/libraries');
       setLibraries(data.libraries);
     } catch {
       // silently fail

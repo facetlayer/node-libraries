@@ -78,7 +78,7 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
       if (severityFilter) params.severity = severityFilter;
       params.status = activeTab;
 
-      const data: FeedbackListResponse = await webFetch('/feedback', { params });
+      const data: FeedbackListResponse = await webFetch('/api/feedback', { params });
       setItems(data.items);
       setTotal(data.total);
       setTotalPages(data.totalPages);
@@ -100,7 +100,7 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
   const handleStatusUpdate = async (id: number, status: string) => {
     setActionInProgress(id);
     try {
-      await webFetch('PATCH /feedback/:id/status', {
+      await webFetch('PATCH /api/feedback/:id/status', {
         params: { id, status },
       });
       await fetchItems();
@@ -118,7 +118,7 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
 
     setDeleteInProgress(true);
     try {
-      await webFetch('DELETE /feedback/libraries/:name', {
+      await webFetch('DELETE /api/feedback/libraries/:name', {
         params: { name: library },
       });
       onDeleteLibrary();

@@ -16,9 +16,5 @@ export default defineConfig({
   },
   server: {
     port: 4015,
-    proxy: {
-      '/feedback': 'http://localhost:4014',
-      '/health': 'http://localhost:4014',
-    },
   },
 });
