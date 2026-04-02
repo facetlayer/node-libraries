@@ -120,10 +120,22 @@ Goobernetes will:
 4. Verify all files arrived correctly
 5. Activate the deployment
 
-To preview what would be deployed without actually deploying:
+To see what local files would be included in a deployment:
+
+```bash
+npx goobernetes preview-deploy-files deploy.goob
+```
+
+To check for drift between your local files and the server (which files would be uploaded, and which server-side files would be deleted):
 
 ```bash
 npx goobernetes preview-deploy deploy.goob
+```
+
+If `preview-deploy` shows server files that would be deleted, and you want to rescue them first:
+
+```bash
+npx goobernetes copy-back deploy.goob path/to/file.js
 ```
 
 ## Adding Deploy Hooks

@@ -68,6 +68,30 @@ From the client, deploy a project using a configuration file:
 npx goobernetes deploy <config-file>
 ```
 
+### Previewing Drift
+
+To check what has drifted between your local files and the server, use `preview-deploy`. This contacts the server and reports which files would be uploaded (new or changed) and which server-side files would be deleted:
+
+```bash
+npx goobernetes preview-deploy <config-file>
+```
+
+To only see the list of local files that would be included (without contacting the server):
+
+```bash
+npx goobernetes preview-deploy-files <config-file>
+```
+
+### Copying Files Back from the Server
+
+If the server has a modified file that would be overwritten or deleted on the next deploy, you can copy it back to your local filesystem:
+
+```bash
+npx goobernetes copy-back <config-file> <filename>
+```
+
+The `<filename>` is the relative path of the file within the deployment (as shown by `preview-deploy`).
+
 ## Configuration Files
 
 The .goob configuration file has the following format:

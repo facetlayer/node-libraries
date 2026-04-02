@@ -5,13 +5,11 @@ import { Query, parseFile } from '@facetlayer/qc';
 import { resolveFileList } from '@facetlayer/file-manifest';
 import { Limiter } from '@facetlayer/concurrency-limit';
 import { runShellCommand } from '@facetlayer/subprocess';
-import { getFileListFromConfig } from './fileList.ts';
 import { RunningTimer } from '../utils/RunningTimer.ts';
 import { GooberneteRPCClient } from './rpc-client.ts';
+import { setupClient } from './clientSetup.ts';
 
 const MaxRequestSizeBytes = 80 * 1024;
-
-const GOOBERNETES_API_KEY = process.env.GOOBERNETES_API_KEY;
 
 export interface DeployOptions {
     configFilename: string;
@@ -58,22 +56,11 @@ async function uploadFile(client: GooberneteRPCClient, deployName: string, relPa
 
 export async function deploy(options: DeployOptions) {
     const timer = new RunningTimer();
-    const { configFilename, overrideDest } = options;
 
-    const configText = await Fs.readFile(configFilename, 'utf-8');
+    const { projectName, destUrl, localDir, configText, client } = await setupClient(options);
     const configs = parseFile(configText) as Query[];
-
-    // Get file list and basic config
-    const fileListResult = await getFileListFromConfig({ configFilename });
-    let { projectName, destUrl, localDir } = fileListResult;
     console.log('Project name:', projectName);
     console.log('Destination URL:', destUrl);
-
-    // Override destination URL if provided via command line
-    if (overrideDest) {
-        destUrl = overrideDest;
-        console.log('Using overridden destination URL:', destUrl);
-    }
 
     // Execute before-deploy shell commands
     for (const query of configs) {
@@ -106,17 +93,7 @@ export async function deploy(options: DeployOptions) {
         sha: item.sha,
     }));
     console.log(`Resolved source file manifest (${timer.checkElapsedSecs()}s)`);
-
-    // Set up client
-    const client = new GooberneteRPCClient(destUrl);
     console.log('Creating deployment on server at:', destUrl);
-
-    if (GOOBERNETES_API_KEY) {
-        console.log('Using API key from: GOOBERNETES_API_KEY');
-        client.setApiKey(GOOBERNETES_API_KEY);
-    } else {
-        console.warn('No API key found in GOOBERNETES_API_KEY environment variable');
-    }
 
     // Create deployment entry
     const { deployName } = await client.createDeployment({

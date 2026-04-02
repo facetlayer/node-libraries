@@ -13,6 +13,7 @@ export interface FileListResult {
     localDir: string;
     projectName: string;
     destUrl: string;
+    configText: string;
 }
 
 // Files that should never be deployed (for one reason or another)
@@ -126,5 +127,6 @@ export async function getFileListFromConfig({ configFilename, localDir }: FileLi
         localDir: resolvedLocalDir,
         projectName,
         destUrl,
+        configText,
     };
 }

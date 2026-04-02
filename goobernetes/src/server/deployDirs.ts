@@ -8,13 +8,44 @@ export function getPathInDeploymentDir(deployName: string, relPath: string): str
     }
 
     const deployDir = Path.join(getDeploymentsDir(), deploymentRecord.deploy_dir);
-    const fullPath = Path.join(deployDir, relPath);
+    return getSafePathInDir(deployDir, relPath);
+}
 
-    // Safety check the path
+/**
+ * Resolves the directory for a project's active deployment.
+ * Returns null if the project has no active deployment.
+ */
+export function getActiveDeploymentDir(projectName: string): string | null {
+    const db = getDatabase();
+
+    const activeRecord = db.get(
+        `select deploy_name from active_deployment where project_name = ?`,
+        [projectName]
+    );
+    if (!activeRecord) {
+        return null;
+    }
+
+    const deploymentRecord = db.get(
+        `select deploy_dir from deployment where deploy_name = ?`,
+        [activeRecord.deploy_name]
+    );
+    if (!deploymentRecord) {
+        return null;
+    }
+
+    return Path.join(getDeploymentsDir(), deploymentRecord.deploy_dir);
+}
+
+/**
+ * Joins a relative path within a directory, with path traversal protection.
+ */
+export function getSafePathInDir(dir: string, relPath: string): string {
+    const fullPath = Path.join(dir, relPath);
     const resolvedPath = Path.resolve(fullPath);
-    const resolvedDeployDir = Path.resolve(deployDir);
+    const resolvedDir = Path.resolve(dir);
 
-    if (!resolvedPath.startsWith(resolvedDeployDir + Path.sep) && resolvedPath !== resolvedDeployDir) {
+    if (!resolvedPath.startsWith(resolvedDir + Path.sep) && resolvedPath !== resolvedDir) {
         throw new Error(`Invalid path: ${relPath}`);
     }
 

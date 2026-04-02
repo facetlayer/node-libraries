@@ -1,10 +1,10 @@
 import Path from 'path';
 import { getFileHash } from '@facetlayer/file-manifest';
 import { getDatabase } from './Database.ts';
-import { GetNeededFilesParams, NeededFileEntry } from '../shared/rpc-types.ts';
+import { GetNeededFilesParams, FileEntry } from '../shared/rpc-types.ts';
 import { getPathInDeploymentDir } from './deployDirs.ts';
 
-export async function getNeededFiles({deployName}: GetNeededFilesParams): Promise<NeededFileEntry[]> {
+export async function getNeededFiles({deployName}: GetNeededFilesParams): Promise<FileEntry[]> {
     const db = getDatabase();
 
     if (!deployName) {
@@ -19,7 +19,7 @@ export async function getNeededFiles({deployName}: GetNeededFilesParams): Promis
     const { manifest_json } = deploymentRecord;
     const manifest = JSON.parse(manifest_json || '[]');
     
-    const neededFiles: NeededFileEntry[] = [];
+    const neededFiles: FileEntry[] = [];
 
     for (const file of manifest) {
         const targetPath = getPathInDeploymentDir(deployName, file.relPath);

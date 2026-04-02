@@ -90,8 +90,8 @@ yargs(hideBin(process.argv))
         }
     )
     .command(
-        'preview-deploy <config-file>',
-        'Show the deployment preview for the specified configuration file',
+        'preview-deploy-files <config-file>',
+        'Show the local files that would be included in a deployment',
         (yargs) => {
             return yargs
                 .positional('config-file', {
@@ -101,9 +101,61 @@ yargs(hideBin(process.argv))
                 });
         },
         async (argv) => {
-            const { previewDeploy } = await import('./client/deployPreviewFiles');
+            const { previewDeployFiles } = await import('./client/deployPreviewFiles');
+            await previewDeployFiles({
+                configFilename: argv['config-file'] as string,
+            });
+        }
+    )
+    .command(
+        'preview-deploy <config-file>',
+        'Preview deployment drift: show which files would be uploaded, deleted, or are server-only',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                });
+        },
+        async (argv) => {
+            const { previewDeploy } = await import('./client/previewDeploy');
             await previewDeploy({
                 configFilename: argv['config-file'] as string,
+                overrideDest: argv['override-dest'],
+            });
+        }
+    )
+    .command(
+        'copy-back <config-file> <filename>',
+        'Copy a file from the server back to the local filesystem',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .positional('filename', {
+                    type: 'string',
+                    describe: 'Relative path of the file to copy back from the server',
+                    demandOption: true,
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                });
+        },
+        async (argv) => {
+            const { copyBack } = await import('./client/copyBack');
+            await copyBack({
+                configFilename: argv['config-file'] as string,
+                filename: argv['filename'] as string,
+                overrideDest: argv['override-dest'],
             });
         }
     )

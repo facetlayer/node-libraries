@@ -1,10 +1,10 @@
 import { JSONRPCServer, JSONRPCResponse } from 'json-rpc-2.0';
 import { Request, Response } from 'express';
-import { 
+import {
     RPC_METHODS,
     CreateDeploymentParams,
     GetNeededFilesParams,
-    NeededFileEntry,
+    FileEntry,
     UploadOneFileParams,
     VerifyDeploymentParams,
     VerifyDeploymentResult,
@@ -12,7 +12,11 @@ import {
     StartMultiPartUploadParams,
     UploadFilePartParams,
     FinishMultiPartUploadParams,
-    FinishUploadsParams
+    FinishUploadsParams,
+    PreviewDeploymentParams,
+    PreviewDeploymentResult,
+    DownloadFileParams,
+    DownloadFileResult,
 } from '../shared/rpc-types.ts';
 
 import { createDeployment } from './createDeployment.ts';
@@ -20,6 +24,8 @@ import { getNeededFiles } from './getNeededFiles.ts';
 import { activateDeployment } from './activateDeployment.ts';
 import { verifyDeployment } from './verifyDeployment.ts';
 import { finishUploads } from './finishUploads.ts';
+import { previewDeployment } from './previewDeployment.ts';
+import { downloadFile } from './downloadFile.ts';
 import { getDatabase } from './Database.ts';
 import Fs from 'fs/promises';
 import { validateSecretKey } from './validateSecretKey.ts';
@@ -38,7 +44,7 @@ export class GooberneteRPCServer {
             return await createDeployment(params);
         });
 
-        this.server.addMethod(RPC_METHODS.GET_NEEDED_FILES, async (params: GetNeededFilesParams): Promise<NeededFileEntry[]> => {
+        this.server.addMethod(RPC_METHODS.GET_NEEDED_FILES, async (params: GetNeededFilesParams): Promise<FileEntry[]> => {
             return await getNeededFiles(params);
         });
 
@@ -108,6 +114,14 @@ export class GooberneteRPCServer {
 
         this.server.addMethod(RPC_METHODS.ACTIVATE_DEPLOYMENT, async (params: ActivateDeploymentParams) => {
             return activateDeployment(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.PREVIEW_DEPLOYMENT, async (params: PreviewDeploymentParams): Promise<PreviewDeploymentResult> => {
+            return await previewDeployment(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.DOWNLOAD_FILE, async (params: DownloadFileParams): Promise<DownloadFileResult> => {
+            return await downloadFile(params);
         });
     }
 

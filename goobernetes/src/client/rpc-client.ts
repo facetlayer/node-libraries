@@ -1,11 +1,11 @@
 import { JSONRPCClient } from 'json-rpc-2.0';
 import fetch from 'node-fetch';
-import { 
-    RPC_METHODS, 
+import {
+    RPC_METHODS,
     CreateDeploymentParams,
     DeploymentCreatedEvent,
     GetNeededFilesParams,
-    NeededFileEntry,
+    FileEntry,
     UploadOneFileParams,
     VerifyDeploymentParams,
     VerifyDeploymentResult,
@@ -13,7 +13,11 @@ import {
     StartMultiPartUploadParams,
     UploadFilePartParams,
     FinishMultiPartUploadParams,
-    FinishUploadsParams
+    FinishUploadsParams,
+    PreviewDeploymentParams,
+    PreviewDeploymentResult,
+    DownloadFileParams,
+    DownloadFileResult,
 } from '../shared/rpc-types.ts';
 
 export class GooberneteRPCClient {
@@ -83,7 +87,7 @@ export class GooberneteRPCClient {
         return this.rpcCall(RPC_METHODS.CREATE_DEPLOYMENT, params);
     }
 
-    async getNeededFiles(params: GetNeededFilesParams): Promise<NeededFileEntry[]> {
+    async getNeededFiles(params: GetNeededFilesParams): Promise<FileEntry[]> {
         return this.rpcCall(RPC_METHODS.GET_NEEDED_FILES, params);
     }
 
@@ -113,5 +117,13 @@ export class GooberneteRPCClient {
 
     async finishUploads(params: FinishUploadsParams): Promise<void> {
         return this.rpcCall(RPC_METHODS.FINISH_UPLOADS, params);
+    }
+
+    async previewDeployment(params: PreviewDeploymentParams): Promise<PreviewDeploymentResult> {
+        return this.rpcCall(RPC_METHODS.PREVIEW_DEPLOYMENT, params);
+    }
+
+    async downloadFile(params: DownloadFileParams): Promise<DownloadFileResult> {
+        return this.rpcCall(RPC_METHODS.DOWNLOAD_FILE, params);
     }
 }

@@ -4,7 +4,7 @@ export interface PreviewDeployOptions {
     configFilename: string;
 }
 
-export async function previewDeploy(options: PreviewDeployOptions) {
+export async function previewDeployFiles(options: PreviewDeployOptions) {
     const { configFilename } = options;
 
     const result = await getFileListFromConfig({ configFilename });

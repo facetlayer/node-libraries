@@ -51,20 +51,31 @@ export interface GetNeededFilesParams {
     deployName: string;
 }
 
-export interface NeededFileEntry {
+export interface PreviewDeploymentParams {
+    projectName: string;
+    sourceFileManifest: FileEntry[];
+    sourceFileConfig: string;
+}
+
+export interface PreviewDeploymentResult {
+    filesToUpload: FileEntry[];
+    filesToDelete: string[];
+}
+
+export interface DownloadFileParams {
+    projectName: string;
     relPath: string;
-    sha: string;
+}
+
+export interface DownloadFileResult {
+    contentBase64: string;
+    relPath: string;
 }
 
 // Response event types
 export interface DeploymentCreatedEvent {
     t: 'deployment_created';
     deployName: string;
-}
-
-export interface NeedFileEvent {
-    t: 'need_file';
-    relPath: string;
 }
 
 export interface VerifyDeploymentResult {
@@ -83,23 +94,7 @@ export const RPC_METHODS = {
     UPLOAD_FILE_PART: 'uploadFilePart',
     FINISH_MULTIPART_UPLOAD: 'finishMultiPartUpload',
     FINISH_UPLOADS: 'finishUploads',
+    PREVIEW_DEPLOYMENT: 'previewDeployment',
+    DOWNLOAD_FILE: 'downloadFile',
 } as const;
 
-// Simple JSON-RPC interface types (the library handles the actual protocol)
-export interface BaseJSONRPCRequest {
-    jsonrpc: '2.0';
-    method: string;
-    params?: any;
-    id?: string | number;
-}
-
-export interface BaseJSONRPCResponse {
-    jsonrpc: '2.0';
-    id: string | number | null;
-    result?: any;
-    error?: {
-        code: number;
-        message: string;
-        data?: any;
-    };
-}
