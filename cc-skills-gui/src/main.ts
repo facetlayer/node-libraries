@@ -20,6 +20,9 @@ if (process.argv.includes('--stdin')) {
   await startServer({
     app,
     port,
+    corsConfig: {
+      allowLocalhost: true,
+    },
     web: {
       dir: join(__dirname, '..', 'web'),
     },

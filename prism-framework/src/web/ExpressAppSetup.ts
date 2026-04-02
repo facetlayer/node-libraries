@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import type { Server } from 'http';
+import { createServer as createHttpServer, type Server } from 'http';
 import { PrismApp } from '../app/PrismApp.ts';
 import { getMetrics } from '../Metrics.ts';
 import { corsMiddleware, type CorsConfig } from './corsMiddleware.ts';
@@ -103,13 +103,19 @@ export async function startServer(config: ServerSetupConfig): Promise<Server> {
 
   const app = createExpressApp(config);
 
-  // Set up web serving if configured (after API routes)
+  // Create HTTP server so Vite can attach HMR WebSocket to it
+  const server = createHttpServer(app);
+
+  // Set up web serving before listening (Vite just needs the Server instance, not a listening one)
   if (config.web) {
-    await setupWebMiddleware(app, config.web);
+    await setupWebMiddleware(app, config.web, server);
   }
 
-  const server = app.listen(port, () => {
-    logInfo(`Server now listening on port ${port}`);
+  await new Promise<void>(resolve => {
+    server.listen(port, () => {
+      logInfo(`Server now listening on port ${port}`);
+      resolve();
+    });
   });
 
   // Graceful shutdown

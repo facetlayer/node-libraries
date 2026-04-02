@@ -5,6 +5,7 @@ packages:
   - cc-confidence
   - cc-headless
   - cc-skills-gui
+  - cc-skills-gui/web
   - cc-session-history
   - cc-settings-tool
   - claude-settings-tidier

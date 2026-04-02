@@ -13,13 +13,14 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node build.mts build",
-    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "build": "node build.mts build && cd web && pnpm build",
+    "build:server": "node build.mts build",
+    "prepublishOnly": "node build.mts validate && node build.mts build && cd web && pnpm build",
     "test": "vitest run",
     "local:install": "pnpm build && npm i -g ."
   },
   "dependencies": {
-    "@facetlayer/prism-framework": "^0.5.0"
+    "@facetlayer/prism-framework": "workspace:*"
   },
   "devDependencies": {
     "@facetlayer/build-config-nodejs": "^0.3.0",

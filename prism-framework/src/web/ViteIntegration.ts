@@ -9,6 +9,7 @@
 import express from 'express';
 import { existsSync } from 'fs';
 import { join, resolve } from 'path';
+import type { Server } from 'http';
 import { logInfo } from '../logging/index.ts';
 
 export interface WebConfig {
@@ -31,6 +32,7 @@ export interface WebConfig {
 export async function setupWebMiddleware(
   expressApp: express.Application,
   webConfig: WebConfig,
+  httpServer?: Server,
 ): Promise<void> {
   const isDev = process.env.NODE_ENV !== 'production';
   const webDir = resolve(webConfig.dir);
@@ -41,7 +43,12 @@ export async function setupWebMiddleware(
       const vite: any = await (Function('return import("vite")')());
       const viteServer = await vite.createServer({
         root: webDir,
-        server: { middlewareMode: true },
+        server: {
+          middlewareMode: true,
+          // Use the shared HTTP server for HMR WebSocket to avoid port conflicts
+          // when multiple Prism apps run simultaneously.
+          hmr: httpServer ? { server: httpServer } : true,
+        },
         appType: 'spa',
       });
       expressApp.use(viteServer.middlewares);

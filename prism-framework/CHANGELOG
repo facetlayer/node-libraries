@@ -1,5 +1,7 @@
 
 Unreleased
+ - Fixed Vite HMR WebSocket port conflicts when multiple Prism apps run simultaneously
+ - startServer now creates HTTP server before Vite setup, passing it for shared HMR WebSocket
  - Added /core export path (`@facetlayer/prism-framework/core`) for transport-agnostic imports without Express dependency
  - Extracted EndpointDefinition to its own file (src/endpoints/EndpointDefinition.ts)
  - Decoupled ServiceDefinition from Express types (MiddlewareDefinition moved to src/web/)

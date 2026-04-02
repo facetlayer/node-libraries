@@ -148,8 +148,8 @@ importers:
   cc-skills-gui:
     dependencies:
       '@facetlayer/prism-framework':
-        specifier: ^0.5.0
-        version: 0.5.0(vite@5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1))(zod@4.1.12)
+        specifier: workspace:*
+        version: link:../prism-framework
     devDependencies:
       '@facetlayer/build-config-nodejs':
         specifier: ^0.3.0
@@ -166,6 +166,40 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1)
+
+  cc-skills-gui/web:
+    dependencies:
+      '@facetlayer/prism-framework-ui':
+        specifier: ^0.2.2
+        version: 0.2.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.2.1(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+      react:
+        specifier: ^19.0.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.0(react@19.2.0)
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.2.1
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.2(@types/react@19.2.2)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.7.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
 
   claude-worktree-helper:
     dependencies:
@@ -690,8 +724,8 @@ importers:
   prism-framework-expo:
     dependencies:
       '@facetlayer/prism-framework':
-        specifier: workspace:*
-        version: link:../prism-framework
+        specifier: ^0.5.0
+        version: 0.5.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))(zod@4.1.12)
       expo-sqlite:
         specifier: '>=14.0.0'
         version: 55.0.11(expo@55.0.9)(react-native@0.84.1(@babel/core@7.28.5)(@types/react@19.2.2)(react@19.2.0))(react@19.2.0)
@@ -9740,7 +9774,7 @@ snapshots:
   '@babel/plugin-proposal-export-default-from@7.27.1(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2(@babel/core@7.28.5)':
     dependencies:
@@ -9749,22 +9783,22 @@ snapshots:
   '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-class-static-block@7.14.5(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-decorators@7.28.6(@babel/core@7.28.5)':
     dependencies:
@@ -9799,12 +9833,12 @@ snapshots:
   '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.28.5)':
     dependencies:
@@ -9814,42 +9848,42 @@ snapshots:
   '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-typescript@7.27.1(@babel/core@7.28.5)':
     dependencies:
@@ -9980,7 +10014,7 @@ snapshots:
   '@babel/plugin-transform-flow-strip-types@7.27.1(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
       '@babel/plugin-syntax-flow': 7.28.6(@babel/core@7.28.5)
 
   '@babel/plugin-transform-for-of@7.27.1(@babel/core@7.28.5)':
@@ -11859,7 +11893,7 @@ snapshots:
 
   '@expo/json-file@10.0.12':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       json5: 2.2.3
 
   '@expo/local-build-cache-provider@55.0.7(typescript@5.9.3)':
@@ -11881,9 +11915,9 @@ snapshots:
 
   '@expo/metro-config@55.0.11(expo@55.0.9)(typescript@5.9.3)':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
+      '@babel/generator': 7.29.1
       '@expo/config': 55.0.11(typescript@5.9.3)
       '@expo/env': 2.1.1
       '@expo/json-file': 10.0.12
@@ -11967,7 +12001,7 @@ snapshots:
 
   '@expo/require-utils@55.0.3(typescript@5.9.3)':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@babel/core': 7.28.5
       '@babel/plugin-transform-modules-commonjs': 7.27.1(@babel/core@7.28.5)
     optionalDependencies:
@@ -12008,7 +12042,7 @@ snapshots:
 
   '@expo/xcpretty@4.4.1':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       chalk: 4.1.2
       js-yaml: 4.1.1
 
@@ -12119,28 +12153,6 @@ snapshots:
       - '@types/react'
       - '@types/react-dom'
 
-  '@facetlayer/prism-framework@0.5.0(vite@5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1))(zod@4.1.12)':
-    dependencies:
-      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
-      '@facetlayer/doc-files-helper': 0.1.2
-      '@facetlayer/port-assignment': 0.2.0
-      '@facetlayer/qc': 0.1.1
-      '@facetlayer/sqlite-wrapper': 1.2.1
-      '@facetlayer/streams': 1.0.1
-      cookie-parser: 1.4.7
-      dotenv: 16.6.1
-      express: 4.21.2
-      openapi3-ts: 4.5.0
-      prom-client: 15.1.3
-      swagger-ui-express: 5.0.1(express@4.21.2)
-      uuid: 11.1.0
-      yargs: 18.0.0
-      zod: 4.1.12
-    optionalDependencies:
-      vite: 5.4.21(@types/node@22.13.0)(lightningcss@1.31.1)(terser@5.44.1)
-    transitivePeerDependencies:
-      - supports-color
-
   '@facetlayer/prism-framework@0.5.0(vite@6.4.1(@types/node@20.19.23)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))(zod@4.1.12)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
@@ -12160,6 +12172,28 @@ snapshots:
       zod: 4.1.12
     optionalDependencies:
       vite: 6.4.1(@types/node@20.19.23)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@facetlayer/prism-framework@0.5.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))(zod@4.1.12)':
+    dependencies:
+      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
+      '@facetlayer/doc-files-helper': 0.1.2
+      '@facetlayer/port-assignment': 0.2.0
+      '@facetlayer/qc': 0.1.1
+      '@facetlayer/sqlite-wrapper': 1.2.1
+      '@facetlayer/streams': 1.0.1
+      cookie-parser: 1.4.7
+      dotenv: 16.6.1
+      express: 4.21.2
+      openapi3-ts: 4.5.0
+      prom-client: 15.1.3
+      swagger-ui-express: 5.0.1(express@4.21.2)
+      uuid: 11.1.0
+      yargs: 18.0.0
+      zod: 4.1.12
+    optionalDependencies:
+      vite: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -12578,7 +12612,7 @@ snapshots:
 
   '@react-native/babel-plugin-codegen@0.83.4(@babel/core@7.28.5)':
     dependencies:
-      '@babel/traverse': 7.28.5
+      '@babel/traverse': 7.29.0
       '@react-native/codegen': 0.83.4(@babel/core@7.28.5)
     transitivePeerDependencies:
       - '@babel/core'
@@ -12626,7 +12660,7 @@ snapshots:
       '@babel/plugin-transform-sticky-regex': 7.27.1(@babel/core@7.28.5)
       '@babel/plugin-transform-typescript': 7.28.5(@babel/core@7.28.5)
       '@babel/plugin-transform-unicode-regex': 7.27.1(@babel/core@7.28.5)
-      '@babel/template': 7.27.2
+      '@babel/template': 7.28.6
       '@react-native/babel-plugin-codegen': 0.83.4(@babel/core@7.28.5)
       babel-plugin-syntax-hermes-parser: 0.32.0
       babel-plugin-transform-flow-enums: 0.0.2(@babel/core@7.28.5)
@@ -12637,7 +12671,7 @@ snapshots:
   '@react-native/codegen@0.83.4(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.29.2
       glob: 7.2.3
       hermes-parser: 0.32.0
       invariant: 2.2.4
@@ -12647,7 +12681,7 @@ snapshots:
   '@react-native/codegen@0.84.1(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.29.2
       hermes-parser: 0.32.0
       invariant: 2.2.4
       nullthrows: 1.1.1
@@ -13860,7 +13894,7 @@ snapshots:
 
   babel-plugin-istanbul@6.1.1:
     dependencies:
-      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-plugin-utils': 7.28.6
       '@istanbuljs/load-nyc-config': 1.1.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-instrument: 5.2.1
@@ -13870,8 +13904,8 @@ snapshots:
 
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
-      '@babel/template': 7.27.2
-      '@babel/types': 7.28.5
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
 
@@ -13901,7 +13935,7 @@ snapshots:
 
   babel-plugin-react-compiler@1.0.0:
     dependencies:
-      '@babel/types': 7.28.5
+      '@babel/types': 7.29.0
 
   babel-plugin-react-native-web@0.21.2: {}
 
@@ -13940,7 +13974,7 @@ snapshots:
 
   babel-preset-expo@55.0.13(@babel/core@7.28.5)(@babel/runtime@7.28.4)(expo@55.0.9)(react-refresh@0.14.2):
     dependencies:
-      '@babel/generator': 7.28.5
+      '@babel/generator': 7.29.1
       '@babel/helper-module-imports': 7.27.1
       '@babel/plugin-proposal-decorators': 7.29.0(@babel/core@7.28.5)
       '@babel/plugin-proposal-export-default-from': 7.27.1(@babel/core@7.28.5)
@@ -16007,7 +16041,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.29.2
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -16047,7 +16081,7 @@ snapshots:
 
   jest-message-util@29.7.0:
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@jest/types': 29.6.3
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
@@ -16695,9 +16729,9 @@ snapshots:
 
   metro-source-map@0.83.3:
     dependencies:
-      '@babel/traverse': 7.28.5
-      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.28.5'
-      '@babel/types': 7.28.5
+      '@babel/traverse': 7.29.0
+      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.29.0'
+      '@babel/types': 7.29.0
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
       metro-symbolicate: 0.83.3
@@ -16747,9 +16781,9 @@ snapshots:
   metro-transform-plugins@0.83.3:
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.5
+      '@babel/generator': 7.29.1
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
       flow-enums-runtime: 0.0.6
       nullthrows: 1.1.1
     transitivePeerDependencies:
@@ -16769,9 +16803,9 @@ snapshots:
   metro-transform-worker@0.83.3:
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/parser': 7.28.5
-      '@babel/types': 7.28.5
+      '@babel/generator': 7.29.1
+      '@babel/parser': 7.29.2
+      '@babel/types': 7.29.0
       flow-enums-runtime: 0.0.6
       metro: 0.83.3
       metro-babel-transformer: 0.83.3
@@ -16808,13 +16842,13 @@ snapshots:
 
   metro@0.83.3:
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/parser': 7.28.5
-      '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.5
-      '@babel/types': 7.28.5
+      '@babel/generator': 7.29.1
+      '@babel/parser': 7.29.2
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0
