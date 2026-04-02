@@ -142,6 +142,14 @@ after-deploy
 
 `after-deploy` commands run on the **server** after the deployment is activated. Use this for installing dependencies or restarting services.
 
+You can also restart a [Candle](https://www.npmjs.com/package/@facetlayer/candle) service after deployment:
+
+```
+after-deploy
+  shell(npm install --production)
+  candle-restart(my-app)
+```
+
 ## Full Example
 
 Here's a complete `.goob` file for a web application:
@@ -157,7 +165,7 @@ before-deploy
 
 after-deploy
   shell(npm install --production)
-  shell(npm start)
+  candle-restart(my-web-app)
 
 include src
 include public

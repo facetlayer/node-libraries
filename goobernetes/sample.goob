@@ -8,7 +8,7 @@ before-deploy
   shell(pnpm build)
 
 after-deploy
-  shell(pnpm start)
+  candle-restart(sample-api)
 
 include web
 include package.json

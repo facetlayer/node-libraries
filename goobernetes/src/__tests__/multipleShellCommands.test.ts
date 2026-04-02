@@ -42,6 +42,42 @@ before-deploy
         expect(allShells).toEqual(['pnpm build', 'pnpm lint']);
     });
 
+    it('parses candle-restart directives', () => {
+        const config = `
+after-deploy
+  candle-restart(my-service)
+`;
+        const queries = parseFile(config);
+        const afterDeploy = queries.find(q => q.command === 'after-deploy');
+        expect(afterDeploy).toBeDefined();
+
+        const candleRestarts = afterDeploy.tags
+            .filter(tag => tag.attr === 'candle-restart')
+            .map(tag => tag.toOriginalString());
+
+        expect(candleRestarts).toEqual(['my-service']);
+    });
+
+    it('parses mixed shell and candle-restart directives in order', () => {
+        const config = `
+after-deploy
+  shell(npm install --production)
+  candle-restart(my-api)
+`;
+        const queries = parseFile(config);
+        const afterDeploy = queries.find(q => q.command === 'after-deploy');
+        expect(afterDeploy).toBeDefined();
+
+        const actions = afterDeploy.tags
+            .filter(tag => tag.attr === 'shell' || tag.attr === 'candle-restart')
+            .map(tag => ({ type: tag.attr, value: tag.toOriginalString() }));
+
+        expect(actions).toEqual([
+            { type: 'shell', value: 'npm install --production' },
+            { type: 'candle-restart', value: 'my-api' },
+        ]);
+    });
+
     it('works with a single shell() command', () => {
         const config = `
 after-deploy

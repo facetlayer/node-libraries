@@ -355,6 +355,23 @@ after-deploy
 
 Each command runs sequentially. If any command fails (non-zero exit code), the deployment is aborted.
 
+#### Candle Restart
+
+The `candle-restart` directive restarts a [Candle](https://www.npmjs.com/package/@facetlayer/candle) service after deployment. This is the recommended way to restart long-running processes managed by Candle.
+
+```
+after-deploy
+  candle-restart(my-api)
+```
+
+You can combine it with shell commands:
+
+```
+after-deploy
+  shell(npm install --production)
+  candle-restart(my-api)
+```
+
 ### Complete Lifecycle Example
 
 ```

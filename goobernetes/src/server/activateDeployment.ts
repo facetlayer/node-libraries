@@ -31,7 +31,12 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
         const configs = parseFile(deploymentRecord.source_config_file);
 
         let projectName: string;
-        const shellCommands: string[] = [];
+
+        type AfterDeployAction =
+            | { type: 'shell'; command: string }
+            | { type: 'candle-restart'; serviceName: string };
+
+        const afterDeployActions: AfterDeployAction[] = [];
 
         for (const config of configs) {
             switch (config.command) {
@@ -43,7 +48,12 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
                         if (tag.attr === 'shell') {
                             const shell = tag.toOriginalString();
                             if (shell) {
-                                shellCommands.push(shell);
+                                afterDeployActions.push({ type: 'shell', command: shell });
+                            }
+                        } else if (tag.attr === 'candle-restart') {
+                            const serviceName = tag.toOriginalString();
+                            if (serviceName) {
+                                afterDeployActions.push({ type: 'candle-restart', serviceName });
                             }
                         }
                     }
@@ -57,8 +67,12 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             throw new Error(`No record found for project ${projectName}`);
         }
 
-        for (const shell of shellCommands) {
-            await executeShellCommand(shell, deployDir, 'after-deploy');
+        for (const action of afterDeployActions) {
+            if (action.type === 'shell') {
+                await executeShellCommand(action.command, deployDir, 'after-deploy');
+            } else if (action.type === 'candle-restart') {
+                await executeShellCommand(`candle restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
+            }
         }
 
         getDatabase().upsert('active_deployment', {
