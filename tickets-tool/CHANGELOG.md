@@ -1,4 +1,4 @@
-# Unreleased
+# 0.2.0
  - Renamed from feedback-tool to tickets-tool; CLI command is now `tickets`
  - Added globally unique `ticket_id` field to feedback items (format: `tk-XXXXXXXX`)
  - Added `feedback_comments` table for comment history on tickets
