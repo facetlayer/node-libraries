@@ -1,12 +1,11 @@
 
-import Path from 'path'
 import { fileExists, getFileHash } from '@facetlayer/file-manifest';
 import { getDatabase } from './Database.ts';
 import { databaseCleanup } from './databaseCleanup.ts';
 import { getPathInDeploymentDir } from './deployDirs.ts';
 
 interface VerifyDeploymentResponse {
-    status: 'ok' | 'error';
+    status: 'success' | 'error';
     error?: string;
 }
 
@@ -59,7 +58,7 @@ export async function verifyDeployment({deployName}: { deployName: string })
     await databaseCleanup();
 
     return {
-        status: 'ok',
+        status: 'success',
     }
 }
 

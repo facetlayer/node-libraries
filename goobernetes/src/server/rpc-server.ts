@@ -1,5 +1,4 @@
 import { JSONRPCServer, JSONRPCResponse } from 'json-rpc-2.0';
-import { IncomingMessage } from 'http';
 import { Request, Response } from 'express';
 import { 
     RPC_METHODS,
@@ -95,6 +94,7 @@ export class GooberneteRPCServer {
             }
 
             // Delete chunks from the database
+            getDatabase().run(`delete from deployment_pending_multi_part_file_chunk where deploy_name = ? and rel_path = ?`, [deployName, relPath]);
             getDatabase().run(`delete from deployment_needed_file where deploy_name = ? and rel_path = ?`, [deployName, relPath]);
         });
 
@@ -103,8 +103,7 @@ export class GooberneteRPCServer {
         });
 
         this.server.addMethod(RPC_METHODS.VERIFY_DEPLOYMENT, async (params: VerifyDeploymentParams): Promise<VerifyDeploymentResult> => {
-            const result = await verifyDeployment(params);
-            return { status: result.status as 'success' | 'error', error: result.error };
+            return await verifyDeployment(params);
         });
 
         this.server.addMethod(RPC_METHODS.ACTIVATE_DEPLOYMENT, async (params: ActivateDeploymentParams) => {
@@ -112,7 +111,7 @@ export class GooberneteRPCServer {
         });
     }
 
-    private validateApiKey(request: IncomingMessage | Request): boolean {
+    private validateApiKey(request: Request): boolean {
         if (this.disableAPIKeyCheck) {
             return true;
         }
@@ -164,7 +163,7 @@ export class GooberneteRPCServer {
                     data: error.message
                 }
             };
-            res.json(errorResponse);
+            res.status(500).json(errorResponse);
         }
     }
 }

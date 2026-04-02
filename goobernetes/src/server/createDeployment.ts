@@ -37,7 +37,7 @@ export async function createDeployment({projectName, sourceFileManifest, sourceF
     }
 
     // Set up project if needed
-    const projectRecord = getDatabase().get(`select * from project where project_name = '${projectName}'`);
+    const projectRecord = getDatabase().get(`select * from project where project_name = ?`, [projectName]);
     if (!projectRecord) {
         getDatabase().insert('project', {
             project_name: projectName,

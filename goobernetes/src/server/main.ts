@@ -21,28 +21,10 @@ export async function startServer(options: StartServerOptions) {
     const app = express();
     const server = http.createServer(app);
     
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({ limit: '1mb' }));
     
     const rpcServer = new GooberneteRPCServer(disableAPIKeyCheck);
     
-    // Handle HTTP JSON-RPC requests
-    app.post('/json-rpc', (req, res) => {
-        rpcServer.handleHttpRequest(req, res);
-    });
-
-    server.listen(port, () => {
-        console.log(`Server listening on port ${port}`);
-    });
-
-    server.on('error', (error: any) => {
-        if (error.code === 'EADDRINUSE') {
-            console.error(`Port ${port} is already in use!`);
-            process.exit(1);
-        } else {
-            console.error('Unexpected HTTP server error:', error);
-        }
-    });
-
     const deployDir = getDeploymentsDir();
 
     if (!fs.existsSync(deployDir)) {
@@ -54,5 +36,23 @@ export async function startServer(options: StartServerOptions) {
     }
 
     console.log('Using deploy directory:', deployDir);
-    console.log(`Listening for deployments at: localhost:${port}/json-rpc`);
+
+    // Handle HTTP JSON-RPC requests
+    app.post('/json-rpc', (req, res) => {
+        rpcServer.handleHttpRequest(req, res);
+    });
+
+    server.listen(port, () => {
+        console.log(`Server listening on port ${port}`);
+        console.log(`Listening for deployments at: localhost:${port}/json-rpc`);
+    });
+
+    server.on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE') {
+            console.error(`Port ${port} is already in use!`);
+            process.exit(1);
+        } else {
+            console.error('Unexpected HTTP server error:', error);
+        }
+    });
 }

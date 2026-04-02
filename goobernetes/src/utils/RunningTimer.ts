@@ -1,11 +1,9 @@
 
 export class RunningTimer {
-    startTime: number;
-    timeOfLastCheck: number;
+    private timeOfLastCheck: number;
 
     constructor() {
-        this.startTime = Date.now();
-        this.timeOfLastCheck = this.startTime;
+        this.timeOfLastCheck = Date.now();
     }
 
     checkElapsedSecs() {

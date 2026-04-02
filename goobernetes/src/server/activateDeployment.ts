@@ -26,7 +26,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
     const output = new Stream();
 
     (async () => {
-        const deploymentRecord = getDatabase().get(`select * from deployment where deploy_name = '${deployName}'`);
+        const deploymentRecord = getDatabase().get(`select * from deployment where deploy_name = ?`, [deployName]);
         const deployDir = Path.join(getDeploymentsDir(), deploymentRecord.deploy_dir);
         const configs = parseFile(deploymentRecord.source_config_file);
 
@@ -61,7 +61,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             }
         }
 
-        const projectRecord = getDatabase().get(`select * from project where project_name = '${projectName}'`);
+        const projectRecord = getDatabase().get(`select * from project where project_name = ?`, [projectName]);
 
         if (!projectRecord) {
             throw new Error(`No record found for project ${projectName}`);
