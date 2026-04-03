@@ -1,4 +1,13 @@
 
+Unreleased
+ - `startServer` port is now optional — defaults from PRISM_API_PORT env var, then 3000
+ - `web` config accepts a string path in addition to `{ dir: string }`
+ - Added `resolveDir()` utility to simplify ESM path resolution for web directories
+ - ViteIntegration now surfaces Vite config errors instead of silently falling back to static serving
+ - Added Vite sample (single-process API + React frontend with HMR)
+ - Added Next.js sample (two-process: API server + Next.js dev server with rewrites)
+ - Added Playwright browser tests for both sample apps
+
 0.6.0
  - Fixed Vite HMR WebSocket port conflicts when multiple Prism apps run simultaneously
  - startServer now creates HTTP server before Vite setup, passing it for shared HMR WebSocket

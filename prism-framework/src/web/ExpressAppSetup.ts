@@ -17,12 +17,18 @@ import { setupWebMiddleware, type WebConfig } from './ViteIntegration.ts';
 export type { WebConfig } from './ViteIntegration.ts';
 
 export interface ServerSetupConfig {
-  port: number;
+  /**
+   * Port to listen on. If omitted, reads from PRISM_API_PORT env var, then falls back to 3000.
+   */
+  port?: number;
   app: PrismApp;
   openapiConfig?: OpenAPIConfig;
   corsConfig?: CorsConfig;
-  /** Serve web files alongside the API. When provided, API endpoints are mounted at /api/. */
-  web?: WebConfig;
+  /**
+   * Serve web files alongside the API. When provided, API endpoints are mounted at /api/.
+   * Can be a WebConfig object or a string path to the web directory.
+   */
+  web?: WebConfig | string;
 }
 
 export function createExpressApp(config: ServerSetupConfig): express.Application {
@@ -95,11 +101,25 @@ export function createExpressApp(config: ServerSetupConfig): express.Application
   return app;
 }
 
+function resolvePort(config: ServerSetupConfig): number {
+  if (config.port != null) return config.port;
+  const envPort = process.env.PRISM_API_PORT;
+  if (envPort) return parseInt(envPort, 10);
+  return 3000;
+}
+
+function resolveWebConfig(web: WebConfig | string | undefined): WebConfig | undefined {
+  if (web == null) return undefined;
+  if (typeof web === 'string') return { dir: web };
+  return web;
+}
+
 export async function startServer(config: ServerSetupConfig): Promise<Server> {
   // Validate app configuration before starting
   validateAppOrThrow(config.app);
 
-  const port = config.port;
+  const port = resolvePort(config);
+  const webConfig = resolveWebConfig(config.web);
 
   const app = createExpressApp(config);
 
@@ -107,8 +127,8 @@ export async function startServer(config: ServerSetupConfig): Promise<Server> {
   const server = createHttpServer(app);
 
   // Set up web serving before listening (Vite just needs the Server instance, not a listening one)
-  if (config.web) {
-    await setupWebMiddleware(app, config.web, server);
+  if (webConfig) {
+    await setupWebMiddleware(app, webConfig, server);
   }
 
   await new Promise<void>(resolve => {

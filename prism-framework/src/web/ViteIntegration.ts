@@ -38,9 +38,14 @@ export async function setupWebMiddleware(
   const webDir = resolve(webConfig.dir);
 
   if (isDev) {
+    let vite: any;
     try {
-      // Dynamic import - vite is an optional peer dependency
-      const vite: any = await (Function('return import("vite")')());
+      vite = await (Function('return import("vite")')());
+    } catch {
+      // Vite not installed, fall through to static serving
+    }
+
+    if (vite) {
       const viteServer = await vite.createServer({
         root: webDir,
         server: {
@@ -54,8 +59,6 @@ export async function setupWebMiddleware(
       expressApp.use(viteServer.middlewares);
       logInfo(`Vite dev server middleware attached for ${webDir}`);
       return;
-    } catch {
-      // Vite not available, fall back to static serving
     }
   }
 

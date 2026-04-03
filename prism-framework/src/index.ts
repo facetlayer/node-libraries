@@ -80,3 +80,6 @@ export { startStdinServer } from './stdin/StdinServer.ts';
 
 // Logging exports
 export { setLogStderr } from './logging/index.ts';
+
+// Utility exports
+export { resolveDir } from './resolveDir.ts';
