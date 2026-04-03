@@ -1,5 +1,5 @@
 
-Unreleased
+0.3.0
  - Added `get-or-claim` CLI command (idempotent port assignment by name)
 
 0.2.0
