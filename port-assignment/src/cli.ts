@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import {
   assignPort,
   claimUnusedPort,
+  getOrClaimPort,
   getPortAssignments,
   getPortAssignmentsByProjectDir,
   releasePort,
@@ -73,6 +74,37 @@ async function main() {
           console.log(port)
         } catch (error) {
           console.error(`Error claiming port: ${error instanceof Error ? error.message : String(error)}`)
+          process.exit(1)
+        }
+      }
+    )
+    .command(
+      'get-or-claim',
+      'Get an existing port for a name, or claim a new one (idempotent)',
+      (yargs) => {
+        return yargs
+          .option('name', {
+            describe: 'Name to associate with this port',
+            type: 'string',
+            demandOption: true
+          })
+          .option('project-dir', {
+            describe: 'Project directory to associate with this port',
+            type: 'string',
+            default: process.cwd()
+          })
+      },
+      async (argv) => {
+        try {
+          const projectDir = argv.projectDir as string
+          const port = await getOrClaimPort({
+            project_dir: projectDir,
+            name: argv.name as string,
+            cwd: projectDir
+          })
+          console.log(port)
+        } catch (error) {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`)
           process.exit(1)
         }
       }

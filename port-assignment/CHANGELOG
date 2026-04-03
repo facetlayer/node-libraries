@@ -1,4 +1,7 @@
 
+Unreleased
+ - Added `get-or-claim` CLI command (idempotent port assignment by name)
+
 0.2.0
  - Added project_dir column to track which project claimed each port
  - `list` now filters by current project directory (use `--project-dir` to override)
