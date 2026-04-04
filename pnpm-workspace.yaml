@@ -13,6 +13,7 @@ packages:
   - concurrency-limit
   - csv-tool
   - docs-tool
+  - domains-available
   - env-file-rewrite
   - fetch-sse-stream
   - fl-sdlc
