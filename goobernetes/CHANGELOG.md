@@ -1,3 +1,6 @@
+# Unreleased
+ - Fixed: misleading "Request body is too large" warning that triggered at 100KB; now only warns above 512KB with clearer message
+
 # 0.3.1
  - Added: `preview-deploy` command that contacts the server to show deployment drift (files to upload, files to delete)
  - Added: `copy-back` command to download a file from the server's active deployment back to the local filesystem

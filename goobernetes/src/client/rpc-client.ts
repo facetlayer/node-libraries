@@ -43,9 +43,8 @@ export class GooberneteRPCClient {
 
             const body = JSON.stringify(jsonRPCRequest);
 
-            // Warn if body is too large
-            if (body.length > 1024 * 100) {
-                console.warn('GooberneteRPCClient: Request body is too large (method: ' + jsonRPCRequest.method + '): ' + body.length);
+            if (body.length > 1024 * 512) {
+                console.warn('GooberneteRPCClient: Large request body (method: ' + jsonRPCRequest.method + ', size: ' + body.length + ')');
             }
             
             if (this.apiKey) {
