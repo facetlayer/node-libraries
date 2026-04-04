@@ -17,7 +17,8 @@ export {
 export { createExpressApp, startServer } from './web/ExpressAppSetup.ts';
 export type { ServerSetupConfig, WebConfig } from './web/ExpressAppSetup.ts';
 
-export { getMetrics, recordHttpRequest, recordHttpResponse } from './Metrics.ts';
+export { getMetrics, recordHttpRequest, recordHttpResponse, configureMetrics, createCounter, createHistogram, createGauge, PromClient } from './Metrics.ts';
+export type { MetricsConfig } from './Metrics.ts';
 
 export type { RequestContext } from './RequestContext.ts';
 export { getCurrentRequestContext, withRequestContext } from './RequestContext.ts';
