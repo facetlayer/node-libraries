@@ -1,24 +1,16 @@
 
-Unreleased
- - `startServer` port is now optional — defaults from PRISM_API_PORT env var, then 3000
+0.7.0
+ - Fixes to support prism-framework-expo
+ - `startServer` port is now optional
  - `web` config accepts a string path in addition to `{ dir: string }`
- - Added `resolveDir()` utility to simplify ESM path resolution for web directories
- - ViteIntegration now surfaces Vite config errors instead of silently falling back to static serving
- - Added Vite sample (single-process API + React frontend with HMR)
- - Added Next.js sample (two-process: API server + Next.js dev server with rewrites)
- - Added Playwright browser tests for both sample apps
 
 0.6.0
  - Fixed Vite HMR WebSocket port conflicts when multiple Prism apps run simultaneously
- - startServer now creates HTTP server before Vite setup, passing it for shared HMR WebSocket
- - Added /core export path (`@facetlayer/prism-framework/core`) for transport-agnostic imports without Express dependency
- - Extracted EndpointDefinition to its own file (src/endpoints/EndpointDefinition.ts)
- - Decoupled ServiceDefinition from Express types (MiddlewareDefinition moved to src/web/)
- - Added PrismDatabase interface for cross-platform database adapters
+ - Added /core export path (`@facetlayer/prism-framework/core`)
+ - Added PrismDatabase interface
 
 0.5.0
  - Replaced PRISM_API_PORT env var with automatic port assignment via @facetlayer/port-assignment
- - Port is now looked up by project directory with service name "api"
  - loadEnv() is now async
 
 0.4.1
@@ -26,7 +18,7 @@ Unreleased
  - Apps can use `--stdin` flag to communicate via JSON over stdin/stdout instead of HTTP
  - Logging redirected to stderr in stdin mode to keep stdout clean for protocol messages
  - Added stdin-protocol documentation
- - Merged @facetlayer/prism-framework-api into this package (server framework, endpoints, authorization, etc.)
+ - Merged old @facetlayer/prism-framework-api into this package
  - Removed /api/* path restriction — endpoints can now use any path including /api prefixed paths
  - Added Zod 4.x as peer dependency
 
