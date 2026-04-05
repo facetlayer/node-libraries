@@ -1,6 +1,5 @@
 import type { PrismApp } from '@facetlayer/prism-framework/core';
 import { isHttpError, Authorization, withRequestContext } from '@facetlayer/prism-framework/core';
-import { randomUUID } from 'crypto';
 
 export interface ApiRequestOptions {
     params?: any;
@@ -88,7 +87,7 @@ export function createExpoFetch(app: PrismApp, fetchOptions: ExpoFetchOptions = 
         // Build request context with auth (equivalent of Express middleware on web)
         const auth = fetchOptions.getAuth?.() ?? new Authorization();
         const context = {
-            requestId: randomUUID(),
+            requestId: globalThis.crypto.randomUUID(),
             startTime: Date.now(),
             auth,
         };

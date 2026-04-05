@@ -1,5 +1,15 @@
-import type { PrismDatabase } from '@facetlayer/prism-framework/core';
-import type { ServiceDefinition } from '@facetlayer/prism-framework/core';
+import type { PrismDatabase, ServiceDefinition } from '@facetlayer/prism-framework/core';
+
+/**
+ * Minimal interface matching expo-sqlite's synchronous database API (SDK 51+).
+ * Avoids depending on the expo-sqlite package for type-checking.
+ */
+export interface ExpoSQLiteSyncDatabase {
+    runSync(sql: string, params?: any): { changes: number; lastInsertRowid: number | bigint };
+    getFirstSync(sql: string, params?: any): any;
+    getAllSync(sql: string, params?: any): any[];
+    closeSync(): void;
+}
 
 /**
  * SQLite database adapter for Expo/React Native using expo-sqlite.
@@ -9,9 +19,9 @@ import type { ServiceDefinition } from '@facetlayer/prism-framework/core';
  * Node.js (via better-sqlite3) and mobile (via expo-sqlite).
  */
 export class ExpoSqliteDatabase implements PrismDatabase {
-    private db: any;
+    private db: ExpoSQLiteSyncDatabase;
 
-    constructor(db: any) {
+    constructor(db: ExpoSQLiteSyncDatabase) {
         this.db = db;
     }
 
@@ -22,7 +32,7 @@ export class ExpoSqliteDatabase implements PrismDatabase {
      *   import * as SQLite from 'expo-sqlite';
      *   const db = ExpoSqliteDatabase.open(SQLite, 'myapp.db');
      */
-    static open(expoSQLite: { openDatabaseSync: (name: string) => any }, name: string): ExpoSqliteDatabase {
+    static open(expoSQLite: { openDatabaseSync: (name: string) => ExpoSQLiteSyncDatabase }, name: string): ExpoSqliteDatabase {
         const db = expoSQLite.openDatabaseSync(name);
         return new ExpoSqliteDatabase(db);
     }
@@ -100,8 +110,11 @@ export class ExpoSqliteDatabase implements PrismDatabase {
     }
 
     /**
-     * Simple string hash for migration tracking.
+     * Simple 32-bit string hash for migration tracking.
      * Normalizes whitespace so formatting changes don't trigger re-runs.
+     *
+     * Note: This is a djb2-variant hash, not cryptographic. Collision risk
+     * is low for typical migration statement counts but not zero.
      */
     private hashStatement(sql: string): string {
         const normalized = sql.trim().replace(/\s+/g, ' ');

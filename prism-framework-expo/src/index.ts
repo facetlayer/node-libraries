@@ -14,6 +14,7 @@ export { createExpoFetch } from './expoFetch.js';
 export type { ApiRequestOptions, ExpoFetchOptions } from './expoFetch.js';
 
 export { ExpoSqliteDatabase } from './ExpoSqliteDatabase.js';
+export type { ExpoSQLiteSyncDatabase } from './ExpoSqliteDatabase.js';
 
 export { ExpoEventEmitter } from './ExpoEventEmitter.js';
 

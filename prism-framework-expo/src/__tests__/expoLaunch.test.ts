@@ -2,28 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { expoLaunch } from '../expoLaunch.js';
 import { ExpoSqliteDatabase } from '../ExpoSqliteDatabase.js';
 import { PrismApp, createEndpoint } from '@facetlayer/prism-framework/core';
+import { createMockExpoSQLite } from './mockExpoSQLite.js';
 import { z } from 'zod';
-
-function createMockExpoSQLite() {
-    const mockDb = {
-        runSync(_sql: string, _params?: any) {
-            return { changes: 0, lastInsertRowid: 0 };
-        },
-        getFirstSync(_sql: string, _params?: any) {
-            return null;
-        },
-        getAllSync(_sql: string, _params?: any) {
-            return [];
-        },
-        closeSync() {},
-    };
-
-    return {
-        openDatabaseSync(_name: string) {
-            return mockDb;
-        },
-    };
-}
 
 function createTestApp(options?: { withMiddleware?: boolean; withStartJobs?: () => Promise<void> }) {
     const listEndpoint = createEndpoint({

@@ -1,13 +1,12 @@
-import type { PrismApp } from '@facetlayer/prism-framework/core';
-import type { Authorization } from '@facetlayer/prism-framework/core';
+import type { PrismApp, Authorization } from '@facetlayer/prism-framework/core';
 import { createExpoFetch, type ApiRequestOptions } from './expoFetch.js';
-import { ExpoSqliteDatabase } from './ExpoSqliteDatabase.js';
+import { ExpoSqliteDatabase, type ExpoSQLiteSyncDatabase } from './ExpoSqliteDatabase.js';
 
 export interface ExpoLaunchDatabaseConfig {
     /**
      * The expo-sqlite module. Pass the result of `import * as SQLite from 'expo-sqlite'`.
      */
-    expoSQLite: { openDatabaseSync: (name: string) => any };
+    expoSQLite: { openDatabaseSync: (name: string) => ExpoSQLiteSyncDatabase };
 
     /**
      * Filename for the SQLite database (default: "{databaseName}.db")

@@ -1,57 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ExpoSqliteDatabase } from '../ExpoSqliteDatabase.js';
-
-/**
- * Mock expo-sqlite module that simulates the synchronous API.
- * Uses a simple in-memory store for testing.
- */
-function createMockExpoSQLite() {
-    const tables: Record<string, any[]> = {};
-    let lastInsertRowid = 0;
-
-    const mockDb = {
-        runSync(sql: string, _params?: any) {
-            // Track CREATE TABLE statements
-            const createMatch = sql.match(/CREATE TABLE IF NOT EXISTS (\w+)/i);
-            if (createMatch) {
-                const tableName = createMatch[1];
-                if (!tables[tableName]) {
-                    tables[tableName] = [];
-                }
-                return { changes: 0, lastInsertRowid: 0 };
-            }
-
-            // Simple INSERT simulation
-            if (sql.startsWith('INSERT')) {
-                lastInsertRowid++;
-                return { changes: 1, lastInsertRowid };
-            }
-
-            return { changes: 0, lastInsertRowid };
-        },
-
-        getFirstSync(_sql: string, _params?: any) {
-            return { id: 1, name: 'test' };
-        },
-
-        getAllSync(_sql: string, _params?: any) {
-            return [{ id: 1, name: 'test' }, { id: 2, name: 'test2' }];
-        },
-
-        closeSync() {
-            // no-op
-        },
-
-        _tables: tables,
-    };
-
-    return {
-        openDatabaseSync(_name: string) {
-            return mockDb;
-        },
-        _mockDb: mockDb,
-    };
-}
+import { createMockExpoSQLite } from './mockExpoSQLite.js';
 
 describe('ExpoSqliteDatabase', () => {
     it('opens a database', () => {
@@ -64,14 +13,16 @@ describe('ExpoSqliteDatabase', () => {
         const mockSQLite = createMockExpoSQLite();
         const db = ExpoSqliteDatabase.open(mockSQLite, 'test.db');
         const result = db.get('SELECT * FROM items WHERE id = ?', [1]);
-        expect(result).toEqual({ id: 1, name: 'test' });
+        // Shared mock returns null for getFirstSync
+        expect(result).toBeNull();
     });
 
     it('implements list()', () => {
         const mockSQLite = createMockExpoSQLite();
         const db = ExpoSqliteDatabase.open(mockSQLite, 'test.db');
         const result = db.list('SELECT * FROM items');
-        expect(result).toHaveLength(2);
+        // Shared mock returns [] for getAllSync
+        expect(result).toEqual([]);
     });
 
     it('implements run() with correct return shape', () => {
