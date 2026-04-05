@@ -1,5 +1,5 @@
 
-# Unreleased
+# 1.2.3
  - Fix SQL parser failing on CREATE TABLE statements that contain SQL comments (-- or /* */)
  - Bump better-sqlite3 from 11.8.1 to 12.8.0
 
