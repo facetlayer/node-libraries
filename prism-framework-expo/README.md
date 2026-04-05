@@ -19,24 +19,27 @@ npx expo install expo-sqlite
 
 ```typescript
 import { App } from '@facetlayer/prism-framework/core';
-import { expoLaunch } from '@facetlayer/prism-framework-expo';
+import { expoLaunch, ExpoSqliteDatabase } from '@facetlayer/prism-framework-expo';
 import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
 import * as SQLite from 'expo-sqlite';
-import { userService, projectService } from './services';
+import { createUserService, createProjectService } from './services';
 
+// 1. Create the database first so endpoints can close over it
+const db = ExpoSqliteDatabase.open(SQLite, 'myapp.db');
+
+// 2. Create services with database access via closure
 const app = new App({
   name: 'MyApp',
-  services: [userService, projectService],
+  services: [createUserService(db), createProjectService(db)],
 });
 
-const { fetch, databases } = await expoLaunch({
+// 3. Launch — pass the pre-created db for schema initialization
+const { fetch } = await expoLaunch({
   app,
-  databases: {
-    main: { expoSQLite: SQLite },
-  },
+  databases: { main: db },
 });
 
-// Wire up the UI fetch layer — now apiFetch() calls endpoints in-process
+// 4. Wire up the UI fetch layer — now apiFetch() calls endpoints in-process
 setFetchImplementation(fetch);
 ```
 
@@ -47,6 +50,8 @@ The same service definition files work on web, desktop, and mobile with zero cha
 ### `expoLaunch(options)`
 
 Bootstraps a Prism app for Expo. Initializes databases, creates the in-process fetch, and starts background jobs.
+
+The `databases` option accepts either config objects (to create new databases) or pre-created `ExpoSqliteDatabase` instances. Use pre-created instances when your endpoints need database access via closures.
 
 ### `createExpoFetch(app)`
 

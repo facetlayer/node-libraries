@@ -22,9 +22,19 @@ export interface ExpoLaunchOptions {
 
     /**
      * Database configurations, keyed by the database name used in service definitions.
-     * If omitted, no databases are initialized.
+     *
+     * Each value can be either:
+     * - An ExpoLaunchDatabaseConfig to create a new database
+     * - An existing ExpoSqliteDatabase instance (schema initialization will still run)
+     *
+     * When using databases in endpoint handlers, create the ExpoSqliteDatabase first
+     * and pass the instance here so endpoints can close over the same reference:
+     *
+     *   const db = ExpoSqliteDatabase.open(SQLite, 'main.db');
+     *   // define endpoints that use `db`...
+     *   const { fetch } = await expoLaunch({ app, databases: { main: db } });
      */
-    databases?: Record<string, ExpoLaunchDatabaseConfig>;
+    databases?: Record<string, ExpoLaunchDatabaseConfig | ExpoSqliteDatabase>;
 }
 
 export interface ExpoLaunchResult {
@@ -49,17 +59,16 @@ export interface ExpoLaunchResult {
  * 3. Creates an in-process fetch function bound to the app
  * 4. Runs startJobs for each service (if defined)
  *
- * Usage:
+ * Usage (with pre-created database for endpoint access):
  *   import * as SQLite from 'expo-sqlite';
  *   import { App } from '@facetlayer/prism-framework/core';
- *   import { expoLaunch } from '@facetlayer/prism-framework-expo';
+ *   import { expoLaunch, ExpoSqliteDatabase } from '@facetlayer/prism-framework-expo';
  *   import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
  *
+ *   const db = ExpoSqliteDatabase.open(SQLite, 'main.db');
+ *   // ... define services that close over `db` ...
  *   const app = new App({ services: [myService] });
- *   const { fetch } = expoLaunch({
- *     app,
- *     databases: { main: { expoSQLite: SQLite } },
- *   });
+ *   const { fetch } = await expoLaunch({ app, databases: { main: db } });
  *   setFetchImplementation(fetch);
  */
 export async function expoLaunch(options: ExpoLaunchOptions): Promise<ExpoLaunchResult> {
@@ -69,9 +78,18 @@ export async function expoLaunch(options: ExpoLaunchOptions): Promise<ExpoLaunch
     const databases: Record<string, ExpoSqliteDatabase> = {};
 
     if (options.databases) {
-        for (const [dbName, dbConfig] of Object.entries(options.databases)) {
-            const filename = dbConfig.filename || `${dbName}.db`;
-            const db = ExpoSqliteDatabase.open(dbConfig.expoSQLite, filename);
+        for (const [dbName, dbEntry] of Object.entries(options.databases)) {
+            let db: ExpoSqliteDatabase;
+
+            if (dbEntry instanceof ExpoSqliteDatabase) {
+                // Pre-created database instance — use as-is
+                db = dbEntry;
+            } else {
+                // Config object — create a new database
+                const filename = dbEntry.filename || `${dbName}.db`;
+                db = ExpoSqliteDatabase.open(dbEntry.expoSQLite, filename);
+            }
+
             db.initializeSchema(dbName, app.getAllServices());
             databases[dbName] = db;
         }

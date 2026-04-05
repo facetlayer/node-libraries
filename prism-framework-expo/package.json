@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsc -p .",
     "dev": "tsc -p . --watch",
+    "test": "vitest run",
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [
@@ -24,7 +25,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
-    "@facetlayer/prism-framework": "^0.5.0"
+    "@facetlayer/prism-framework": "^0.6.0"
   },
   "peerDependencies": {
     "expo-sqlite": ">=14.0.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.2"
   }
 }

@@ -66,21 +66,22 @@ export const itemsService = {
 ```typescript
 // app/_layout.tsx
 import { App } from '@facetlayer/prism-framework/core';
-import { expoLaunch } from '@facetlayer/prism-framework-expo';
+import { expoLaunch, ExpoSqliteDatabase } from '@facetlayer/prism-framework-expo';
 import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
 import * as SQLite from 'expo-sqlite';
-import { itemsService } from '../services/itemsService';
+import { createItemsService } from '../services/itemsService';
+
+// Create the database first so endpoints can close over it
+const db = ExpoSqliteDatabase.open(SQLite, 'myapp.db');
 
 const app = new App({
   name: 'MyApp',
-  services: [itemsService],
+  services: [createItemsService(db)],
 });
 
-const { fetch, databases } = await expoLaunch({
+const { fetch } = await expoLaunch({
   app,
-  databases: {
-    main: { expoSQLite: SQLite },
-  },
+  databases: { main: db },
 });
 
 // Wire up the UI fetch layer
