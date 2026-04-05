@@ -1,4 +1,7 @@
-# 0.4.0
+# 0.3.3
+ - Update sqlite3 version
+ 
+# 0.3.2
  - Fixed: misleading "Request body is too large" warning.
  - Fixed: Relaxed security scan rules (don't reject a filename that looks like `forgot-password/page.js`)
  - Added: `ignore-security-scan` config option
