@@ -11,6 +11,11 @@ export { expoLaunch } from './expoLaunch.js';
 export type { ExpoLaunchOptions, ExpoLaunchResult, ExpoLaunchDatabaseConfig } from './expoLaunch.js';
 
 export { createExpoFetch } from './expoFetch.js';
-export type { ApiRequestOptions } from './expoFetch.js';
+export type { ApiRequestOptions, ExpoFetchOptions } from './expoFetch.js';
 
 export { ExpoSqliteDatabase } from './ExpoSqliteDatabase.js';
+
+export { ExpoEventEmitter } from './ExpoEventEmitter.js';
+
+export { usePrismApp } from './usePrismApp.js';
+export type { UsePrismAppResult } from './usePrismApp.js';

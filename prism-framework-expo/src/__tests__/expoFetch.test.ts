@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createExpoFetch } from '../expoFetch.js';
-import { PrismApp, createEndpoint } from '@facetlayer/prism-framework/core';
+import { PrismApp, createEndpoint, BadRequestError, NotFoundError, Authorization, getCurrentRequestContext } from '@facetlayer/prism-framework/core';
 import { z } from 'zod';
 
 function createTestApp() {
@@ -93,5 +93,112 @@ describe('createExpoFetch', () => {
 
         const result = await fetch('get /items');
         expect(result).toEqual([{ id: '1', name: 'Item 1' }]);
+    });
+
+    it('normalizes HttpError to match webFetch error format', async () => {
+        const throwingEndpoint = createEndpoint({
+            method: 'GET',
+            path: '/fail',
+            handler: async () => { throw new NotFoundError('thing not found'); },
+        });
+
+        const app = new PrismApp({
+            name: 'error-test',
+            services: [{ name: 'errors', endpoints: [throwingEndpoint] }],
+        });
+
+        const fetch = createExpoFetch(app);
+        await expect(fetch('GET /fail')).rejects.toThrow('Fetch error, status: 404');
+    });
+
+    it('normalizes validation errors to match webFetch error format', async () => {
+        const app = createTestApp();
+        const fetch = createExpoFetch(app);
+
+        // POST /items expects { name: string }, send wrong data
+        await expect(fetch('POST /items', { params: { wrong: 'data' } }))
+            .rejects.toThrow('Fetch error, status: 422');
+    });
+
+    it('lets non-HttpError errors propagate unchanged', async () => {
+        const throwingEndpoint = createEndpoint({
+            method: 'GET',
+            path: '/crash',
+            handler: async () => { throw new TypeError('something broke'); },
+        });
+
+        const app = new PrismApp({
+            name: 'error-test',
+            services: [{ name: 'errors', endpoints: [throwingEndpoint] }],
+        });
+
+        const fetch = createExpoFetch(app);
+        await expect(fetch('GET /crash')).rejects.toThrow('something broke');
+    });
+
+    it('warns when host option is passed', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const app = createTestApp();
+        const fetch = createExpoFetch(app);
+
+        await fetch('GET /items', { host: 'http://localhost:3000' });
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('host')
+        );
+        warnSpy.mockRestore();
+    });
+
+    it('provides RequestContext with auth to endpoint handlers', async () => {
+        let capturedUserId: string | undefined;
+
+        const authEndpoint = createEndpoint({
+            method: 'GET',
+            path: '/whoami',
+            handler: async () => {
+                const ctx = getCurrentRequestContext();
+                capturedUserId = ctx?.auth.getUserPermissions()?.userId;
+                return { userId: capturedUserId };
+            },
+        });
+
+        const app = new PrismApp({
+            name: 'auth-test',
+            services: [{ name: 'auth', endpoints: [authEndpoint] }],
+        });
+
+        const auth = new Authorization();
+        auth.setUserPermissions({ userId: 'user-42', permissions: ['read'] });
+
+        const fetch = createExpoFetch(app, {
+            getAuth: () => auth,
+        });
+
+        const result = await fetch('GET /whoami');
+        expect(result).toEqual({ userId: 'user-42' });
+        expect(capturedUserId).toBe('user-42');
+    });
+
+    it('provides empty Authorization when no getAuth is configured', async () => {
+        let hasAuth = false;
+
+        const checkEndpoint = createEndpoint({
+            method: 'GET',
+            path: '/check-auth',
+            handler: async () => {
+                const ctx = getCurrentRequestContext();
+                hasAuth = ctx?.auth !== undefined;
+                return { hasAuth };
+            },
+        });
+
+        const app = new PrismApp({
+            name: 'auth-test',
+            services: [{ name: 'auth', endpoints: [checkEndpoint] }],
+        });
+
+        const fetch = createExpoFetch(app);
+        await fetch('GET /check-auth');
+        expect(hasAuth).toBe(true);
     });
 });

@@ -1,4 +1,5 @@
 import type { PrismApp } from '@facetlayer/prism-framework/core';
+import type { Authorization } from '@facetlayer/prism-framework/core';
 import { createExpoFetch, type ApiRequestOptions } from './expoFetch.js';
 import { ExpoSqliteDatabase } from './ExpoSqliteDatabase.js';
 
@@ -35,6 +36,23 @@ export interface ExpoLaunchOptions {
      *   const { fetch } = await expoLaunch({ app, databases: { main: db } });
      */
     databases?: Record<string, ExpoLaunchDatabaseConfig | ExpoSqliteDatabase>;
+
+    /**
+     * Optional function that returns an Authorization object for each request.
+     * On mobile, auth typically comes from stored tokens rather than cookies.
+     * This is the equivalent of Express auth middleware for in-process calls.
+     */
+    getAuth?: () => Authorization;
+
+    /**
+     * How to handle database schema initialization.
+     *
+     * - 'simple' (default): Runs all statements every time. Works well when
+     *   statements are idempotent (CREATE TABLE IF NOT EXISTS).
+     * - 'migrate': Tracks applied statements in a _prism_migrations table.
+     *   Only runs new statements. Safer for app updates.
+     */
+    migrationMode?: 'simple' | 'migrate';
 }
 
 export interface ExpoLaunchResult {
@@ -48,6 +66,13 @@ export interface ExpoLaunchResult {
      * Initialized database instances, keyed by database name.
      */
     databases: Record<string, ExpoSqliteDatabase>;
+
+    /**
+     * Shut down the app cleanly: closes all databases and runs any
+     * registered cleanup callbacks. Call this when the app is unmounting
+     * or going to background.
+     */
+    shutdown: () => void;
 }
 
 /**
@@ -90,7 +115,11 @@ export async function expoLaunch(options: ExpoLaunchOptions): Promise<ExpoLaunch
                 db = ExpoSqliteDatabase.open(dbEntry.expoSQLite, filename);
             }
 
-            db.initializeSchema(dbName, app.getAllServices());
+            if (options.migrationMode === 'migrate') {
+                db.migrateSchema(dbName, app.getAllServices());
+            } else {
+                db.initializeSchema(dbName, app.getAllServices());
+            }
             databases[dbName] = db;
         }
     }
@@ -105,8 +134,10 @@ export async function expoLaunch(options: ExpoLaunchOptions): Promise<ExpoLaunch
         }
     }
 
-    // Create in-process fetch
-    const fetch = createExpoFetch(app);
+    // Create in-process fetch with auth support
+    const fetch = createExpoFetch(app, {
+        getAuth: options.getAuth,
+    });
 
     // Start background jobs
     for (const service of app.getAllServices()) {
@@ -115,5 +146,16 @@ export async function expoLaunch(options: ExpoLaunchOptions): Promise<ExpoLaunch
         }
     }
 
-    return { fetch, databases };
+    // Build shutdown function
+    const shutdown = () => {
+        for (const db of Object.values(databases)) {
+            try {
+                db.close();
+            } catch {
+                // Database may already be closed
+            }
+        }
+    };
+
+    return { fetch, databases, shutdown };
 }

@@ -149,4 +149,52 @@ describe('expoLaunch', () => {
 
         expect(openSpy).toHaveBeenCalledWith('custom.db');
     });
+
+    it('shutdown closes databases', async () => {
+        const app = createTestApp();
+        const closeSpy = vi.fn();
+        const mockSQLite = {
+            openDatabaseSync: () => ({
+                runSync: () => ({ changes: 0, lastInsertRowid: 0 }),
+                getFirstSync: () => null,
+                getAllSync: () => [],
+                closeSync: closeSpy,
+            }),
+        };
+
+        const result = await expoLaunch({
+            app,
+            databases: {
+                main: { expoSQLite: mockSQLite },
+            },
+        });
+
+        result.shutdown();
+        expect(closeSpy).toHaveBeenCalledOnce();
+    });
+
+    it('shutdown is safe to call multiple times', async () => {
+        const app = createTestApp();
+        let callCount = 0;
+        const mockSQLite = {
+            openDatabaseSync: () => ({
+                runSync: () => ({ changes: 0, lastInsertRowid: 0 }),
+                getFirstSync: () => null,
+                getAllSync: () => [],
+                closeSync: () => {
+                    callCount++;
+                    if (callCount > 1) throw new Error('Already closed');
+                },
+            }),
+        };
+
+        const result = await expoLaunch({
+            app,
+            databases: { main: { expoSQLite: mockSQLite } },
+        });
+
+        // Should not throw on second call
+        result.shutdown();
+        result.shutdown();
+    });
 });

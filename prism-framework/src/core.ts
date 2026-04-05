@@ -40,5 +40,8 @@ export {
 export type { RequestContext } from './RequestContext.ts';
 export { getCurrentRequestContext, withRequestContext } from './RequestContext.ts';
 
+// Authorization
+export { Authorization } from './authorization/index.ts';
+
 // Database interface
 export type { PrismDatabase } from './databases/DatabaseInterface.ts';

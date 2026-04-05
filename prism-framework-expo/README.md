@@ -34,7 +34,7 @@ const app = new App({
 });
 
 // 3. Launch — pass the pre-created db for schema initialization
-const { fetch } = await expoLaunch({
+const { fetch, shutdown } = await expoLaunch({
   app,
   databases: { main: db },
 });
@@ -45,18 +45,85 @@ setFetchImplementation(fetch);
 
 The same service definition files work on web, desktop, and mobile with zero changes.
 
+## React Hook
+
+For Expo apps using `_layout.tsx`, the `usePrismApp` hook manages async initialization:
+
+```tsx
+import { usePrismApp } from '@facetlayer/prism-framework-expo';
+import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
+
+export default function RootLayout() {
+  const { isLoading, result, error } = usePrismApp(() => ({
+    app,
+    databases: { main: db },
+  }));
+
+  useEffect(() => {
+    if (result) setFetchImplementation(result.fetch);
+    return () => result?.shutdown();
+  }, [result]);
+
+  if (isLoading) return <LoadingScreen />;
+  if (error) return <ErrorScreen error={error} />;
+  return <MainApp />;
+}
+```
+
 ## API
 
 ### `expoLaunch(options)`
 
 Bootstraps a Prism app for Expo. Initializes databases, creates the in-process fetch, and starts background jobs.
 
-The `databases` option accepts either config objects (to create new databases) or pre-created `ExpoSqliteDatabase` instances. Use pre-created instances when your endpoints need database access via closures.
+**Options:**
+- `app` — The PrismApp instance
+- `databases` — Map of database name to `ExpoLaunchDatabaseConfig` or pre-created `ExpoSqliteDatabase`
+- `getAuth` — Optional function returning an `Authorization` for each request (mobile equivalent of auth middleware)
+- `migrationMode` — `'simple'` (default) or `'migrate'` (tracks applied statements)
 
-### `createExpoFetch(app)`
+**Returns:** `{ fetch, databases, shutdown }`
+
+### `createExpoFetch(app, options?)`
 
 Creates an in-process fetch function matching the `webFetch` signature. Parses endpoint strings like `"GET /users/:id"` and calls `app.callEndpoint()` directly.
+
+Each call is wrapped in a `RequestContext` so endpoints can use `getCurrentRequestContext()`.
+
+Error handling matches webFetch: `HttpError` is normalized to `"Fetch error, status: N"`.
+
+**Options:**
+- `getAuth` — Optional function returning an `Authorization` for each request
 
 ### `ExpoSqliteDatabase`
 
 SQLite adapter wrapping expo-sqlite's synchronous API to match the `PrismDatabase` interface.
+
+- `ExpoSqliteDatabase.open(SQLite, 'myapp.db')` — Create from expo-sqlite module
+- `initializeSchema(dbName, services)` — Run all statements (idempotent, simple)
+- `migrateSchema(dbName, services)` — Track and run only new statements (safe for updates)
+
+### `ExpoEventEmitter<EventType>`
+
+Mobile equivalent of the web-side SSE `ConnectionManager`. Uses in-process callbacks instead of HTTP SSE connections.
+
+```typescript
+const events = new ExpoEventEmitter<{ type: string; data: any }>();
+
+// Subscribe in UI
+const unsubscribe = events.subscribe('user-123', (event) => {
+  console.log('Got event:', event);
+});
+
+// Post from service code (same pattern as ConnectionManager.postEvent)
+events.postEvent('user-123', { type: 'update', data: { ... } });
+
+// Clean up
+unsubscribe();
+```
+
+### `usePrismApp(getLaunchOptions)`
+
+React hook that wraps `expoLaunch()` with loading/error state management. Called once on mount.
+
+Returns `{ isLoading, result, error }`.

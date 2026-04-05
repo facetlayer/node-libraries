@@ -1,8 +1,8 @@
 /**
- * Sample service definitions for an Expo app.
+ * Notes service — platform-agnostic.
  *
- * These services are platform-agnostic — the same code works on web, desktop, and mobile.
- * Database access is captured via closures when creating the service.
+ * This file works identically on web (Express), desktop (Electron), and mobile (Expo).
+ * Database access is captured via closure when the service is created.
  */
 
 import { createEndpoint, type PrismDatabase, type ServiceDefinition } from '@facetlayer/prism-framework/core';
@@ -14,14 +14,11 @@ const NoteSchema = z.object({
     body: z.string(),
 });
 
-/**
- * Create the notes service. Accepts a database instance so endpoints can
- * access it via closure — this works the same way regardless of platform.
- */
 export function createNotesService(db: PrismDatabase): ServiceDefinition {
     const listNotes = createEndpoint({
         method: 'GET',
         path: '/notes',
+        description: 'List all notes',
         responseSchema: z.array(NoteSchema),
         handler: async () => {
             return db.list('SELECT id, title, body FROM notes');
@@ -31,6 +28,7 @@ export function createNotesService(db: PrismDatabase): ServiceDefinition {
     const createNote = createEndpoint({
         method: 'POST',
         path: '/notes',
+        description: 'Create a new note',
         requestSchema: z.object({ title: z.string(), body: z.string() }),
         responseSchema: NoteSchema,
         handler: async (input) => {
@@ -45,6 +43,7 @@ export function createNotesService(db: PrismDatabase): ServiceDefinition {
     const deleteNote = createEndpoint({
         method: 'DELETE',
         path: '/notes/:id',
+        description: 'Delete a note by ID',
         requestSchema: z.object({ id: z.string() }),
         responseSchema: z.object({ success: z.boolean() }),
         handler: async (input) => {
