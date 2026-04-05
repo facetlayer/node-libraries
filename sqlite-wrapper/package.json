@@ -19,7 +19,7 @@
   "dependencies": {
     "@facetlayer/generic-lexer": "^1.0.0",
     "@facetlayer/streams": "^1.0.0",
-    "better-sqlite3": "11.8.1"
+    "better-sqlite3": "12.8.0"
   },
   "devDependencies": {
     "@types/node": "22.13.0",

@@ -1,6 +1,7 @@
 
 # Unreleased
  - Fix SQL parser failing on CREATE TABLE statements that contain SQL comments (-- or /* */)
+ - Bump better-sqlite3 from 11.8.1 to 12.8.0
 
 # 1.2.2
  - Changed `logs` option from a `Stream` instance to a `DatabaseLogs` callback object.
