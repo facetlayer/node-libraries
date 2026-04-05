@@ -86,7 +86,7 @@ deploy-settings
 
 #### web-static-dir
 
-Specifies a directory within your deployment that should be served as static files via HTTP. The Goobernetes server will automatically serve these files.
+Records which directory within your deployment contains static files to be served via HTTP. This metadata is stored in the deployment database and can be used by external tools (e.g. nginx, a reverse proxy) to configure static file serving.
 
 ```
 deploy-settings
@@ -95,12 +95,7 @@ deploy-settings
   web-static-dir=public
 ```
 
-This is particularly useful for:
-- Single-page applications with built output
-- Static sites
-- Assets like images, CSS, and JavaScript files
-
-**Example use case:** If you have a Next.js app that builds to `web/out`, you can serve it directly:
+**Example use case:** A Next.js app that builds to `web/out`:
 
 ```
 deploy-settings
@@ -108,6 +103,22 @@ deploy-settings
   dest-url=http://localhost:4800
   web-static-dir=web/out
 ```
+
+> **Note:** Goobernetes stores this setting but does not serve static files itself. Use `@facetlayer/goob-static-web-server` to serve files from the configured directory, or configure your own web server (e.g. nginx).
+
+#### ignore-security-scan
+
+Allowlists specific files or directories to bypass the automatic security checks. This is useful when you have files that match a blocked pattern but are legitimate deployment files (e.g. a `config.json` that contains no secrets).
+
+```
+deploy-settings
+  project-name=my-app
+  dest-url=http://localhost:4800
+  ignore-security-scan(config.json)
+  ignore-security-scan(data/generated-secrets)
+```
+
+You can use multiple `ignore-security-scan` entries. Each entry matches either an exact file path or a directory prefix (all files under that directory are allowed).
 
 ### Complete Deploy Settings Example
 
@@ -117,6 +128,7 @@ deploy-settings
   dest-url=http://api.example.com:4800
   update-in-place
   web-static-dir=public/dist
+  ignore-security-scan(config.json)
 ```
 
 ## File Rules
@@ -427,25 +439,42 @@ The following files and patterns are **automatically blocked** from deployment:
 - `.azure` directory
 
 **Sensitive configs:**
-- `config.json`
 - `secrets.json`
 - `credentials.json`
 - `database.env`
 - `.npmrc`, `.yarnrc`
 
-**Patterns:**
-- Any file containing `secret` in the name
-- Any file containing `credential` in the name
-- Any file containing `password` in the name
+**Basename patterns:**
+- Any file with `secret` in the filename (e.g. `my-secret.json`)
+- Any file with `credential` in the filename (e.g. `credential-store.yaml`)
+- Any file with `password` in the filename (e.g. `passwords.txt`)
+
+> **Note:** These keyword patterns only match the filename, not directory names. Files like
+> `forgot-password/page.js` or `reset-password/index.html` are allowed because the keyword
+> appears in the directory path, not the filename itself.
 
 **Version control:**
 - `.git` directory contents
 - `.gitignore` (should be excluded, not blocked)
 
-### If You Need to Deploy Sensitive Files
+### If You Need to Deploy Blocked Files
 
-If you legitimately need to deploy a file that matches these patterns (rare), you can:
+If you legitimately need to deploy a file that matches these patterns, you can use the
+`ignore-security-scan` option in your deploy-settings block to allowlist specific files
+or directories:
 
+```
+deploy-settings
+  project-name=my-app
+  dest-url=http://localhost:4800
+  ignore-security-scan(config.json)
+  ignore-security-scan(data/secrets)
+```
+
+Each `ignore-security-scan` entry matches either an exact file path or a directory prefix.
+For example, `ignore-security-scan(data/secrets)` will allow all files under `data/secrets/`.
+
+Other options:
 1. **Rename the file** to avoid the pattern
 2. **Use environment variables** on the server instead
 3. **Store secrets in a secure vault** (recommended)
@@ -758,9 +787,9 @@ after-deploy
   shell(npm run seed)
 ```
 
-### 10. Document Your Config
+### 9. Document Your Config
 
-Add a comment block at the top of your `.goob` file (not currently supported, but good practice to plan for):
+Add comments to your `.goob` file to explain the deployment setup:
 
 ```
 # Production deployment configuration
@@ -800,7 +829,14 @@ Add a comment block at the top of your `.goob` file (not currently supported, bu
 
 **Check:** Is the file actually needed in deployment?
 
-**Solution:** Usually, you don't need the file. Use environment variables or server-side secrets instead.
+**Solution:** If the file is a false positive (e.g. a web route like `forgot-password/page.js`), note that keyword patterns only match filenames, not directory names, so most route-based false positives are already handled. If a specific file is still blocked, use `ignore-security-scan` in your deploy-settings:
+
+```
+deploy-settings
+  ignore-security-scan(path/to/allowed-file)
+```
+
+If you don't actually need the file, use environment variables or server-side secrets instead.
 
 ## Advanced Topics
 
