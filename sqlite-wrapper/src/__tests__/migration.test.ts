@@ -10,7 +10,7 @@ import {
 } from "../migration";
 import { SqliteDatabase } from "../SqliteDatabase";
 import { DatabaseSchema } from "../DatabaseSchema";
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { nullDatabaseLogs } from "../DatabaseLoader";
 import type { DatabaseDrift, Drift } from "../migration";
 
@@ -27,7 +27,7 @@ describe("runMigrationForCreateStatement", () => {
   let db: SqliteDatabase;
 
   beforeEach(() => {
-    const sqliteDb = new Database(":memory:");
+    const sqliteDb = new DatabaseSync(":memory:");
     db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
@@ -282,7 +282,7 @@ describe("getDatabaseDrift", () => {
   let db: SqliteDatabase;
 
   beforeEach(() => {
-    const sqliteDb = new Database(":memory:");
+    const sqliteDb = new DatabaseSync(":memory:");
     db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
@@ -388,7 +388,7 @@ describe("applySafeUpgrades", () => {
   let db: SqliteDatabase;
 
   beforeEach(() => {
-    const sqliteDb = new Database(":memory:");
+    const sqliteDb = new DatabaseSync(":memory:");
     db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 
@@ -543,7 +543,7 @@ describe("applyFullDestructiveUpdates", () => {
   let db: SqliteDatabase;
 
   beforeEach(() => {
-    const sqliteDb = new Database(":memory:");
+    const sqliteDb = new DatabaseSync(":memory:");
     db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
   });
 

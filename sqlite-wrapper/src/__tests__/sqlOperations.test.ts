@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { SqliteDatabase } from "../SqliteDatabase";
 import { DatabaseLoader } from "../DatabaseLoader";
-import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { upsert } from "../upsert";
 import { existsSync, unlinkSync, mkdirSync } from "fs";
 import { dirname } from "path";
@@ -22,7 +21,7 @@ function cleanupTestDatabase() {
 describe("SQL Operations", () => {
   let db: SqliteDatabase;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     cleanupTestDatabase();
     const loader = new DatabaseLoader({
       filename: TEST_DB_PATH,
@@ -38,7 +37,6 @@ describe("SQL Operations", () => {
                     )`,
         ],
       },
-      loadDatabase: await loadBetterSqlite(),
       migrationBehavior: "safe-upgrades",
     });
     db = loader.load();

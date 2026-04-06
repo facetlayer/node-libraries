@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseLoader, DatabaseSchema } from "..";
-import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { existsSync, unlinkSync, readdirSync, mkdirSync } from "fs";
 import { join } from "path";
 import { nullDatabaseLogs } from "../DatabaseLoader";
@@ -40,7 +39,7 @@ describe("SQLite Helper Functional Tests", () => {
       filename: dbPath,
       logs: nullDatabaseLogs,
       schema: schema,
-      loadDatabase: await loadBetterSqlite(),
+
       migrationBehavior: "safe-upgrades",
     });
 
@@ -87,7 +86,7 @@ describe("SQLite Helper Functional Tests", () => {
       filename: dbPath,
       logs: nullDatabaseLogs,
       schema: initialSchema,
-      loadDatabase: await loadBetterSqlite(),
+
       migrationBehavior: "safe-upgrades",
     });
 
@@ -125,7 +124,7 @@ describe("SQLite Helper Functional Tests", () => {
       filename: dbPath,
       logs: nullDatabaseLogs,
       schema: updatedSchema,
-      loadDatabase: await loadBetterSqlite(),
+
       migrationBehavior: "safe-upgrades",
     });
 

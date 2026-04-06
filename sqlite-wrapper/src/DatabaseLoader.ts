@@ -1,12 +1,10 @@
 import { Stream } from "@facetlayer/streams";
-import type { Database as BetterSqliteDatabase } from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { DatabaseSchema } from "./DatabaseSchema";
 import { getTableDrift } from "./migration";
 import { MigrationBehavior } from "./MigrationBehavior";
 import { parseSql } from "./parser";
 import { SqliteDatabase } from "./SqliteDatabase";
-
-export type LoadDatabaseFn = (filename: string) => BetterSqliteDatabase;
 
 export interface DatabaseLogs {
   info(msg: string): void;
@@ -29,10 +27,6 @@ export interface DatabaseSetupOptions {
 
   // Alternative: provide a Stream instance for logging (from @facetlayer/streams)
   logsStream?: Stream;
-
-  // Wrap up the better-sqlite constructor in a pluggable callback. This library has a native module,
-  // and we want to support a pluggable version.
-  loadDatabase: LoadDatabaseFn;
 
   onRunStatement?: (sql: string, params: Array<any>) => void;
   migrationBehavior: MigrationBehavior;
@@ -58,15 +52,11 @@ export class DatabaseLoader {
 
   constructor(options: DatabaseSetupOptions) {
     this.options = options;
-
-    if (!this.options.loadDatabase) {
-      throw new Error(".options.loadDatabase is missing");
-    }
   }
 
   load() {
     if (!this.db) {
-      const sqliteDb = this.options.loadDatabase(this.options.filename);
+      const sqliteDb = new DatabaseSync(this.options.filename);
       const logs = resolveLogs(this.options);
       this.db = new SqliteDatabase(sqliteDb, logs);
 

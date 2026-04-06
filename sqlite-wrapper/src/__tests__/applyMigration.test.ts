@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { applyMigration, shouldRetryOnError } from "../applyMigration";
 import { SqliteDatabase } from "../SqliteDatabase";
 import { DatabaseSchema } from "../DatabaseSchema";
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { nullDatabaseLogs } from "../DatabaseLoader";
 import * as migration from "../migration";
 import * as findDatabaseDriftModule from "../findDatabaseDrift";
@@ -54,7 +54,7 @@ describe("applyMigration retry behavior", () => {
   let schema: DatabaseSchema;
 
   beforeEach(() => {
-    const sqliteDb = new Database(":memory:");
+    const sqliteDb = new DatabaseSync(":memory:");
     db = new SqliteDatabase(sqliteDb, nullDatabaseLogs);
 
     schema = {
