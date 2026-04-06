@@ -1,4 +1,7 @@
 
+0.4.0
+ - Switch from better-sqlite3 to node:sqlite via userdata-db 0.2.0
+
 0.3.0
  - Added `get-or-claim` CLI command (idempotent port assignment by name)
 
