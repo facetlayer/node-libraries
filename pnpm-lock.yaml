@@ -636,8 +636,8 @@ importers:
         specifier: 0.1.1
         version: 0.1.1
       '@facetlayer/userdata-db':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.2.0
+        version: 0.2.0
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
@@ -871,9 +871,6 @@ importers:
       '@facetlayer/streams':
         specifier: ^1.0.0
         version: 1.0.0
-      better-sqlite3:
-        specifier: 12.8.0
-        version: 12.8.0
     devDependencies:
       '@types/node':
         specifier: 22.13.0
@@ -1063,14 +1060,11 @@ importers:
   userdata-db:
     dependencies:
       '@facetlayer/sqlite-wrapper':
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.3.0
+        version: 1.3.0
       '@facetlayer/streams':
         specifier: ^1.0.0
         version: 1.0.0
-      better-sqlite3:
-        specifier: 11.8.1
-        version: 11.8.1
     devDependencies:
       '@types/node':
         specifier: ^18.0.0
@@ -2995,6 +2989,9 @@ packages:
   '@facetlayer/sqlite-wrapper@1.2.3':
     resolution: {integrity: sha512-ztF8XBSKCWYYvMk28YYGvwTJuHgGbpIKZTpUaotr6ZgTTUOPwyt+yy0hQOSaF7folulCG8zVEBucvkrpLMFdxA==}
 
+  '@facetlayer/sqlite-wrapper@1.3.0':
+    resolution: {integrity: sha512-JodAIOrqHmvV2l9W9jM5j+SzqOsuBzJIkFrn4NiOBlyx6theeTSzQU6M75v6WzJxHAcMSHIZRo/NDDzoddKiGA==}
+
   '@facetlayer/streams@1.0.0':
     resolution: {integrity: sha512-ickAKFy1XDodcl1lNOjLiOTMYC+TyY1YDUfmgD/bz2DSPBsyxExTfq1/BOyHcZ2Yp5zOeLfFP2RLV74xOIFxqQ==}
 
@@ -3019,6 +3016,9 @@ packages:
 
   '@facetlayer/userdata-db@0.1.1':
     resolution: {integrity: sha512-EZYjSyStiIBeKJ19FTuXQ7KpETUZA7gmx9pUaHL0/KAyZ1wNVbk2VEF/E7gewkECp/yxrdz3DXPoKnkyWZ7WTw==}
+
+  '@facetlayer/userdata-db@0.2.0':
+    resolution: {integrity: sha512-5j765by2oaQ/T5OP3qE31u9JjPluhzWZmPQU3DFllHUUrSuHXDghC059tS+B1IvvQ8Jwtf1aOZdrG/SkZVX6nw==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -12271,6 +12271,11 @@ snapshots:
       '@facetlayer/streams': 1.0.1
       better-sqlite3: 12.8.0
 
+  '@facetlayer/sqlite-wrapper@1.3.0':
+    dependencies:
+      '@facetlayer/generic-lexer': 1.0.0
+      '@facetlayer/streams': 1.0.1
+
   '@facetlayer/streams@1.0.0': {}
 
   '@facetlayer/streams@1.0.1': {}
@@ -12304,6 +12309,11 @@ snapshots:
       '@facetlayer/sqlite-wrapper': 1.2.3
       '@facetlayer/streams': 1.0.1
       better-sqlite3: 11.8.1
+
+  '@facetlayer/userdata-db@0.2.0':
+    dependencies:
+      '@facetlayer/sqlite-wrapper': 1.3.0
+      '@facetlayer/streams': 1.0.1
 
   '@hapi/hoek@9.3.0': {}
 
