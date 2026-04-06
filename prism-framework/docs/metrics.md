@@ -1,33 +1,36 @@
 # Metrics
 
-Prism Framework includes built-in Prometheus metrics via `prom-client`. When configured, your app automatically tracks HTTP request counts and durations, plus Node.js runtime metrics.
+Prism Framework supports Prometheus metrics via dependency injection. Your app owns `prom-client` and passes it to the framework, which uses it to track HTTP request counts and durations, plus Node.js runtime metrics.
 
 ## Architecture
 
 ```
 Your Prism App (:port/api/metrics)
-        │
-        ▼
+        |
+        v
    vmagent (scrapes every 15s)
-        │
-        ▼
+        |
+        v
    VictoriaMetrics (stores 30 days)
-        │
-        ▼
+        |
+        v
    Grafana (dashboards at grafana.apf1.dev)
 ```
 
 ## Enabling Metrics
 
-Add `metricsConfig` to your `startServer` call:
+Install `prom-client` in your app, then pass it to `startServer`:
 
 ```ts
 import { startServer } from '@facetlayer/prism-framework';
+import PromClient from 'prom-client';
 
 await startServer({
   app,
-  metricsConfig: { appName: 'myapp' },
-  // ...other config
+  metricsConfig: {
+    appName: 'myapp',
+    client: PromClient,
+  },
 });
 ```
 
@@ -46,13 +49,13 @@ Plus all default Node.js metrics from `prom-client` (memory, CPU, event loop, GC
 
 ## Custom Metrics
 
-Use the helper functions to create app-specific metrics:
+Use `prom-client` directly to create app-specific metrics:
 
 ```ts
-import { createCounter, createGauge, createHistogram } from '@facetlayer/prism-framework';
+import PromClient from 'prom-client';
 
 // Count business events
-const signups = createCounter({
+const signups = new PromClient.Counter({
   name: 'user_signups_total',
   help: 'Total user signups',
   labelNames: ['plan'],
@@ -60,7 +63,7 @@ const signups = createCounter({
 signups.inc({ plan: 'free' });
 
 // Track current state
-const activeJobs = createGauge({
+const activeJobs = new PromClient.Gauge({
   name: 'active_jobs',
   help: 'Number of jobs currently running',
 });
@@ -68,7 +71,7 @@ activeJobs.inc();
 activeJobs.dec();
 
 // Measure durations/sizes
-const queryDuration = createHistogram({
+const queryDuration = new PromClient.Histogram({
   name: 'db_query_duration_seconds',
   help: 'Database query duration',
   labelNames: ['query'],
@@ -77,9 +80,9 @@ const queryDuration = createHistogram({
 queryDuration.observe({ query: 'get_user' }, 0.042);
 ```
 
-The `app` label is automatically applied to all custom metrics.
+The `app` label is automatically applied to all custom metrics (set by the framework via `register.setDefaultLabels`).
 
-For advanced use cases, `PromClient` (the `prom-client` library) is also exported directly.
+Since your app owns `prom-client`, custom metrics share the same registry as the framework's built-in metrics — no initialization timing issues.
 
 ## Metrics Endpoint
 
