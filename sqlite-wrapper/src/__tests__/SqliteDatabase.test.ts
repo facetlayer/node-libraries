@@ -1,12 +1,11 @@
-import { loadBetterSqlite } from "../BetterSqliteLoader";
 import { DatabaseLoader } from "../DatabaseLoader";
 import { nullDatabaseLogs } from "../DatabaseLoader";
 import { describe, expect, it } from "vitest";
 
 const filename = ":memory:";
-let db: Awaited<ReturnType<DatabaseLoader["load"]>>;
+let db: ReturnType<DatabaseLoader["load"]>;
 
-async function setupDatabase() {
+function setupDatabase() {
   if (!db) {
     db = new DatabaseLoader({
       filename,
@@ -18,7 +17,6 @@ async function setupDatabase() {
         ],
       },
       migrationBehavior: "safe-upgrades",
-      loadDatabase: await loadBetterSqlite(),
     }).load();
   }
   return db;
@@ -26,7 +24,7 @@ async function setupDatabase() {
 
 describe("SqliteDatabase.insert", () => {
   it("should insert a single row with one field", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     const result = db.insert("users", { name: "John" });
     expect(result.changes).toBe(1);
 
@@ -35,7 +33,7 @@ describe("SqliteDatabase.insert", () => {
   });
 
   it("should insert a single row with multiple fields", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     const result = db.insert("users", {
       name: "Jane",
       age: 30,
@@ -52,7 +50,7 @@ describe("SqliteDatabase.insert", () => {
 
 describe("SqliteDatabase.update", () => {
   it("should update a single row with one field", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     // Insert test data first
     db.insert("users", { name: "Bob", age: 25 });
 
@@ -64,7 +62,7 @@ describe("SqliteDatabase.update", () => {
   });
 
   it("should update multiple rows matching where clause", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     // Insert test data
     db.insert("users", { name: "Alice", age: 20 });
     db.insert("users", { name: "Charlie", age: 20 });
@@ -79,7 +77,7 @@ describe("SqliteDatabase.update", () => {
 
 describe("SqliteDatabase.upsert", () => {
   it("should update existing row when where clause matches", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     db.run("delete from users");
 
     // Insert initial data
@@ -102,7 +100,7 @@ describe("SqliteDatabase.upsert", () => {
   });
 
   it("should insert new row when where clause does not match", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     // Upsert should insert since no matching record exists
     db.upsert("users", { name: "Bob" }, { age: 30, email: "bob@test.com" });
 
@@ -113,7 +111,7 @@ describe("SqliteDatabase.upsert", () => {
   });
 
   it("should handle multiple where conditions", async () => {
-    const db = await setupDatabase();
+    const db = setupDatabase();
     // Insert initial data
     db.insert("users", { name: "Charlie", age: 35 });
 

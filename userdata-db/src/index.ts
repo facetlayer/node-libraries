@@ -4,7 +4,6 @@ import * as path from 'path'
 import * as os from 'os'
 import { DatabaseLoader, SqliteDatabase, DatabaseSchema } from '@facetlayer/sqlite-wrapper'
 import { Stream } from '@facetlayer/streams'
-import BetterSqlite3 from 'better-sqlite3'
 
 export interface GetUserdataDatabaseOptions {
   /**
@@ -96,13 +95,11 @@ export function getUserdataDatabase(
   // Database path is always db.sqlite in the state directory
   const dbPath = path.join(stateDir, 'db.sqlite')
 
-  // Load better-sqlite3
   // Create and initialize the database
   const loader = new DatabaseLoader({
     filename: dbPath,
     schema,
-    logs,
-    loadDatabase(filename) { return new BetterSqlite3(filename) },
+    logsStream: logs,
     migrationBehavior,
   })
 

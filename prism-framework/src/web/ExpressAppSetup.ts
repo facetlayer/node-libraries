@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import { createServer as createHttpServer, type Server } from 'http';
 import { PrismApp } from '../app/PrismApp.ts';
-import { getMetrics } from '../Metrics.ts';
+import { configureMetrics, getMetrics, type MetricsConfig } from '../Metrics.ts';
 import { corsMiddleware, type CorsConfig } from './corsMiddleware.ts';
 import { mountPrismApp, } from './ExpressEndpointSetup.ts';
 import { localhostOnlyMiddleware } from './localhostOnlyMiddleware.ts';
@@ -29,9 +29,17 @@ export interface ServerSetupConfig {
    * Can be a WebConfig object or a string path to the web directory.
    */
   web?: WebConfig | string;
+  /**
+   * Metrics configuration. When provided, all metrics are labeled with the app name.
+   */
+  metricsConfig?: MetricsConfig;
 }
 
 export function createExpressApp(config: ServerSetupConfig): express.Application {
+  if (config.metricsConfig) {
+    configureMetrics(config.metricsConfig);
+  }
+
   const app = express();
 
   app.use(corsMiddleware(config.corsConfig ?? {}));

@@ -1,5 +1,5 @@
 import { captureError } from "@facetlayer/streams";
-import type { Database as BetterSqliteDatabase } from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { DatabaseLogs } from "./DatabaseLoader";
 import { DatabaseSchema } from "./DatabaseSchema";
 import {
@@ -24,9 +24,9 @@ import { applyMigration } from "./applyMigration";
 function paramsToArray(params) {
   if (params === undefined) return [];
 
-  if (Array.isArray(params)) return params;
+  if (Array.isArray(params)) return params.map(v => v === undefined ? null : v);
 
-  return [params];
+  return [params === undefined ? null : params];
 }
 
 export interface RunResult {
@@ -35,11 +35,11 @@ export interface RunResult {
 }
 
 export class SqliteDatabase {
-  db: BetterSqliteDatabase;
+  db: DatabaseSync;
   logs: DatabaseLogs;
   onRunStatement?: (sql: string, params: Array<any>) => void;
 
-  constructor(db: BetterSqliteDatabase, logs: DatabaseLogs) {
+  constructor(db: DatabaseSync, logs: DatabaseLogs) {
     if (!db) throw new Error("db is required");
     if (!db.prepare) throw new Error("unexpected object for 'db' (missing .prepare): " + JSON.stringify(db));
     if (!logs) throw new Error("logs is required");
@@ -130,9 +130,24 @@ export class SqliteDatabase {
     const timer = new SlowQueryWarning(statement, (msg) => this.logs.warn(msg));
     try {
       this.onRunStatement?.(statement, []);
-      const result = this.db.pragma(statement, { simple: true });
-      timer.finish();
-      return result;
+
+      const sql = `PRAGMA ${statement}`;
+
+      if (statement.includes('=')) {
+        // SET pragma - just execute it
+        this.db.exec(sql);
+        timer.finish();
+        return undefined;
+      } else {
+        // GET pragma - return the first column value
+        const row = this.db.prepare(sql).get() as Record<string, any> | undefined;
+        timer.finish();
+        if (row) {
+          const values = Object.values(row);
+          return values[0];
+        }
+        return undefined;
+      }
     } catch (e) {
       timer.finish();
       this.error(captureError(e));

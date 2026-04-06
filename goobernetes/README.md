@@ -118,6 +118,15 @@ ignore web/.next
 
 - `project-name`: Name of the project being deployed
 - `dest-url`: Destination URL of the Goobernetes server (e.g. `http://your-server:PORT`)
+- `update-in-place`: Update the same directory instead of creating timestamped ones
+- `web-static-dir=<path>`: Records which directory contains static files (used by `@facetlayer/goob-static-web-server` or your own web server)
+- `ignore-security-scan(<path>)`: Allowlist a file or directory to bypass security checks (can be repeated)
+
+#### Lifecycle hooks
+
+- `before-deploy` block: Run shell commands on the client before uploading (e.g. `shell(npm run build)`)
+- `after-deploy` block: Run shell commands on the server after deployment (e.g. `shell(npm start)`)
+- `candle-restart(<service>)`: Restart a Candle-managed service after deployment
 
 #### File inclusion/exclusion
 

@@ -1,4 +1,4 @@
-export * from "./BetterSqliteLoader";
+export { disableSqliteExperimentalWarning } from "./disableSqliteExperimentalWarning";
 export * from "./DatabaseLoader";
 export type { DatabaseSchema } from "./DatabaseSchema";
 export type { MigrationBehavior } from "./MigrationBehavior";

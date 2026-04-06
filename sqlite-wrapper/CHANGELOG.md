@@ -1,6 +1,14 @@
 
-# Unreleased
+# 1.3.0
+ - Replace better-sqlite3 with Node.js built-in `node:sqlite` module
+ - Remove `loadDatabase` option from `DatabaseSetupOptions` (database is now created internally)
+ - Remove `BetterSqliteLoader` and `LoadDatabaseFn` exports
+ - Add `disableSqliteExperimentalWarning()` to suppress the node:sqlite experimental warning
+ - Replace `db.db.transaction()` in table rebuilds with manual BEGIN/COMMIT/ROLLBACK
+
+# 1.2.3
  - Fix SQL parser failing on CREATE TABLE statements that contain SQL comments (-- or /* */)
+ - Bump better-sqlite3 from 11.8.1 to 12.8.0
 
 # 1.2.2
  - Changed `logs` option from a `Stream` instance to a `DatabaseLogs` callback object.

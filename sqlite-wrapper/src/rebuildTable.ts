@@ -56,7 +56,8 @@ export function performTableRebuild(
     );
 
   // Start transaction
-  const perform = db.db.transaction(() => {
+  db.run('BEGIN');
+  try {
     // Delete all existing views & indexes related to the table
     for (const item of db.each(
       "select type, name, sql FROM sqlite_schema where tbl_name = ?",
@@ -95,11 +96,10 @@ export function performTableRebuild(
     db.migrateToSchema(schema, { includeDestructive: false });
 
     db.pragma("foreign_key_check");
-  });
 
-  try {
-    perform();
+    db.run('COMMIT');
   } catch (e) {
+    db.run('ROLLBACK');
     db.error({
       errorMessage: "Tried a full migration but failed",
       cause: captureError(e),
