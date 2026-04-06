@@ -18,6 +18,8 @@ The `@facetlayer/prism-framework-expo` package provides:
 - **`expoLaunch()`** — bootstraps the app, initializes databases, creates the in-process fetch
 - **`createExpoFetch()`** — in-process fetch that replaces HTTP-based `webFetch`
 - **`ExpoSqliteDatabase`** — SQLite adapter wrapping `expo-sqlite` for the `PrismDatabase` interface
+- **`ExpoEventEmitter`** — in-process event broadcasting (mobile equivalent of SSE)
+- **`usePrismApp()`** — React hook for managing async initialization
 
 ## Setup
 
@@ -33,7 +35,7 @@ npx expo install expo-sqlite
 Mobile apps should import from `@facetlayer/prism-framework/core` instead of the main entry point. This avoids pulling in Express and other server-only dependencies.
 
 ```typescript
-import { App, createEndpoint } from '@facetlayer/prism-framework/core';
+import { App, createEndpoint, Authorization } from '@facetlayer/prism-framework/core';
 ```
 
 ## Example
@@ -42,49 +44,61 @@ import { App, createEndpoint } from '@facetlayer/prism-framework/core';
 
 ```typescript
 // services/itemsService.ts
-import { createEndpoint } from '@facetlayer/prism-framework/core';
+import { createEndpoint, type PrismDatabase, type ServiceDefinition } from '@facetlayer/prism-framework/core';
 import { z } from 'zod';
 
-const listItems = createEndpoint({
-  method: 'GET',
-  path: '/items',
-  responseSchema: z.object({ items: z.array(z.object({ id: z.string(), name: z.string() })) }),
-  handler: async () => {
-    // Business logic here — same code runs on web and mobile
-    return { items: [] };
-  },
-});
+export function createItemsService(db: PrismDatabase): ServiceDefinition {
+  const listItems = createEndpoint({
+    method: 'GET',
+    path: '/items',
+    responseSchema: z.array(z.object({ id: z.number(), name: z.string() })),
+    handler: async () => db.list('SELECT id, name FROM items'),
+  });
 
-export const itemsService = {
-  name: 'items',
-  endpoints: [listItems],
-};
+  return {
+    name: 'items',
+    endpoints: [listItems],
+    databases: {
+      main: {
+        statements: [
+          'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT NOT NULL)',
+        ],
+      },
+    },
+  };
+}
 ```
 
-### Bootstrap the Expo app
+### Bootstrap with the React hook
 
-```typescript
+```tsx
 // app/_layout.tsx
+import React, { useEffect } from 'react';
 import { App } from '@facetlayer/prism-framework/core';
-import { expoLaunch } from '@facetlayer/prism-framework-expo';
+import { usePrismApp, ExpoSqliteDatabase } from '@facetlayer/prism-framework-expo';
 import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
 import * as SQLite from 'expo-sqlite';
-import { itemsService } from '../services/itemsService';
+import { createItemsService } from '../services/itemsService';
 
-const app = new App({
-  name: 'MyApp',
-  services: [itemsService],
-});
+const db = ExpoSqliteDatabase.open(SQLite, 'myapp.db');
+const app = new App({ name: 'MyApp', services: [createItemsService(db)] });
 
-const { fetch, databases } = await expoLaunch({
-  app,
-  databases: {
-    main: { expoSQLite: SQLite },
-  },
-});
+export default function RootLayout() {
+  const { isLoading, result, error } = usePrismApp(() => ({
+    app,
+    databases: { main: db },
+    migrationMode: 'migrate',
+  }));
 
-// Wire up the UI fetch layer
-setFetchImplementation(fetch);
+  useEffect(() => {
+    if (result) setFetchImplementation(result.fetch);
+    return () => result?.shutdown();
+  }, [result]);
+
+  if (isLoading) return <LoadingScreen />;
+  if (error) return <ErrorScreen error={error} />;
+  return <MainApp />;
+}
 ```
 
 ### Use `apiFetch` in UI components
@@ -98,38 +112,71 @@ const data = await apiFetch('GET /items');
 
 ## Database Support
 
-`ExpoSqliteDatabase` wraps `expo-sqlite`'s synchronous API (SDK 51+) to match the `PrismDatabase` interface. Service database schemas (the `databases` field on `ServiceDefinition`) are initialized automatically by `expoLaunch()`.
+`ExpoSqliteDatabase` wraps `expo-sqlite`'s synchronous API (SDK 51+) to match the `PrismDatabase` interface.
+
+### Simple mode (default)
+
+All statements run every time. Works well when statements are idempotent (`CREATE TABLE IF NOT EXISTS`).
+
+### Migration mode
+
+Tracks applied statements in a `_prism_migrations` table. Only new statements run. Use this for app updates where the schema may change:
 
 ```typescript
-const { databases } = await expoLaunch({
+const { fetch } = await expoLaunch({
   app,
-  databases: {
-    main: { expoSQLite: SQLite, filename: 'myapp.db' },
+  databases: { main: db },
+  migrationMode: 'migrate',
+});
+```
+
+### Database access in endpoints
+
+Create the database before defining services so endpoints can close over it:
+
+```typescript
+const db = ExpoSqliteDatabase.open(SQLite, 'myapp.db');
+const service = createMyService(db); // endpoints close over db
+const app = new App({ services: [service] });
+const { fetch } = await expoLaunch({ app, databases: { main: db } });
+```
+
+## Authorization
+
+On web, auth comes through Express middleware (cookies, headers). On mobile, use the `getAuth` option:
+
+```typescript
+import { Authorization } from '@facetlayer/prism-framework/core';
+
+const { fetch } = await expoLaunch({
+  app,
+  getAuth: () => {
+    const auth = new Authorization();
+    auth.setUserPermissions({ userId: currentUser.id, permissions: ['read', 'write'] });
+    return auth;
   },
 });
-
-// Access the database directly if needed
-const db = databases.main;
-const rows = db.list('SELECT * FROM items');
 ```
 
-If your service defines database schemas:
+Endpoint handlers can then use `getCurrentRequestContext()` to check auth, just like on web.
+
+## Real-time Events
+
+The web side uses SSE (`ConnectionManager`) for real-time updates. On mobile, use `ExpoEventEmitter`:
 
 ```typescript
-export const itemsService = {
-  name: 'items',
-  endpoints: [listItems, createItem],
-  databases: {
-    main: {
-      statements: [
-        'CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, name TEXT NOT NULL)',
-      ],
-    },
-  },
-};
-```
+import { ExpoEventEmitter } from '@facetlayer/prism-framework-expo';
 
-These statements are executed automatically when `expoLaunch()` initializes the database.
+const events = new ExpoEventEmitter<{ type: string; data: any }>();
+
+// In service code
+events.postEvent('user-123', { type: 'note-created', data: note });
+
+// In UI
+const unsubscribe = events.subscribe('user-123', (event) => {
+  // Update state
+});
+```
 
 ## Making UI Code Platform-Agnostic
 
@@ -152,4 +199,6 @@ Express middleware defined on services is ignored on mobile (a warning is logged
 | Transport | HTTP (Express) | Electron IPC | In-process `callEndpoint()` |
 | Database | `better-sqlite3` | `better-sqlite3` | `expo-sqlite` |
 | UI fetch | `webFetch` (HTTP) | `window.electron.apiCall` | `createExpoFetch` (direct) |
+| Events | SSE `ConnectionManager` | SSE `ConnectionManager` | `ExpoEventEmitter` |
+| Auth | Express middleware | Express middleware | `getAuth` option |
 | Import path | `@facetlayer/prism-framework` | `@facetlayer/prism-framework` | `@facetlayer/prism-framework/core` |
