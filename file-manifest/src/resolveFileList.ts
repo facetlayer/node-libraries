@@ -2,6 +2,7 @@
 
 import Path from 'path'
 import Fs from 'fs/promises'
+import picomatch from 'picomatch';
 import { FileMatchRule, RuleType } from './FileMatchRule';
 import { parseRulesFile } from './parseRulesFile';
 import { FileList } from './FileList';
@@ -50,30 +51,57 @@ export async function resolveFileList(sourceDir: string, ruleConfig: string | Pa
     }
 
     function shouldInclude(localPath: string, defaultValue: boolean) {
-        // Returns whether the file should be included (based on the config rules)
+        // Returns whether the file should be included (based on the config rules).
+        // Exclude rules take priority over include rules.
         const relPath = getRelPath(localPath);
 
         for (const rule of rules) {
-            if (rule.type === RuleType.Include && rule.pattern === relPath)
-                return true;
-        }
-
-        for (const rule of rules) {
-            if ((rule.type === RuleType.Exclude || rule.type === RuleType.Ignore) && rule.pattern === relPath)
+            if ((rule.type === RuleType.Exclude || rule.type === RuleType.Ignore) && picomatch.isMatch(relPath, rule.pattern))
                 return false;
         }
 
+        for (const rule of rules) {
+            if (rule.type === RuleType.Include && picomatch.isMatch(relPath, rule.pattern))
+                return true;
+        }
+
         return defaultValue;
+    }
+
+    function couldContainMatch(dirRelPath: string, pattern: string): boolean {
+        // Check if a directory could contain files that match the given pattern
+        // by walking through path segments and pattern segments together.
+        const dirParts = dirRelPath.split('/');
+        const patParts = pattern.split('/');
+
+        let pi = 0;
+        let di = 0;
+
+        while (di < dirParts.length && pi < patParts.length) {
+            if (patParts[pi] === '**') {
+                // ** can match any number of segments - directory could contain matches
+                return true;
+            }
+            if (picomatch.isMatch(dirParts[di], patParts[pi])) {
+                di++;
+                pi++;
+            } else {
+                return false;
+            }
+        }
+
+        // If we consumed all dir segments and still have pattern segments left,
+        // then this directory is an ancestor of potential matches.
+        return di === dirParts.length && pi < patParts.length;
     }
 
     function isAncestorOfInclude(localPath: string) {
         // Check if this directory is an ancestor of any include pattern, so we
         // know to traverse into it even when it's not directly included.
         const relPath = getRelPath(localPath);
-        const prefix = relPath + '/';
 
         for (const rule of rules) {
-            if (rule.type === RuleType.Include && rule.pattern.startsWith(prefix))
+            if (rule.type === RuleType.Include && couldContainMatch(relPath, rule.pattern))
                 return true;
         }
 
