@@ -7,7 +7,7 @@ export function parseRulesFile(ruleConfig: string): FileMatchRule[] {
 
     for (const query of queries) {
         const command = query.command;
-        const pattern = query.tags?.[0]?.attr;
+        const pattern = query.tags?.map(t => t.attr).join('');
 
         if (!pattern) {
             throw new Error(`Missing pattern for ${command} rule`);

@@ -11,10 +11,12 @@
   "dependencies": {
     "@facetlayer/concurrency-limit": "^0.1.0",
     "@facetlayer/qc": "^0.1.0",
-    "@facetlayer/streams": "^1.0.0"
+    "@facetlayer/streams": "^1.0.0",
+    "picomatch": "^4.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/picomatch": "^4.0.3",
     "typescript": "^5.2.0",
     "vitest": "^3.0.6"
   }

@@ -2,6 +2,7 @@
 import { ParsedRules } from './resolveFileList';
 import { RuleType } from './FileMatchRule';
 import { FileList } from './FileList';
+import picomatch from 'picomatch';
 import Path from 'path';
 import Fs from 'fs/promises';
 
@@ -31,7 +32,7 @@ export async function findLeftoverFiles(targetDir: string, incomingFiles: FileLi
             // Check if any rule tells us to ignore this destination file
             let shouldIgnore = false;
             for (const rule of ruleConfig) {
-                if ((rule.type === RuleType.IgnoreDestination || rule.type === RuleType.Ignore) && rule.pattern === relPath) {
+                if ((rule.type === RuleType.IgnoreDestination || rule.type === RuleType.Ignore) && picomatch.isMatch(relPath, rule.pattern)) {
                     shouldIgnore = true;
                     break;
                 }
