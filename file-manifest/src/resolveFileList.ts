@@ -66,6 +66,20 @@ export async function resolveFileList(sourceDir: string, ruleConfig: string | Pa
         return defaultValue;
     }
 
+    function isAncestorOfInclude(localPath: string) {
+        // Check if this directory is an ancestor of any include pattern, so we
+        // know to traverse into it even when it's not directly included.
+        const relPath = getRelPath(localPath);
+        const prefix = relPath + '/';
+
+        for (const rule of rules) {
+            if (rule.type === RuleType.Include && rule.pattern.startsWith(prefix))
+                return true;
+        }
+
+        return false;
+    }
+
     async function recursiveIncludeSubDirectory(localDir: string, assumeIncludeContents: boolean) {
         // Include the contents of this directory.
         //
@@ -80,12 +94,16 @@ export async function resolveFileList(sourceDir: string, ruleConfig: string | Pa
         for (const dirRelFile of dirContents) {
             const localSubFile = Path.join(localDir, dirRelFile);
 
-            if (!shouldInclude(localSubFile, assumeIncludeContents)) {
+            if (await isDirectory(localSubFile)) {
+                if (shouldInclude(localSubFile, assumeIncludeContents)) {
+                    await recursiveIncludeSubDirectory(localSubFile, true);
+                } else if (isAncestorOfInclude(localSubFile)) {
+                    await recursiveIncludeSubDirectory(localSubFile, false);
+                }
                 continue;
             }
 
-            if (await isDirectory(localSubFile)) {
-                await recursiveIncludeSubDirectory(localSubFile, true);
+            if (!shouldInclude(localSubFile, assumeIncludeContents)) {
                 continue;
             }
 

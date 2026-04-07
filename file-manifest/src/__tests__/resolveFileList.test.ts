@@ -82,6 +82,36 @@ it("exclude a nested file", async () => {
     `);
 });
 
+it("include a subdirectory", async () => {
+    const files = await resolveFileList(sampleDir, `
+        include dir-2/subdir-1
+    `);
+    expect(normalizePathsForSnapshot(files.listAll())).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 1,
+          "relPath": "dir-2/subdir-1/file-6",
+          "sourcePath": "dir-2/subdir-1/file-6",
+        },
+      ]
+    `);
+});
+
+it("include a file inside a subdirectory", async () => {
+    const files = await resolveFileList(sampleDir, `
+        include dir-2/file-4
+    `);
+    expect(normalizePathsForSnapshot(files.listAll())).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 1,
+          "relPath": "dir-2/file-4",
+          "sourcePath": "dir-2/file-4",
+        },
+      ]
+    `);
+});
+
 it("exclude a nested directory", async () => {
     const files = await resolveFileList(sampleDir, `
         include dir-2
