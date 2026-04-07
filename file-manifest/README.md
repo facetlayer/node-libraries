@@ -39,6 +39,51 @@ to specify paths that shouldn't be deleted.
     ignore-destination dest
 ```
 
+## Glob patterns
+
+All rules support glob patterns (powered by [picomatch](https://github.com/micromatch/picomatch)):
+
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| `*` | Match any characters except `/` | `include *.json` matches top-level JSON files |
+| `**` | Match any number of directories | `include src/**/*.ts` matches all `.ts` files under `src/` |
+| `?` | Match a single character | `include file-?` matches `file-1`, `file-2`, etc. |
+| `{a,b}` | Match any of the comma-separated patterns | `include *.{js,ts}` matches JS and TS files |
+
+### Glob examples
+
+```
+    include src/**/*.ts
+    exclude **/*.test.ts
+    include dist/*.js
+    include config-*
+```
+
+**Note:** `*` only matches within a single path segment. Use `**` to match across directories:
+- `include *.js` matches `index.js` but not `src/index.js`
+- `include **/*.js` matches both `index.js` and `src/index.js`
+
+## Subdirectory includes
+
+You can include a specific subdirectory without including its parent's other contents:
+
+```
+    include frontend/out
+```
+
+This will traverse into `frontend/` but only include the `out/` subdirectory and its contents. Other files and directories inside `frontend/` are not included.
+
+## Rule priority
+
+Exclude rules take priority over include rules. If a path matches both an include and exclude pattern, the exclude wins:
+
+```
+    include src/**/*.ts
+    exclude **/*.test.ts
+```
+
+This includes all TypeScript files under `src/` except test files.
+
 
 # API
 
@@ -62,9 +107,9 @@ Takes a source directory and rules configuration, returns a table of files that 
 **Example:**
 ```typescript
 const files = await resolveFileList('/path/to/source', `
-    include src
+    include src/**/*.ts
     include docs
-    exclude src/build
+    exclude **/*.test.ts
     exclude .git
 `);
 

@@ -1,3 +1,7 @@
+# Unreleased
+ - Added glob pattern support for include/exclude/ignore rules (e.g. `include src/**/*.ts`, `exclude **/*.test.js`)
+ - Fixed include rules not working for subdirectory paths (e.g. `include frontend/out`)
+
 # 0.3.3
  - Update sqlite3 version
  

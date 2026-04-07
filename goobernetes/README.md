@@ -134,6 +134,12 @@ ignore web/.next
 - `exclude <path>`: Exclude files or directories from the deployment.
 - `ignore <path>`: Ignore a path or directory on the source side or receiving side.
 
+All file rules support glob patterns:
+- `include src/**/*.ts` — include all TypeScript files under `src/`
+- `exclude **/*.test.js` — exclude test files at any depth
+- `include config-*` — include files/directories matching a wildcard
+- `include frontend/out` — include only a specific subdirectory
+
 ### Example Configuration
 
 ```
