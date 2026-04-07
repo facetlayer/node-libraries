@@ -38,7 +38,7 @@ describe('port-assignment', () => {
 
   describe('database initialization', () => {
     it('should create database when claiming first port', async () => {
-      const port = await claimUnusedPort({ cwd: '/test/cwd' })
+      const port = await claimUnusedPort({ cwd: '/test/cwd', name: 'test' })
       expect(port).toBeGreaterThanOrEqual(4000)
 
       // Verify database was created
@@ -47,7 +47,7 @@ describe('port-assignment', () => {
     })
 
     it('should create port_assignments table', async () => {
-      await claimUnusedPort({ cwd: '/test/cwd' })
+      await claimUnusedPort({ cwd: '/test/cwd', name: 'test' })
 
       const assignments = await getPortAssignments()
       expect(Array.isArray(assignments)).toBe(true)
@@ -57,7 +57,7 @@ describe('port-assignment', () => {
   describe('claimUnusedPort', () => {
     it('should claim and track a port', async () => {
       const testCwd = '/test/project'
-      const port = await claimUnusedPort({ cwd: testCwd, project_dir: testCwd })
+      const port = await claimUnusedPort({ cwd: testCwd, project_dir: testCwd, name: 'test' })
 
       expect(port).toBeGreaterThanOrEqual(4000)
       expect(port).toBeLessThanOrEqual(65535)
@@ -76,9 +76,9 @@ describe('port-assignment', () => {
     })
 
     it('should claim multiple unique ports', async () => {
-      const port1 = await claimUnusedPort({ cwd: '/project1' })
-      const port2 = await claimUnusedPort({ cwd: '/project2' })
-      const port3 = await claimUnusedPort({ cwd: '/project3' })
+      const port1 = await claimUnusedPort({ cwd: '/project1', name: 'svc1' })
+      const port2 = await claimUnusedPort({ cwd: '/project2', name: 'svc2' })
+      const port3 = await claimUnusedPort({ cwd: '/project3', name: 'svc3' })
 
       // All ports should be different
       expect(port1).not.toBe(port2)
@@ -91,7 +91,7 @@ describe('port-assignment', () => {
     })
 
     it('should use process.cwd() by default', async () => {
-      const port = await claimUnusedPort()
+      const port = await claimUnusedPort({ name: 'test' })
 
       const assignments = await getPortAssignments()
       const assignment = assignments.find(a => a.port === port)
@@ -110,13 +110,13 @@ describe('port-assignment', () => {
       expect(assignment?.cwd).toBe(testCwd)
     })
 
-    it('should work without name', async () => {
-      const port = await claimUnusedPort({ cwd: '/test' })
+    it('should store the provided name', async () => {
+      const port = await claimUnusedPort({ cwd: '/test', name: 'my-service' })
 
       const assignments = await getPortAssignments()
       const assignment = assignments.find(a => a.port === port)
       expect(assignment).toBeDefined()
-      expect(assignment?.name).toBeNull()
+      expect(assignment?.name).toBe('my-service')
     })
 
     it('should handle multiple ports with different names', async () => {
@@ -140,7 +140,7 @@ describe('port-assignment', () => {
       const testPort = 5000
       const testCwd = '/manual/test'
 
-      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd })
+      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd, name: 'manual' })
 
       const isAssigned = await isPortAssigned(testPort)
       expect(isAssigned).toBe(true)
@@ -167,22 +167,22 @@ describe('port-assignment', () => {
       expect(assignment?.name).toBe(testName)
     })
 
-    it('should assign port without name', async () => {
+    it('should assign port with a different name', async () => {
       const testPort = 5002
       const testCwd = '/manual/test'
 
-      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd })
+      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd, name: 'cache' })
 
       const assignments = await getPortAssignments()
       const assignment = assignments.find(a => a.port === testPort)
       expect(assignment?.port).toBe(testPort)
-      expect(assignment?.name).toBeNull()
+      expect(assignment?.name).toBe('cache')
     })
   })
 
   describe('isPortAssigned', () => {
     it('should return true for assigned ports', async () => {
-      const port = await claimUnusedPort({ cwd: '/test' })
+      const port = await claimUnusedPort({ cwd: '/test', name: 'test' })
       const isAssigned = await isPortAssigned(port)
       expect(isAssigned).toBe(true)
     })
@@ -201,11 +201,11 @@ describe('port-assignment', () => {
 
     it('should return all assignments ordered by most recent', async () => {
       // Assign ports with small delays to ensure different timestamps
-      await claimUnusedPort({ cwd: '/project1' })
+      await claimUnusedPort({ cwd: '/project1', name: 'svc1' })
       await new Promise(resolve => setTimeout(resolve, 10))
-      await claimUnusedPort({ cwd: '/project2' })
+      await claimUnusedPort({ cwd: '/project2', name: 'svc2' })
       await new Promise(resolve => setTimeout(resolve, 10))
-      await claimUnusedPort({ cwd: '/project3' })
+      await claimUnusedPort({ cwd: '/project3', name: 'svc3' })
 
       const assignments = await getPortAssignments()
       expect(assignments.length).toBeGreaterThanOrEqual(3)
@@ -219,7 +219,7 @@ describe('port-assignment', () => {
     })
 
     it('should include all required fields', async () => {
-      await claimUnusedPort({ cwd: '/test/path', project_dir: '/test/path' })
+      await claimUnusedPort({ cwd: '/test/path', project_dir: '/test/path', name: 'test' })
 
       const assignments = await getPortAssignments()
       expect(assignments.length).toBeGreaterThan(0)
@@ -249,7 +249,7 @@ describe('port-assignment', () => {
 
   describe('releasePort', () => {
     it('should release a specific port', async () => {
-      const port = await claimUnusedPort({ cwd: '/test' })
+      const port = await claimUnusedPort({ cwd: '/test', name: 'test' })
 
       // Verify it's assigned
       let isAssigned = await isPortAssigned(port)
@@ -264,8 +264,8 @@ describe('port-assignment', () => {
     })
 
     it('should not affect other port assignments', async () => {
-      const port1 = await claimUnusedPort({ cwd: '/project1' })
-      const port2 = await claimUnusedPort({ cwd: '/project2' })
+      const port1 = await claimUnusedPort({ cwd: '/project1', name: 'svc1' })
+      const port2 = await claimUnusedPort({ cwd: '/project2', name: 'svc2' })
 
       await releasePort(port1)
 
@@ -276,9 +276,9 @@ describe('port-assignment', () => {
 
   describe('resetPortAssignments', () => {
     it('should clear all port assignments', async () => {
-      await claimUnusedPort({ cwd: '/project1' })
-      await claimUnusedPort({ cwd: '/project2' })
-      await claimUnusedPort({ cwd: '/project3' })
+      await claimUnusedPort({ cwd: '/project1', name: 'svc1' })
+      await claimUnusedPort({ cwd: '/project2', name: 'svc2' })
+      await claimUnusedPort({ cwd: '/project3', name: 'svc3' })
 
       let assignments = await getPortAssignments()
       expect(assignments.length).toBeGreaterThanOrEqual(3)
@@ -303,7 +303,7 @@ describe('port-assignment', () => {
       const testPort = 4567
       const testCwd = '/persistent/test'
 
-      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd })
+      await assignPort({ port: testPort, cwd: testCwd, project_dir: testCwd, name: 'persistent' })
 
       // Force a new database connection by clearing the module cache
       // This simulates restarting the application
@@ -319,7 +319,7 @@ describe('port-assignment', () => {
 
   describe('port range behavior', () => {
     it('should handle ports in valid range', async () => {
-      const port = await claimUnusedPort({ cwd: '/test' })
+      const port = await claimUnusedPort({ cwd: '/test', name: 'test' })
       expect(port).toBeGreaterThanOrEqual(4000)
       expect(port).toBeLessThanOrEqual(65535)
     })
@@ -341,7 +341,7 @@ describe('port-assignment', () => {
     })
 
     it('should return empty array for unknown project dir', async () => {
-      await claimUnusedPort({ cwd: '/project-a', project_dir: '/project-a' })
+      await claimUnusedPort({ cwd: '/project-a', project_dir: '/project-a', name: 'svc' })
 
       const assignments = await getPortAssignmentsByProjectDir('/unknown')
       expect(assignments).toEqual([])
@@ -351,7 +351,7 @@ describe('port-assignment', () => {
   describe('database schema', () => {
     it('should store correct timestamp', async () => {
       const beforeTime = Date.now()
-      await claimUnusedPort({ cwd: '/test' })
+      await claimUnusedPort({ cwd: '/test', name: 'test' })
       const afterTime = Date.now()
 
       const assignments = await getPortAssignments()
@@ -364,7 +364,7 @@ describe('port-assignment', () => {
 
     it('should store cwd as text', async () => {
       const testCwd = '/some/very/long/path/to/a/project/directory'
-      await claimUnusedPort({ cwd: testCwd })
+      await claimUnusedPort({ cwd: testCwd, name: 'test' })
 
       const assignments = await getPortAssignments()
       const assignment = assignments[0]
@@ -380,12 +380,12 @@ describe('port-assignment', () => {
       expect(assignment.name).toBe(testName)
     })
 
-    it('should store name as null when not provided', async () => {
-      await claimUnusedPort({ cwd: '/test' })
+    it('should store the name that was provided', async () => {
+      await claimUnusedPort({ cwd: '/test', name: 'provided-name' })
 
       const assignments = await getPortAssignments()
       const assignment = assignments[0]
-      expect(assignment.name).toBeNull()
+      expect(assignment.name).toBe('provided-name')
     })
   })
 })

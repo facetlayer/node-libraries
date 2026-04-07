@@ -1,0 +1,8 @@
+{
+  "services": [
+    {
+      "name": "server",
+      "shell": "node dist/cli.js serve"
+    }
+  ]
+}

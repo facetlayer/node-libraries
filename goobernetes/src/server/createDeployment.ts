@@ -24,6 +24,7 @@ export async function createDeployment({projectName, sourceFileManifest, sourceF
     const parsedConfig = parseFile(sourceFileConfig);
     let webStaticDir: string | undefined;
     let isUpdateInPlace = false;
+    const dynamicRoutes: { pattern: string, file: string }[] = [];
 
     for (const rule of parsedConfig) {
         if (rule.command === 'deploy-settings') {
@@ -32,6 +33,13 @@ export async function createDeployment({projectName, sourceFileManifest, sourceF
             }
             if (rule.hasAttr('web-static-dir')) {
                 webStaticDir = rule.getStringValue('web-static-dir');
+            }
+        }
+        if (rule.command === 'dynamic-route') {
+            const from = rule.getStringValue('from');
+            const to = rule.getStringValue('to');
+            if (from && to) {
+                dynamicRoutes.push({ pattern: from, file: to });
             }
         }
     }
@@ -54,6 +62,7 @@ export async function createDeployment({projectName, sourceFileManifest, sourceF
         deploy_dir: deployDir,
         project_name: projectName,
         web_static_dir: webStaticDir,
+        dynamic_routes_json: dynamicRoutes.length > 0 ? JSON.stringify(dynamicRoutes) : null,
         created_at: new Date().toISOString(),
         source_config_file: sourceFileConfig,
         manifest_json: JSON.stringify(sourceFileManifest),

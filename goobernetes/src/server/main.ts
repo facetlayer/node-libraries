@@ -21,7 +21,7 @@ export async function startServer(options: StartServerOptions) {
     const app = express();
     const server = http.createServer(app);
     
-    app.use(bodyParser.json({ limit: '1mb' }));
+    app.use(bodyParser.json({ limit: '50mb' }));
     
     const rpcServer = new GooberneteRPCServer(disableAPIKeyCheck);
     

@@ -26,7 +26,8 @@ export const DatabaseSchema = {
       created_at datetime not null,
       source_config_file text,
       manifest_json text,
-      web_static_dir text
+      web_static_dir text,
+      dynamic_routes_json text
     )`,
     `create table deployment_needed_file(
       deploy_name text not null,

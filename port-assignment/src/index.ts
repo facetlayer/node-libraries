@@ -24,6 +24,8 @@ const PORT_ASSIGNMENT_SCHEMA = {
      ON port_assignments(assigned_at)`,
     `CREATE INDEX idx_port_assignments_project_dir
      ON port_assignments(project_dir)`,
+    `CREATE UNIQUE INDEX idx_port_assignments_project_name
+     ON port_assignments(project_dir, name) WHERE name IS NOT NULL`,
     `CREATE TABLE next_unused_port (
       id INTEGER PRIMARY KEY CHECK (id = 1),
       port INTEGER NOT NULL
@@ -43,13 +45,13 @@ export interface AssignPortOptions {
   port: number
   cwd: string
   project_dir: string
-  name?: string
+  name: string
 }
 
 export interface ClaimPortOptions {
   cwd?: string
   project_dir?: string
-  name?: string
+  name: string
 }
 
 export interface GetOrClaimPortOptions {
@@ -137,12 +139,22 @@ export async function isPortActuallyAvailable(port: number): Promise<boolean> {
  */
 export async function assignPort(options: AssignPortOptions): Promise<void> {
   const db = await getDatabase()
+
+  // Enforce unique name within a project_dir
+  const existing = db.get(
+    'SELECT port FROM port_assignments WHERE project_dir = ? AND name = ?',
+    [options.project_dir, options.name]
+  ) as { port: number } | undefined
+  if (existing) {
+    throw new Error(`Name "${options.name}" is already assigned to port ${existing.port} in project ${options.project_dir}`)
+  }
+
   db.insert('port_assignments', {
     port: options.port,
     assigned_at: Date.now(),
     cwd: options.cwd,
     project_dir: options.project_dir,
-    name: options.name || null
+    name: options.name
   })
 }
 
@@ -230,7 +242,7 @@ export async function getOrClaimPort(options: GetOrClaimPortOptions): Promise<nu
  * @param options - Configuration options for claiming a port
  * @returns The claimed port number
  */
-export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<number> {
+export async function claimUnusedPort(options: ClaimPortOptions): Promise<number> {
   const { cwd = process.cwd(), project_dir = process.cwd(), name } = options
   const maxAttempts = MAX_PORT - MIN_PORT + 1
   const maxRetries = 10
@@ -270,5 +282,101 @@ export async function claimUnusedPort(options: ClaimPortOptions = {}): Promise<n
   }
 
   throw new Error('No available ports found after checking all ports in range')
+}
+
+/**
+ * Update an existing port assignment's name or project_dir
+ */
+export async function updateAssignment(port: number, updates: { name?: string, project_dir?: string }): Promise<void> {
+  const db = await getDatabase()
+  const sets: string[] = []
+  const values: any[] = []
+  if (updates.name !== undefined) {
+    sets.push('name = ?')
+    values.push(updates.name)
+  }
+  if (updates.project_dir !== undefined) {
+    sets.push('project_dir = ?')
+    values.push(updates.project_dir)
+  }
+  if (sets.length > 0) {
+    values.push(port)
+    db.run(`UPDATE port_assignments SET ${sets.join(', ')} WHERE port = ?`, values)
+  }
+}
+
+/**
+ * Serialize port assignments to a text format for editing
+ */
+export function serializeAssignments(assignments: PortAssignment[]): string {
+  const header = '# Port assignments - format: port name project_dir\n# Delete lines to release, add lines to assign, edit to update\n'
+  const lines = assignments.map(a => `${a.port} ${a.name || '(unnamed)'} ${a.project_dir}`)
+  return header + lines.join('\n') + (lines.length > 0 ? '\n' : '')
+}
+
+/**
+ * Parse a text-format port assignment file back into entries
+ */
+export function parseAssignmentText(text: string): Array<{ port: number, name: string, project_dir: string }> {
+  return text.split('\n')
+    .filter(line => line.trim() && !line.startsWith('#'))
+    .map(line => {
+      const parts = line.trim().split(/\s+/)
+      const port = parseInt(parts[0], 10)
+      const name = parts[1]
+      const project_dir = parts.slice(2).join(' ')
+      return { port, name, project_dir }
+    })
+    .filter(e => !isNaN(e.port) && e.name && e.project_dir)
+}
+
+/**
+ * Apply diffs between original assignments and edited text.
+ * Returns a summary of changes made.
+ */
+export async function applyAssignmentEdits(
+  originalAssignments: PortAssignment[],
+  newText: string
+): Promise<{ released: number[], assigned: number[], updated: number[] }> {
+  const oldEntries = originalAssignments.map(a => ({
+    port: a.port,
+    name: a.name || '(unnamed)',
+    project_dir: a.project_dir
+  }))
+  const newEntries = parseAssignmentText(newText)
+
+  const oldByPort = new Map(oldEntries.map(e => [e.port, e]))
+  const newByPort = new Map(newEntries.map(e => [e.port, e]))
+
+  const released: number[] = []
+  const assigned: number[] = []
+  const updated: number[] = []
+
+  // Released ports (in old, not in new)
+  for (const [port] of oldByPort) {
+    if (!newByPort.has(port)) {
+      await releasePort(port)
+      released.push(port)
+    }
+  }
+
+  // New ports (in new, not in old)
+  for (const [port, entry] of newByPort) {
+    if (!oldByPort.has(port)) {
+      await assignPort({ port, cwd: entry.project_dir, project_dir: entry.project_dir, name: entry.name })
+      assigned.push(port)
+    }
+  }
+
+  // Updated ports (in both, but changed)
+  for (const [port, newEntry] of newByPort) {
+    const oldEntry = oldByPort.get(port)
+    if (oldEntry && (oldEntry.name !== newEntry.name || oldEntry.project_dir !== newEntry.project_dir)) {
+      await updateAssignment(port, { name: newEntry.name, project_dir: newEntry.project_dir })
+      updated.push(port)
+    }
+  }
+
+  return { released, assigned, updated }
 }
 

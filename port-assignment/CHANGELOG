@@ -1,4 +1,10 @@
 
+Unreleased
+ - Name is now required for all port assignments
+ - Enforce unique name per project_dir (duplicate names in the same project are rejected)
+ - Added `edit-as-text` CLI command to edit all assignments in your text editor
+ - Added `updateAssignment()`, `serializeAssignments()`, `parseAssignmentText()`, and `applyAssignmentEdits()` functions
+
 0.4.0
  - Switch from better-sqlite3 to node:sqlite via userdata-db 0.2.0
 

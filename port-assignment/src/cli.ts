@@ -14,8 +14,13 @@ import {
   releasePort,
   resetPortAssignments,
   isPortAssigned,
-  isPortActuallyAvailable
+  isPortActuallyAvailable,
+  serializeAssignments,
+  applyAssignmentEdits
 } from './index.ts'
+import { execSync } from 'child_process'
+import { writeFileSync, readFileSync, unlinkSync } from 'fs'
+import { tmpdir } from 'os'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -59,8 +64,9 @@ async function main() {
             default: process.cwd()
           })
           .option('name', {
-            describe: 'Optional name to associate with this port',
-            type: 'string'
+            describe: 'Name to associate with this port',
+            type: 'string',
+            demandOption: true
           })
       },
       async (argv) => {
@@ -69,7 +75,7 @@ async function main() {
           const port = await claimUnusedPort({
             cwd: projectDir,
             project_dir: projectDir,
-            name: argv.name
+            name: argv.name as string
           })
           console.log(port)
         } catch (error) {
@@ -172,7 +178,8 @@ async function main() {
           })
           .option('name', {
             describe: 'Name to associate with this port',
-            type: 'string'
+            type: 'string',
+            demandOption: true
           })
       },
       async (argv) => {
@@ -182,7 +189,7 @@ async function main() {
             port: argv.port,
             cwd: projectDir,
             project_dir: projectDir,
-            name: argv.name
+            name: argv.name as string
           })
           console.log(`Port ${argv.port} assigned`)
         } catch (error) {
@@ -245,6 +252,52 @@ async function main() {
           console.log(`  Available on system: ${available ? 'Yes' : 'No'}`)
         } catch (error) {
           console.error(`Error checking port: ${error instanceof Error ? error.message : String(error)}`)
+          process.exit(1)
+        }
+      }
+    )
+    .command(
+      'edit-as-text',
+      'Edit all port assignments in your text editor',
+      () => {},
+      async () => {
+        try {
+          const assignments = await getPortAssignments()
+          const content = serializeAssignments(assignments)
+
+          const tmpFile = join(tmpdir(), `port-assignments-${Date.now()}.txt`)
+          writeFileSync(tmpFile, content)
+
+          const editor = process.env.EDITOR || 'vi'
+          try {
+            execSync(`${editor} ${tmpFile}`, { stdio: 'inherit' })
+          } catch {
+            console.error('Editor exited with an error')
+            unlinkSync(tmpFile)
+            process.exit(1)
+          }
+
+          const newContent = readFileSync(tmpFile, 'utf-8')
+          unlinkSync(tmpFile)
+
+          const { released, assigned, updated } = await applyAssignmentEdits(assignments, newContent)
+
+          if (released.length === 0 && assigned.length === 0 && updated.length === 0) {
+            console.log('No changes')
+            return
+          }
+
+          for (const port of released) {
+            console.log(`Released port ${port}`)
+          }
+          for (const port of assigned) {
+            console.log(`Assigned port ${port}`)
+          }
+          for (const port of updated) {
+            console.log(`Updated port ${port}`)
+          }
+        } catch (error) {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`)
           process.exit(1)
         }
       }

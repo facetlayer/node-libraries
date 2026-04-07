@@ -10,6 +10,7 @@ export interface ActiveDeployment {
     deploy_name: string
     deploy_dir: string
     web_static_dir: string | null
+    dynamic_routes_json: string | null
   }
 
 
