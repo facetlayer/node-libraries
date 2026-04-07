@@ -10,6 +10,7 @@ import { GooberneteRPCClient } from './rpc-client.ts';
 import { setupClient } from './clientSetup.ts';
 
 const MaxRequestSizeBytes = 80 * 1024;
+const ManifestBatchSize = 500;
 
 export interface DeployOptions {
     configFilename: string;
@@ -96,13 +97,26 @@ export async function deploy(options: DeployOptions) {
     console.log('Creating deployment on server at:', destUrl);
 
     // Create deployment entry
+    const useBatchedManifest = manifestList.length > ManifestBatchSize;
+
     const { deployName } = await client.createDeployment({
         projectName,
-        sourceFileManifest: manifestList,
+        sourceFileManifest: useBatchedManifest ? [] : manifestList,
         sourceFileConfig: configText,
     });
-    
+
     console.log('Deployment created with name:', deployName);
+
+    if (useBatchedManifest) {
+        // Send manifest in batches to avoid oversized JSON requests
+        for (let i = 0; i < manifestList.length; i += ManifestBatchSize) {
+            const batch = manifestList.slice(i, i + ManifestBatchSize);
+            await client.addManifestFiles({ deployName, files: batch });
+            console.log(`Sent manifest batch ${Math.floor(i / ManifestBatchSize) + 1}/${Math.ceil(manifestList.length / ManifestBatchSize)}`);
+        }
+        await client.finalizeManifest({ deployName });
+        console.log('Manifest finalized');
+    }
 
     const uploadConcurrency = new Limiter({
         maxConcurrent: 50,

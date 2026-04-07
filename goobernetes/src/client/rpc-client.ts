@@ -18,6 +18,9 @@ import {
     PreviewDeploymentResult,
     DownloadFileParams,
     DownloadFileResult,
+    AddManifestFilesParams,
+    FinalizeManifestParams,
+    PreviewByDeployNameParams,
 } from '../shared/rpc-types.ts';
 
 export class GooberneteRPCClient {
@@ -124,5 +127,17 @@ export class GooberneteRPCClient {
 
     async downloadFile(params: DownloadFileParams): Promise<DownloadFileResult> {
         return this.rpcCall(RPC_METHODS.DOWNLOAD_FILE, params);
+    }
+
+    async addManifestFiles(params: AddManifestFilesParams): Promise<void> {
+        return this.rpcCall(RPC_METHODS.ADD_MANIFEST_FILES, params);
+    }
+
+    async finalizeManifest(params: FinalizeManifestParams): Promise<void> {
+        return this.rpcCall(RPC_METHODS.FINALIZE_MANIFEST, params);
+    }
+
+    async previewByDeployName(params: PreviewByDeployNameParams): Promise<PreviewDeploymentResult> {
+        return this.rpcCall(RPC_METHODS.PREVIEW_BY_DEPLOY_NAME, params);
     }
 }

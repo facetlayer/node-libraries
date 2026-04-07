@@ -73,7 +73,13 @@ export async function createDeployment({projectName, sourceFileManifest, sourceF
     // Set up directories
     console.log('Setting up new deployment at: ', fullDeployDir);
     await mkdirp(fullDeployDir);
-    await setupEmptyDirectories(fullDeployDir, sourceFileManifest);
+
+    // Only set up file directories if manifest was provided inline.
+    // For large deploys, the manifest is sent in batches via addManifestFiles
+    // and directories are created when finalizeManifest is called.
+    if (sourceFileManifest.length > 0) {
+        await setupEmptyDirectories(fullDeployDir, sourceFileManifest);
+    }
 
     console.log('Deployment created:', deployName);
     return {

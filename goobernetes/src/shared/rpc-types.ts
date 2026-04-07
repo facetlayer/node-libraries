@@ -72,6 +72,19 @@ export interface DownloadFileResult {
     relPath: string;
 }
 
+export interface AddManifestFilesParams {
+    deployName: string;
+    files: FileEntry[];
+}
+
+export interface FinalizeManifestParams {
+    deployName: string;
+}
+
+export interface PreviewByDeployNameParams {
+    deployName: string;
+}
+
 // Response event types
 export interface DeploymentCreatedEvent {
     t: 'deployment_created';
@@ -96,5 +109,8 @@ export const RPC_METHODS = {
     FINISH_UPLOADS: 'finishUploads',
     PREVIEW_DEPLOYMENT: 'previewDeployment',
     DOWNLOAD_FILE: 'downloadFile',
+    ADD_MANIFEST_FILES: 'addManifestFiles',
+    FINALIZE_MANIFEST: 'finalizeManifest',
+    PREVIEW_BY_DEPLOY_NAME: 'previewByDeployName',
 } as const;
 

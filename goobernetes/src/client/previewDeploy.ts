@@ -22,11 +22,33 @@ export async function previewDeploy(options: PreviewDeployOptions) {
         sha: item.sha,
     }));
 
-    const result = await client.previewDeployment({
-        projectName,
-        sourceFileManifest: manifestList,
-        sourceFileConfig: configText,
-    });
+    const ManifestBatchSize = 500;
+    const useBatchedManifest = manifestList.length > ManifestBatchSize;
+
+    let result;
+    if (useBatchedManifest) {
+        // For large manifests, create a temporary deployment to hold the manifest,
+        // then preview using the deployment name.
+        const { deployName } = await client.createDeployment({
+            projectName,
+            sourceFileManifest: [],
+            sourceFileConfig: configText,
+        });
+
+        for (let i = 0; i < manifestList.length; i += ManifestBatchSize) {
+            const batch = manifestList.slice(i, i + ManifestBatchSize);
+            await client.addManifestFiles({ deployName, files: batch });
+        }
+        await client.finalizeManifest({ deployName });
+
+        result = await client.previewByDeployName({ deployName });
+    } else {
+        result = await client.previewDeployment({
+            projectName,
+            sourceFileManifest: manifestList,
+            sourceFileConfig: configText,
+        });
+    }
 
     // Display results
     if (result.filesToUpload.length === 0 && result.filesToDelete.length === 0) {

@@ -17,6 +17,9 @@ import {
     PreviewDeploymentResult,
     DownloadFileParams,
     DownloadFileResult,
+    AddManifestFilesParams,
+    FinalizeManifestParams,
+    PreviewByDeployNameParams,
 } from '../shared/rpc-types.ts';
 
 import { createDeployment } from './createDeployment.ts';
@@ -26,6 +29,7 @@ import { verifyDeployment } from './verifyDeployment.ts';
 import { finishUploads } from './finishUploads.ts';
 import { previewDeployment } from './previewDeployment.ts';
 import { downloadFile } from './downloadFile.ts';
+import { finalizeManifest } from './finalizeManifest.ts';
 import { getDatabase } from './Database.ts';
 import Fs from 'fs/promises';
 import { validateSecretKey } from './validateSecretKey.ts';
@@ -122,6 +126,42 @@ export class GooberneteRPCServer {
 
         this.server.addMethod(RPC_METHODS.DOWNLOAD_FILE, async (params: DownloadFileParams): Promise<DownloadFileResult> => {
             return await downloadFile(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.ADD_MANIFEST_FILES, async (params: AddManifestFilesParams) => {
+            const { deployName, files } = params;
+            const db = getDatabase();
+            const deployment = db.get(`select manifest_json from deployment where deploy_name = ?`, [deployName]);
+
+            if (!deployment) {
+                throw new Error(`Deployment not found: ${deployName}`);
+            }
+
+            const existing: FileEntry[] = JSON.parse(deployment.manifest_json);
+            const updated = existing.concat(files);
+
+            db.run(`update deployment set manifest_json = ? where deploy_name = ?`,
+                [JSON.stringify(updated), deployName]);
+        });
+
+        this.server.addMethod(RPC_METHODS.FINALIZE_MANIFEST, async (params: FinalizeManifestParams) => {
+            return await finalizeManifest(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.PREVIEW_BY_DEPLOY_NAME, async (params: PreviewByDeployNameParams): Promise<PreviewDeploymentResult> => {
+            const db = getDatabase();
+            const deployment = db.get(`select * from deployment where deploy_name = ?`, [params.deployName]);
+
+            if (!deployment) {
+                throw new Error(`Deployment not found: ${params.deployName}`);
+            }
+
+            const manifest = JSON.parse(deployment.manifest_json);
+            return await previewDeployment({
+                projectName: deployment.project_name,
+                sourceFileManifest: manifest,
+                sourceFileConfig: deployment.source_config_file,
+            });
         });
     }
 

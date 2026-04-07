@@ -1,4 +1,7 @@
-# Unreleased
+# 0.4.0
+ - Added batched manifest upload for large deploys (500+ files) via `addManifestFiles` and `finalizeManifest` API methods
+ - Added `previewByDeployName` API method for previewing large deploys
+ - Added `docs/ClientServerAPI.md` documenting all JSON-RPC methods
  - Added glob pattern support for include/exclude/ignore rules (e.g. `include src/**/*.ts`, `exclude **/*.test.js`)
  - Fixed include rules not working for subdirectory paths (e.g. `include frontend/out`)
 
