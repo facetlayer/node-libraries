@@ -1,8 +1,8 @@
 import express from 'express'
 import http from 'http'
-import { setupStaticWebEndpoints } from './index'
-import { listDeployments } from './listCommand'
-import type { CommonOptions } from './cli'
+import { setupStaticWebEndpoints } from './index.ts'
+import { listDeployments } from './listCommand.ts'
+import type { CommonOptions } from './cli.ts'
 
 export interface ServeOptions extends CommonOptions {
   port: number

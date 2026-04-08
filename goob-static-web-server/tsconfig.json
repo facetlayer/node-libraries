@@ -1,7 +1,11 @@
 {
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "compilerOptions": {
-    "lib": ["es2021"],
+    "lib": [
+      "es2021"
+    ],
     "target": "es2022",
     "module": "commonjs",
     "outDir": "dist",
@@ -12,7 +16,9 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "strict": false
+    "strict": false,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "exclude": [
     "node_modules",

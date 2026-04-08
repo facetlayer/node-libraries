@@ -1,6 +1,6 @@
-import { getDatabase } from './Database'
-import type { CommonOptions } from './cli'
-import { getDeploymentWebStaticDir } from './deploymentFiles'
+import { getDatabase } from './Database.ts'
+import type { CommonOptions } from './cli.ts'
+import { getDeploymentWebStaticDir } from './deploymentFiles.ts'
 
 interface ActiveDeployment {
   project_name: string

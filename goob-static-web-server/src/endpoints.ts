@@ -1,8 +1,8 @@
 import fs from 'fs/promises'
 import Path from 'path'
 import { Express } from 'express'
-import { ActiveDeployment, getDatabase } from './Database'
-import { getDeploymentWebStaticDir, } from './deploymentFiles'
+import { ActiveDeployment, getDatabase } from './Database.ts'
+import { getDeploymentWebStaticDir, } from './deploymentFiles.ts'
 
 export interface Options {
 }

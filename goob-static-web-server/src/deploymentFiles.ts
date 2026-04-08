@@ -1,4 +1,4 @@
-import { getDatabase, getDeploymentsDir } from "./Database";
+import { getDatabase, getDeploymentsDir } from "./Database.ts";
 import Path from 'path';
 
 function assertPathWithin(parentPath: string, childPath: string): void {

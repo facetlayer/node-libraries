@@ -1,2 +1,2 @@
 
-export { setupStaticWebEndpoints } from './endpoints'
+export { setupStaticWebEndpoints } from './endpoints.ts'

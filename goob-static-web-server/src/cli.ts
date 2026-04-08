@@ -3,8 +3,8 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { getOrCreateStateDirectory } from '@facetlayer/userdata-db'
-import { listDeployments } from './listCommand'
-import { serveCommand } from './serveCommand'
+import { listDeployments } from './listCommand.ts'
+import { serveCommand } from './serveCommand.ts'
 
 const DEFAULT_PORT = 4716
 
