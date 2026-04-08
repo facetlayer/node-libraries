@@ -1,9 +1,9 @@
 {
   "name": "@facetlayer/goob-static-web-server",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "license": "MIT",
   "description": "Express-based static web server for goobernetes deployments",
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
   "bin": {
@@ -29,10 +29,9 @@
   ],
   "author": "",
   "dependencies": {
-    "@facetlayer/sqlite-wrapper": "^1.2.0",
+    "@facetlayer/sqlite-wrapper": "^1.3.0",
     "@facetlayer/streams": "^1.0.1",
     "@facetlayer/userdata-db": "^0.1.0",
-    "better-sqlite3": "11.8.1",
     "express": "^5.1.0",
     "yargs": "^18.0.0"
   },
