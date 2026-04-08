@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "node build.mts build",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "prepublishOnly": "node build.mts build && node build.mts validate",
     "local:install": "pnpm build && npm i -g ."
   },

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -p .",
     "tsc": "tsc",
-    "test": "vitest run --testTimeout=30000",
+    "test": "vitest run --testTimeout=30000 --passWithNoTests",
     "prepublishOnly": "pnpm run build"
   },
   "files": [

@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "node build.mts build",
-    "test": "vitest run --testTimeout=30000",
+    "test": "vitest run --testTimeout=30000 --passWithNoTests",
     "prepublishOnly": "node build.mts build && node build.mts validate",
     "local:install": "pnpm build && npm i -g ."
   },

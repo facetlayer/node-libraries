@@ -12,7 +12,7 @@
     "build": "node build.mts build",
     "prepublishOnly": "node build.mts validate && node build.mts build",
     "typecheck": "tsc -p .",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "local:install": "pnpm build && npm i -g ."
   },
   "keywords": [
