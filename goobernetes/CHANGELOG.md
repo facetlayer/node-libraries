@@ -1,3 +1,10 @@
+# Unreleased
+ - Added `database <path>` config entries to list SQLite database locations for a project.
+ - Added `goob sql <config-file> <sql>` CLI command to run SQL on a deployed project's database.
+ - Added `goob list-databases <config-file>` CLI command to list configured databases and their tables.
+ - Added multi-database routing: the SQL command parses table names (via `@facetlayer/generic-lexer`) and picks the database containing them. Use `--database` to override.
+ - Added `executeSql` and `listDatabases` JSON-RPC methods.
+
 # 0.4.0
  - Added batched manifest upload for large deploys (500+ files) via `addManifestFiles` and `finalizeManifest` API methods
  - Added `previewByDeployName` API method for previewing large deploys

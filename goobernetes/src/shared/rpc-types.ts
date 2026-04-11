@@ -96,6 +96,32 @@ export interface VerifyDeploymentResult {
     error?: string;
 }
 
+export interface ExecuteSqlParams {
+    projectName: string;
+    sql: string;
+    database?: string;
+}
+
+export interface ExecuteSqlResult {
+    columns: string[];
+    rows: any[][];
+    rowsAffected: number;
+}
+
+export interface ListDatabasesParams {
+    projectName: string;
+}
+
+export interface DatabaseInfo {
+    path: string;
+    absolutePath: string;
+    tables: string[];
+}
+
+export interface ListDatabasesResult {
+    databases: DatabaseInfo[];
+}
+
 // JSON-RPC method names
 export const RPC_METHODS = {
     CREATE_DEPLOYMENT: 'createDeployment',
@@ -112,5 +138,7 @@ export const RPC_METHODS = {
     ADD_MANIFEST_FILES: 'addManifestFiles',
     FINALIZE_MANIFEST: 'finalizeManifest',
     PREVIEW_BY_DEPLOY_NAME: 'previewByDeployName',
+    EXECUTE_SQL: 'executeSql',
+    LIST_DATABASES: 'listDatabases',
 } as const;
 

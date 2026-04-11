@@ -6,6 +6,8 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       '**/test/sample-projects/**',
+      '**/test/temp/**',
+      '**/test/temp-sql/**',
     ],
   },
 });

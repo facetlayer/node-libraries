@@ -1,0 +1,12 @@
+deploy-settings
+  project-name=db-app
+  dest-url=http://localhost:4718
+  update-in-place
+
+database data/main.sqlite
+database data/logs.sqlite
+
+include package.json
+include index.js
+
+exclude node_modules

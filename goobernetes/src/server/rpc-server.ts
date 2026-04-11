@@ -20,6 +20,10 @@ import {
     AddManifestFilesParams,
     FinalizeManifestParams,
     PreviewByDeployNameParams,
+    ExecuteSqlParams,
+    ExecuteSqlResult,
+    ListDatabasesParams,
+    ListDatabasesResult,
 } from '../shared/rpc-types.ts';
 
 import { createDeployment } from './createDeployment.ts';
@@ -30,6 +34,7 @@ import { finishUploads } from './finishUploads.ts';
 import { previewDeployment } from './previewDeployment.ts';
 import { downloadFile } from './downloadFile.ts';
 import { finalizeManifest } from './finalizeManifest.ts';
+import { executeSql, listProjectDatabases } from './executeSql.ts';
 import { getDatabase } from './Database.ts';
 import Fs from 'fs/promises';
 import { validateSecretKey } from './validateSecretKey.ts';
@@ -146,6 +151,14 @@ export class GooberneteRPCServer {
 
         this.server.addMethod(RPC_METHODS.FINALIZE_MANIFEST, async (params: FinalizeManifestParams) => {
             return await finalizeManifest(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.EXECUTE_SQL, async (params: ExecuteSqlParams): Promise<ExecuteSqlResult> => {
+            return executeSql(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.LIST_DATABASES, async (params: ListDatabasesParams): Promise<ListDatabasesResult> => {
+            return listProjectDatabases(params);
         });
 
         this.server.addMethod(RPC_METHODS.PREVIEW_BY_DEPLOY_NAME, async (params: PreviewByDeployNameParams): Promise<PreviewDeploymentResult> => {

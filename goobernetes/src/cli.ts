@@ -131,6 +131,63 @@ yargs(hideBin(process.argv))
         }
     )
     .command(
+        'sql <config-file> <sql>',
+        'Run a SQL query on a database in a deployed project',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .positional('sql', {
+                    type: 'string',
+                    describe: 'SQL query to execute',
+                    demandOption: true,
+                })
+                .option('database', {
+                    type: 'string',
+                    describe: 'Explicit database file path (relative to project dir) to use',
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                });
+        },
+        async (argv) => {
+            const { runSqlCommand } = await import('./client/sqlCommand');
+            await runSqlCommand({
+                configFilename: argv['config-file'] as string,
+                sql: argv['sql'] as string,
+                database: argv['database'],
+                overrideDest: argv['override-dest'],
+            });
+        }
+    )
+    .command(
+        'list-databases <config-file>',
+        'List the databases configured for a deployed project',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                });
+        },
+        async (argv) => {
+            const { listDatabasesCommand } = await import('./client/sqlCommand');
+            await listDatabasesCommand({
+                configFilename: argv['config-file'] as string,
+                overrideDest: argv['override-dest'],
+            });
+        }
+    )
+    .command(
         'copy-back <config-file> <filename>',
         'Copy a file from the server back to the local filesystem',
         (yargs) => {

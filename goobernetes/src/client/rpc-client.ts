@@ -21,6 +21,10 @@ import {
     AddManifestFilesParams,
     FinalizeManifestParams,
     PreviewByDeployNameParams,
+    ExecuteSqlParams,
+    ExecuteSqlResult,
+    ListDatabasesParams,
+    ListDatabasesResult,
 } from '../shared/rpc-types.ts';
 
 export class GooberneteRPCClient {
@@ -139,5 +143,13 @@ export class GooberneteRPCClient {
 
     async previewByDeployName(params: PreviewByDeployNameParams): Promise<PreviewDeploymentResult> {
         return this.rpcCall(RPC_METHODS.PREVIEW_BY_DEPLOY_NAME, params);
+    }
+
+    async executeSql(params: ExecuteSqlParams): Promise<ExecuteSqlResult> {
+        return this.rpcCall(RPC_METHODS.EXECUTE_SQL, params);
+    }
+
+    async listDatabases(params: ListDatabasesParams): Promise<ListDatabasesResult> {
+        return this.rpcCall(RPC_METHODS.LIST_DATABASES, params);
     }
 }
