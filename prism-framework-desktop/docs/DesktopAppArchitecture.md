@@ -75,6 +75,28 @@ Desktop apps have no external consumers, so a stable URL isn't useful — the po
 
 If you also want a dev-only mode for agent testing (see [ElectronTesting.md](ElectronTesting.md)), keep a separate `api.ts` / `serve.ts` entry point that uses a **fixed** port — that one's meant to be reachable from `playwright-cli` and benefits from a predictable URL.
 
+## Never use top-level `await` in an Electron main module
+
+Electron fires its `ready` event only after the main module finishes synchronous evaluation. If your main `.js`/`.ts` file uses top-level `await` (for example, `await startServer(...)`), the module is suspended waiting for that promise — which means `app.whenReady()` never resolves and the app hangs at launch with a bouncing dock icon.
+
+Wrap the async logic in a regular function and kick it off without awaiting:
+
+```ts
+async function main() {
+    const app = createApp();
+    const server = await startServer({ port: 0, app, web: { dir } });
+    const { port } = server.address() as AddressInfo;
+    await desktopLaunch({ app, devServerUrl: `http://localhost:${port}` });
+}
+
+main().catch((err) => {
+    console.error('Failed to launch desktop app:', err);
+    process.exit(1);
+});
+```
+
+This is how `samples/notesApp/src/main.ts` and `tickets-gui/src/desktop.ts` are structured.
+
 ## Electron + native modules
 
 Electron bundles its own Node runtime. Some Prism dependencies (notably `@facetlayer/sqlite-wrapper`, which uses `node:sqlite`) need a Node version ≥ 22. That means **Electron 34 or newer** — the desktop lib, both samples, and `tickets-gui` are pinned to Electron 41 (Node 24).

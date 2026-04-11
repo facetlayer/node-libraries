@@ -7,7 +7,7 @@
  * endpoints via `callEndpoint`.
  */
 
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, nativeImage } from 'electron';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import type { PrismApp } from '@facetlayer/prism-framework/core';
@@ -71,6 +71,22 @@ export interface DesktopLaunchOptions {
     preloadPath?: string;
 
     /**
+     * Absolute path to a PNG icon. Applied to the BrowserWindow (taskbar /
+     * title bar on Windows / Linux) and, on macOS, to the dock via
+     * `app.dock.setIcon`. For packaged apps you should still ship a platform
+     * icon through `electron-builder`; this option is primarily for dev
+     * runs.
+     */
+    iconPath?: string;
+
+    /**
+     * Initial window title. Note that an HTML `<title>` tag in the loaded
+     * page will override this once the page loads — most desktop apps are
+     * fine leaving this unset and letting the HTML drive the title.
+     */
+    title?: string;
+
+    /**
      * Supply an Authorization object for each IPC call. Use this if your
      * endpoints check user permissions — the default is an empty
      * Authorization, which is fine for single-user desktop apps.
@@ -104,6 +120,8 @@ export async function desktopLaunch(options: DesktopLaunchOptions): Promise<Desk
         uiBuildPath,
         initialPath = '/',
         preloadPath,
+        iconPath,
+        title,
         getAuth,
         onWindowCreated,
     } = options;
@@ -123,6 +141,12 @@ export async function desktopLaunch(options: DesktopLaunchOptions): Promise<Desk
     }
 
     const resolvedPreloadPath = preloadPath || getFrameworkPreloadPath();
+
+    // Load the icon once so BrowserWindow and the macOS dock can share it.
+    const iconImage = iconPath ? nativeImage.createFromPath(iconPath) : null;
+    if (iconImage && iconImage.isEmpty()) {
+        console.warn(`[prism-framework-desktop] Could not load icon at ${iconPath}`);
+    }
 
     let initialUrl: string;
     if (devServerUrl) {
@@ -150,6 +174,8 @@ export async function desktopLaunch(options: DesktopLaunchOptions): Promise<Desk
         mainWindow = new BrowserWindow({
             width: windowWidth,
             height: windowHeight,
+            title,
+            icon: iconImage && !iconImage.isEmpty() ? iconImage : undefined,
             webPreferences: {
                 preload: resolvedPreloadPath,
                 nodeIntegration: false,
@@ -167,6 +193,12 @@ export async function desktopLaunch(options: DesktopLaunchOptions): Promise<Desk
     }
 
     await app.whenReady();
+
+    // macOS: BrowserWindow.icon is ignored — the dock uses app.dock.setIcon().
+    if (iconImage && !iconImage.isEmpty() && process.platform === 'darwin' && app.dock) {
+        app.dock.setIcon(iconImage);
+    }
+
     createWindow();
 
     app.on('activate', () => {
