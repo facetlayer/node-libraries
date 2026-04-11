@@ -1,4 +1,4 @@
-import BetterSqlite3 from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import { getDatabase } from './Database.ts';
 import { getActiveDeploymentDir, getSafePathInDir } from './deployDirs.ts';
 import { parseGoobDatabases } from '../shared/parseGoobDatabases.ts';
@@ -25,7 +25,7 @@ function getProjectConfig(projectName: string): string {
 }
 
 function getTableNamesInDb(dbPath: string): string[] {
-    const db = new BetterSqlite3(dbPath, { readonly: true });
+    const db = new DatabaseSync(dbPath);
     try {
         const rows = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`).all() as { name: string }[];
         return rows.map(r => r.name.toLowerCase());
@@ -91,20 +91,21 @@ function findDatabaseForTables(deployDir: string, dbPaths: string[], tableNames:
 }
 
 function runSql(dbPath: string, sql: string): ExecuteSqlResult {
-    const db = new BetterSqlite3(dbPath);
+    const db = new DatabaseSync(dbPath);
     try {
         const stmt = db.prepare(sql);
+        const isSelect = /^\s*(SELECT|WITH|EXPLAIN)\b/i.test(sql);
 
-        if (stmt.reader) {
-            const columns = stmt.columns().map(c => c.name);
+        if (isSelect) {
             const rows = stmt.all() as Record<string, any>[];
+            const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
             return {
                 columns,
                 rows: rows.map(row => columns.map(col => row[col])),
                 rowsAffected: 0,
             };
         } else {
-            const result = stmt.run();
+            const result = stmt.run() as { changes: number };
             return {
                 columns: [],
                 rows: [],

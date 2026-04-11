@@ -445,10 +445,9 @@ async function runDeploy(configPath: string): Promise<void> {
 }
 
 async function queryDatabase(sql: string): Promise<any[]> {
-    // Read database directly using better-sqlite3
-    const Database = (await import('better-sqlite3')).default;
+    const { DatabaseSync } = await import('node:sqlite');
     const dbPath = path.join(HOME_DIR, 'goobernetes', 'db.sqlite');
-    const db = new Database(dbPath, { readonly: true });
+    const db = new DatabaseSync(dbPath);
     const result = db.prepare(sql).all();
     db.close();
     return result;

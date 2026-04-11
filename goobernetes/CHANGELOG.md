@@ -1,3 +1,7 @@
+# Unreleased
+ - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module, eliminating the native compilation dependency
+ - Updated `@facetlayer/userdata-db` to `^0.2.0` and `@facetlayer/sqlite-wrapper` to `^1.3.0`
+
 # 0.6.0
  - Added `candle-config=<path>` setting for `deploy-settings`. On activation, goobernetes copies the referenced file to `.candle.json` inside the deployment directory and runs `candle restart` + `candle check-start` from that directory, replacing the need for a shared system-wide Candle config.
 

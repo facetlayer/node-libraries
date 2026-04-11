@@ -2,7 +2,7 @@ import { describe, test, beforeAll, afterAll, expect } from 'vitest';
 import { spawn, ChildProcess } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
-import BetterSqlite3 from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 
 // Test configuration
 const TEST_PORT = 4718;
@@ -210,7 +210,7 @@ describe('SQL Command Tests', () => {
         test('errors when tables exist in multiple databases', async () => {
             // Insert 'users' table into logs db too to create ambiguity
             const logsDb = path.join(DEPLOYS_DIR, 'db-app', 'data', 'logs.sqlite');
-            const db = new BetterSqlite3(logsDb);
+            const db = new DatabaseSync(logsDb);
             db.exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)`);
             db.exec(`INSERT OR IGNORE INTO users VALUES (99, 'ghost')`);
             db.close();
@@ -232,7 +232,7 @@ describe('SQL Command Tests', () => {
             expect(errorOutput).toContain('data/logs.sqlite');
 
             // Clean up: drop users from logs db
-            const db2 = new BetterSqlite3(logsDb);
+            const db2 = new DatabaseSync(logsDb);
             db2.exec(`DROP TABLE IF EXISTS users`);
             db2.close();
         }, 15000);
@@ -383,7 +383,7 @@ async function createTestDatabases(): Promise<void> {
     const dbAppDir = path.join(DEPLOYS_DIR, 'db-app', 'data');
     await fs.mkdir(dbAppDir, { recursive: true });
 
-    const mainDb = new BetterSqlite3(path.join(dbAppDir, 'main.sqlite'));
+    const mainDb = new DatabaseSync(path.join(dbAppDir, 'main.sqlite'));
     mainDb.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -395,7 +395,7 @@ async function createTestDatabases(): Promise<void> {
     mainDb.exec(`INSERT INTO users (name, email) VALUES ('bob', 'bob@example.com')`);
     mainDb.close();
 
-    const logsDb = new BetterSqlite3(path.join(dbAppDir, 'logs.sqlite'));
+    const logsDb = new DatabaseSync(path.join(dbAppDir, 'logs.sqlite'));
     logsDb.exec(`
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -412,7 +412,7 @@ async function createTestDatabases(): Promise<void> {
     const singleDbAppDir = path.join(DEPLOYS_DIR, 'db-app-single-db', 'data');
     await fs.mkdir(singleDbAppDir, { recursive: true });
 
-    const appDb = new BetterSqlite3(path.join(singleDbAppDir, 'app.sqlite'));
+    const appDb = new DatabaseSync(path.join(singleDbAppDir, 'app.sqlite'));
     appDb.exec(`
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
