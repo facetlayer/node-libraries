@@ -444,8 +444,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@facetlayer/generic-lexer':
-        specifier: workspace:*
-        version: link:../generic-lexer
+        specifier: ^1.0.1
+        version: 1.0.1
       '@facetlayer/qc':
         specifier: ^0.1.1
         version: 0.1.1
@@ -3098,6 +3098,9 @@ packages:
 
   '@facetlayer/generic-lexer@1.0.0':
     resolution: {integrity: sha512-H5/MBfg5PZO0t1iX2WL+/dwdqjGaE39HgzQU6FrWAmTbX7ysbHrDlIYiLmymzfQDoVRfOebUoXlfxWh8SIiY+Q==}
+
+  '@facetlayer/generic-lexer@1.0.1':
+    resolution: {integrity: sha512-XsvCbJty7sMoPT/V9J+yzDqKgiJfJLoVHw6Td4cIY4+NqKewVfTeIBV2B/0sF6suwj1u42dga4eOMPKCAEGiDA==}
 
   '@facetlayer/parse-stdout-lines@1.1.0':
     resolution: {integrity: sha512-FjoSb3VDDoWAymXtfrRAGKaHMVHTx+4f8Jf58NUEFItmZ3qpOvrMl4MQM7cz9gyoI579iaKKRRQjfnsmzdXRbg==}
@@ -12749,6 +12752,8 @@ snapshots:
 
   '@facetlayer/generic-lexer@1.0.0': {}
 
+  '@facetlayer/generic-lexer@1.0.1': {}
+
   '@facetlayer/parse-stdout-lines@1.1.0': {}
 
   '@facetlayer/port-assignment@0.2.0':
@@ -12782,13 +12787,13 @@ snapshots:
 
   '@facetlayer/sqlite-wrapper@1.2.1':
     dependencies:
-      '@facetlayer/generic-lexer': 1.0.0
+      '@facetlayer/generic-lexer': 1.0.1
       '@facetlayer/streams': 1.0.1
       better-sqlite3: 11.8.1
 
   '@facetlayer/sqlite-wrapper@1.2.3':
     dependencies:
-      '@facetlayer/generic-lexer': 1.0.0
+      '@facetlayer/generic-lexer': 1.0.1
       '@facetlayer/streams': 1.0.1
       better-sqlite3: 12.8.0
 

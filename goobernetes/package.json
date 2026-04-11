@@ -22,7 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@facetlayer/concurrency-limit": "^0.1.0",
-    "@facetlayer/generic-lexer": "workspace:*",
+    "@facetlayer/generic-lexer": "^1.0.1",
     "@facetlayer/file-manifest": "^0.1.0",
     "@facetlayer/qc": "^0.1.1",
     "@facetlayer/sqlite-wrapper": "^1.2.3",
