@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
+import { ErrorWithDetails } from '@facetlayer/streams';
 import { createDesktopFetch } from '../desktopFetch.js';
+import { encodeIpcError } from '../ipcErrors.js';
 
 describe('createDesktopFetch', () => {
     it('forwards the method and path to bridge.apiCall', async () => {
@@ -67,6 +69,48 @@ describe('createDesktopFetch', () => {
         } finally {
             (globalThis as any).window = original;
         }
+    });
+
+    it('rehydrates encoded main-process errors into ErrorWithDetails', async () => {
+        const bridge = {
+            apiCall: vi.fn().mockRejectedValue(
+                encodeIpcError({
+                    errorId: 'err-1',
+                    errorType: 'http_error',
+                    errorMessage: 'gone',
+                    related: [{ statusCode: '404' }],
+                })
+            ),
+        };
+        const fetch = createDesktopFetch({ bridge });
+
+        let caught: unknown;
+        try {
+            await fetch('GET /items/:id', { params: { id: '1' } });
+        } catch (err) {
+            caught = err;
+        }
+        expect(caught).toBeInstanceOf(ErrorWithDetails);
+        const details = (caught as ErrorWithDetails).errorItem;
+        expect(details.errorId).toBe('err-1');
+        expect(details.errorType).toBe('http_error');
+        expect(details.errorMessage).toBe('gone');
+        // Original related context plus the method/path we appended in the fetch bridge.
+        expect(details.related).toEqual(
+            expect.arrayContaining([
+                { statusCode: '404' },
+                expect.objectContaining({ method: 'GET', path: '/items/:id' }),
+            ])
+        );
+    });
+
+    it('wraps plain errors from the bridge in ErrorWithDetails', async () => {
+        const bridge = {
+            apiCall: vi.fn().mockRejectedValue(new Error('bridge exploded')),
+        };
+        const fetch = createDesktopFetch({ bridge });
+
+        await expect(fetch('GET /items')).rejects.toBeInstanceOf(ErrorWithDetails);
     });
 
     it('warns when host option is supplied', async () => {

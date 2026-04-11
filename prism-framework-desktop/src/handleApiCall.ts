@@ -7,6 +7,8 @@
 
 import type { PrismApp } from '@facetlayer/prism-framework/core';
 import { Authorization, isHttpError, withRequestContext } from '@facetlayer/prism-framework/core';
+import { captureError, type ErrorDetails } from '@facetlayer/streams';
+import { encodeIpcError } from './ipcErrors.js';
 
 export interface HandleApiCallOptions {
     /**
@@ -24,18 +26,6 @@ export interface IpcApiCallPayload {
 }
 
 /**
- * Normalized error shape used internally when forwarding HttpErrors across
- * IPC. Electron's ipcRenderer.invoke serializes thrown errors poorly, so we
- * stringify a tagged payload into the Error message. Not part of the public
- * API — the renderer currently surfaces it as-is.
- */
-interface IpcApiCallError {
-    __prismError: true;
-    statusCode: number;
-    message: string;
-}
-
-/**
  * Build an IPC handler function that routes requests to `app.callEndpoint`.
  * The returned function has the shape expected by `ipcMain.handle`.
  */
@@ -45,6 +35,7 @@ export function createApiCallHandler(app: PrismApp, options: HandleApiCallOption
         path: string,
         payload: IpcApiCallPayload = {}
     ): Promise<any> {
+        const upperMethod = method.toUpperCase();
         const { path: finalPath, consumedKeys } = substitutePathParams(path, payload.params);
 
         const remainingParams = payload.params
@@ -53,33 +44,48 @@ export function createApiCallHandler(app: PrismApp, options: HandleApiCallOption
               )
             : {};
 
+        const requestId = globalThis.crypto.randomUUID();
         const auth = options.getAuth?.() ?? new Authorization();
-        const context = {
-            requestId: globalThis.crypto.randomUUID(),
-            startTime: Date.now(),
-            auth,
-        };
+        const context = { requestId, startTime: Date.now(), auth };
 
         try {
             return await withRequestContext(context, () =>
                 app.callEndpoint({
-                    method: method.toUpperCase(),
+                    method: upperMethod,
                     path: finalPath,
                     input: Object.keys(remainingParams).length > 0 ? remainingParams : undefined,
                 })
             );
         } catch (error) {
-            if (isHttpError(error)) {
-                const normalized: IpcApiCallError = {
-                    __prismError: true,
-                    statusCode: error.statusCode,
-                    message: error.message,
-                };
-                throw new Error(JSON.stringify(normalized));
-            }
-            throw error;
+            throw encodeIpcError(buildErrorDetails(error, upperMethod, finalPath, requestId));
         }
     };
+}
+
+/**
+ * Convert whatever the endpoint handler threw into an `ErrorDetails`.
+ * `HttpError`s are tagged with `errorType: 'http_error'` and carry the
+ * status code in `related`; any other exception is normalized via
+ * `captureError`, which handles plain `Error`, string, and unknown inputs.
+ */
+function buildErrorDetails(
+    error: unknown,
+    method: string,
+    path: string,
+    requestId: string
+): ErrorDetails {
+    const requestContext = { method, path, requestId };
+
+    if (isHttpError(error)) {
+        return {
+            errorType: 'http_error',
+            errorMessage: error.message,
+            stack: error.stack,
+            related: [requestContext, { statusCode: String(error.statusCode) }],
+        };
+    }
+
+    return captureError(error as Error, [requestContext]);
 }
 
 /**

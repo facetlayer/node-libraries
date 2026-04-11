@@ -26,7 +26,8 @@
   "license": "MIT",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
-    "@facetlayer/prism-framework": "workspace:*"
+    "@facetlayer/prism-framework": "workspace:*",
+    "@facetlayer/streams": "workspace:*"
   },
   "peerDependencies": {
     "electron": ">=28.0.0",

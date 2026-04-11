@@ -10,6 +10,7 @@
  */
 
 import type { ElectronAPI } from './ElectronAPI.js';
+import { normalizeIpcError } from './ipcErrors.js';
 
 export interface ApiRequestOptions {
     params?: any;
@@ -69,9 +70,16 @@ export function createDesktopFetch(options: CreateDesktopFetchOptions = {}) {
             path = parts.slice(1).join(' ');
         }
 
-        return bridge.apiCall(method, path, {
-            params: requestOptions.params,
-            headers: requestOptions.headers,
-        });
+        try {
+            return await bridge.apiCall(method, path, {
+                params: requestOptions.params,
+                headers: requestOptions.headers,
+            });
+        } catch (error) {
+            // Re-hydrate the ErrorDetails payload the main process encoded
+            // via encodeIpcError, so the UI sees ErrorWithDetails (carrying
+            // errorId / errorType / related) rather than a mangled Error.
+            throw normalizeIpcError(error, [{ method, path }]);
+        }
     };
 }

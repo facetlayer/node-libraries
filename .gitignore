@@ -6,3 +6,6 @@ build
 *.tsbuildinfo
 .DS_Store
 .playwright-cli
+.playwright
+prism-framework-desktop/test
+.candle

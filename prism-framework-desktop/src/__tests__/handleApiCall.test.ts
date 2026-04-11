@@ -8,6 +8,7 @@ import {
     getCurrentRequestContext,
 } from '@facetlayer/prism-framework/core';
 import { createApiCallHandler } from '../handleApiCall.js';
+import { decodeIpcError } from '../ipcErrors.js';
 
 function createTestApp() {
     const listItems = createEndpoint({
@@ -86,9 +87,43 @@ describe('createApiCallHandler', () => {
         expect(Array.isArray(result)).toBe(true);
     });
 
-    it('normalizes HttpError into a serializable error', async () => {
+    it('encodes HttpError as an ErrorDetails payload with http_error type and status code', async () => {
         const handler = createApiCallHandler(createTestApp());
-        await expect(handler('GET', '/missing', {})).rejects.toThrow(/"statusCode":404/);
+        let caught: unknown;
+        try {
+            await handler('GET', '/missing', {});
+        } catch (err) {
+            caught = err;
+        }
+        const details = decodeIpcError(caught);
+        expect(details).not.toBeNull();
+        expect(details?.errorType).toBe('http_error');
+        expect(details?.errorMessage).toContain('gone');
+        expect(details?.related).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ method: 'GET', path: '/missing' }),
+                { statusCode: '404' },
+            ])
+        );
+    });
+
+    it('encodes unexpected errors via captureError, preserving request context', async () => {
+        const handler = createApiCallHandler(createTestApp());
+        let caught: unknown;
+        try {
+            await handler('GET', '/nonexistent', {});
+        } catch (err) {
+            caught = err;
+        }
+        const details = decodeIpcError(caught);
+        expect(details).not.toBeNull();
+        expect(details?.errorMessage).toMatch(/Endpoint not found/);
+        expect(details?.errorId).toBeTruthy();
+        expect(details?.related).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ method: 'GET', path: '/nonexistent' }),
+            ])
+        );
     });
 
     it('wraps calls in a request context with auth', async () => {
@@ -98,8 +133,4 @@ describe('createApiCallHandler', () => {
         expect(result).toEqual({ auth: 'present' });
     });
 
-    it('throws when the endpoint is not registered', async () => {
-        const handler = createApiCallHandler(createTestApp());
-        await expect(handler('GET', '/nonexistent', {})).rejects.toThrow(/Endpoint not found/);
-    });
 });

@@ -751,6 +751,9 @@ importers:
       '@facetlayer/prism-framework':
         specifier: workspace:*
         version: link:../prism-framework
+      '@facetlayer/streams':
+        specifier: workspace:*
+        version: link:../streams
     devDependencies:
       '@types/node':
         specifier: ^22.10.2
