@@ -1,3 +1,8 @@
+Unreleased
+ - Auto-detect new/changed active deployments without restarting the server.
+   Adds a background watcher that polls the active_deployment table and logs
+   changes.
+
 0.1.4
  - Dependency updates
 

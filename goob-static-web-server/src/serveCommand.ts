@@ -2,6 +2,7 @@ import express from 'express'
 import http from 'http'
 import { setupStaticWebEndpoints } from './index.ts'
 import { listDeployments } from './listCommand.ts'
+import { startDeploymentWatcher } from './deploymentWatcher.ts'
 import type { CommonOptions } from './cli.ts'
 
 export interface ServeOptions extends CommonOptions {
@@ -24,6 +25,10 @@ export async function serveCommand(options: ServeOptions): Promise<void> {
 
     // List all deployments on startup
     await listDeployments({ appName, deployDir, port })
+
+    // Watch for new/changed active deployments so they are picked up
+    // without restarting the server.
+    startDeploymentWatcher()
   })
 
   server.on('error', (error: any) => {
