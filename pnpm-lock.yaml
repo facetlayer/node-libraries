@@ -150,6 +150,9 @@ importers:
       '@facetlayer/prism-framework':
         specifier: workspace:*
         version: link:../prism-framework
+      '@facetlayer/prism-framework-desktop':
+        specifier: workspace:*
+        version: link:../prism-framework-desktop
     devDependencies:
       '@facetlayer/build-config-nodejs':
         specifier: ^0.3.0
@@ -157,6 +160,9 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.13.0
+      electron:
+        specifier: ^41.0.0
+        version: 41.2.0
       esbuild:
         specifier: ^0.25.12
         version: 0.25.12
@@ -437,6 +443,9 @@ importers:
       '@facetlayer/file-manifest':
         specifier: ^0.1.0
         version: 0.1.0
+      '@facetlayer/generic-lexer':
+        specifier: workspace:*
+        version: link:../generic-lexer
       '@facetlayer/qc':
         specifier: ^0.1.1
         version: 0.1.1

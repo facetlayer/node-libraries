@@ -26,6 +26,7 @@ interface FeedbackListProps {
   refreshKey: number;
   onRefresh: () => void;
   onDeleteLibrary: () => void;
+  onSelectTicket: (id: number) => void;
 }
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low', 'positive'];
@@ -54,13 +55,14 @@ const BTN_BASE = 'rounded-md border cursor-pointer transition-all duration-150 d
 const BTN_ACCEPT = `text-xs py-1.5 px-4 ${BTN_BASE} bg-[#0a3d24] border-[#166534] text-[#4ade80] hover:bg-[#0d4f2e]`;
 const BTN_COMPLETE = `text-xs py-1.5 px-4 ${BTN_BASE} bg-[#1a2f4d] border-[#1e3a5f] text-[#93c5fd] hover:bg-[#1e3a5f]`;
 const BTN_REJECT = `text-xs py-1.5 px-4 ${BTN_BASE} bg-[#3a0a0a] border-[#7f1d1d] text-[#f87171] hover:bg-[#450a0a]`;
+const BTN_DELETE = `text-xs py-1.5 px-4 ${BTN_BASE} bg-[#3a0a0a] border-[#7f1d1d] text-[#f87171] hover:bg-[#450a0a]`;
 const BTN_PAGE = `text-sm py-1.5 px-4 ${BTN_BASE} bg-bg-primary border-[#333] text-[#ccc] hover:border-[#555] hover:bg-[#222]`;
 
 function formatDate(timestamp: number): string {
   return new Date(timestamp).toISOString().replace('T', ' ').substring(0, 19);
 }
 
-export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }: FeedbackListProps) {
+export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary, onSelectTicket }: FeedbackListProps) {
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -103,6 +105,21 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
       await webFetch('PATCH /api/feedback/:id/status', {
         params: { id, status },
       });
+      await fetchItems();
+      onRefresh();
+    } catch {
+      // silently fail
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  const handleDeleteTicket = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    if (!confirm(`Delete ticket #${id}? This cannot be undone.`)) return;
+    setActionInProgress(id);
+    try {
+      await webFetch('DELETE /api/feedback/:id', { params: { id } });
       await fetchItems();
       onRefresh();
     } catch {
@@ -184,7 +201,11 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
           <div className="text-text-muted p-8 text-center text-base">No feedback items found</div>
         ) : (
           items.map(item => (
-            <div key={item.id} className="bg-bg-card border border-border rounded-lg px-5 py-4 hover:border-[#1a4a7a] transition-colors duration-150">
+            <div
+              key={item.id}
+              className="bg-bg-card border border-border rounded-lg px-5 py-4 hover:border-[#1a4a7a] transition-colors duration-150 cursor-pointer"
+              onClick={() => onSelectTicket(item.id)}
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className={`text-[11px] font-bold uppercase py-1 px-2.5 rounded tracking-wider ${SEVERITY_STYLES[item.severity] ?? ''}`}>
@@ -208,8 +229,8 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
                   {item.user && <span className="text-text-link font-medium">{item.user}</span>}
                   <span>{formatDate(item.created_at)}</span>
                 </div>
-                {item.status === 'pending' && (
-                  <div className="flex gap-2">
+                <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                  {item.status === 'pending' && (
                     <button
                       className={BTN_ACCEPT}
                       disabled={actionInProgress === item.id}
@@ -217,24 +238,17 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
                     >
                       {actionInProgress === item.id ? '...' : 'Accept'}
                     </button>
-                    <button
-                      className={BTN_REJECT}
-                      disabled={actionInProgress === item.id}
-                      onClick={() => handleStatusUpdate(item.id, 'rejected')}
-                    >
-                      {actionInProgress === item.id ? '...' : 'Reject'}
-                    </button>
-                  </div>
-                )}
-                {item.status === 'accepted' && (
-                  <div className="flex gap-2">
+                  )}
+                  {(item.status === 'pending' || item.status === 'accepted') && (
                     <button
                       className={BTN_COMPLETE}
                       disabled={actionInProgress === item.id}
                       onClick={() => handleStatusUpdate(item.id, 'completed')}
                     >
-                      {actionInProgress === item.id ? '...' : 'Complete'}
+                      {actionInProgress === item.id ? '...' : 'Resolve'}
                     </button>
+                  )}
+                  {(item.status === 'pending' || item.status === 'accepted') && (
                     <button
                       className={BTN_REJECT}
                       disabled={actionInProgress === item.id}
@@ -242,8 +256,15 @@ export function FeedbackList({ library, refreshKey, onRefresh, onDeleteLibrary }
                     >
                       {actionInProgress === item.id ? '...' : 'Reject'}
                     </button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    className={BTN_DELETE}
+                    disabled={actionInProgress === item.id}
+                    onClick={e => handleDeleteTicket(e, item.id)}
+                  >
+                    {actionInProgress === item.id ? '...' : 'Delete'}
+                  </button>
+                </div>
               </div>
             </div>
           ))

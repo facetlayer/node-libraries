@@ -5,6 +5,7 @@ import {
   listFeedback,
   getFeedback,
   updateFeedbackStatus,
+  getComments,
   getDb,
 } from '@facetlayer/tickets-tool';
 import type { FeedbackItem, FeedbackStatus, Severity } from '@facetlayer/tickets-tool';
@@ -157,7 +158,39 @@ const updateStatus = createEndpoint({
   },
 });
 
+const getTicketDetail = createEndpoint({
+  method: 'GET',
+  path: '/feedback/:id/comments',
+  description: 'Get a feedback item with its full comment history',
+  requestSchema: z.object({
+    id: z.coerce.number(),
+  }),
+  handler: async (input) => {
+    const item = getFeedback(input.id);
+    if (!item) throw new Error(`Feedback item #${input.id} not found`);
+    const comments = getComments(item.ticket_id);
+    return { item, comments };
+  },
+});
+
+const deleteTicket = createEndpoint({
+  method: 'DELETE',
+  path: '/feedback/:id',
+  description: 'Delete a single feedback item and its comments',
+  requestSchema: z.object({
+    id: z.coerce.number(),
+  }),
+  handler: async (input) => {
+    const item = getFeedback(input.id);
+    if (!item) throw new Error(`Feedback item #${input.id} not found`);
+    const db = getDb();
+    db.run(`DELETE FROM feedback_comments WHERE ticket_id = ?`, [item.ticket_id]);
+    db.run(`DELETE FROM feedback WHERE id = ?`, [input.id]);
+    return { deleted: true, id: input.id };
+  },
+});
+
 export const ticketsService: ServiceDefinition = {
   name: 'tickets',
-  endpoints: [getLibraries, listFeedbackItems, getFeedbackItem, updateStatus, deleteLibrary],
+  endpoints: [getLibraries, listFeedbackItems, getFeedbackItem, getTicketDetail, updateStatus, deleteLibrary, deleteTicket],
 };
