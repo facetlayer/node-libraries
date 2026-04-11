@@ -1,4 +1,4 @@
-# Unreleased
+# 0.5.0
  - Added `database <path>` config entries to list SQLite database locations for a project.
  - Added `goob sql <config-file> <sql>` CLI command to run SQL on a deployed project's database.
  - Added `goob list-databases <config-file>` CLI command to list configured databases and their tables.
