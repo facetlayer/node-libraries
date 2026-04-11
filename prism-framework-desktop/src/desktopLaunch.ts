@@ -1,160 +1,187 @@
 /**
- * Simplified desktop launch function for Prism Framework applications.
+ * High-level launcher for Prism Framework desktop apps.
  *
- * This function provides a high-level API for launching an Electron desktop app
- * without needing to manually configure all the Electron dependencies.
+ * Wires a PrismApp into Electron: starts the app, creates a BrowserWindow,
+ * loads the UI (dev server URL or static file), and registers the IPC
+ * handler that forwards `window.electron.apiCall` invocations to the app's
+ * endpoints via `callEndpoint`.
  */
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import type { PrismApp } from '@facetlayer/prism-framework/core';
+import type { Authorization } from '@facetlayer/prism-framework/core';
+import { createApiCallHandler } from './handleApiCall.js';
 
 /**
- * Get the path to the framework's preload script.
- * Consumer apps should use this instead of duplicating the preload script.
+ * Absolute path to the compiled preload script shipped with this package.
+ * Pass this to `new BrowserWindow({ webPreferences: { preload } })` so the
+ * renderer gets the `window.electron` bridge.
  */
 export function getFrameworkPreloadPath(): string {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  return resolve(__dirname, './preload.js');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    return resolve(__dirname, './preload.cjs');
 }
 
 export interface DesktopLaunchOptions {
-  /**
-   * Application name to display in the dock/taskbar
-   */
-  appName?: string;
+    /**
+     * The PrismApp instance with registered services. IPC calls from the
+     * renderer are routed to `app.callEndpoint`.
+     */
+    app: PrismApp;
 
-  /**
-   * Initial path in the application to navigate to (e.g., '/', '/dashboard')
-   */
-  initialPath?: string;
+    /**
+     * Application name shown in the dock/taskbar.
+     */
+    appName?: string;
 
-  /**
-   * Window width in pixels (default: 1200)
-   */
-  windowWidth?: number;
+    /**
+     * Window width in pixels (default: 1200)
+     */
+    windowWidth?: number;
 
-  /**
-   * Window height in pixels (default: 800)
-   */
-  windowHeight?: number;
+    /**
+     * Window height in pixels (default: 800)
+     */
+    windowHeight?: number;
 
-  /**
-   * Development server URL (default: http://localhost:4000)
-   */
-  devServerUrl?: string;
+    /**
+     * Dev server URL to load (e.g. `http://localhost:4000`). If omitted,
+     * `uiBuildPath` is used instead.
+     */
+    devServerUrl?: string;
 
-  /**
-   * Path to the UI build output (default: ../ui/out/index.html)
-   */
-  uiBuildPath?: string;
+    /**
+     * Absolute path to the built `index.html` for the UI. Used when
+     * `devServerUrl` is not provided.
+     */
+    uiBuildPath?: string;
 
-  /**
-   * Path to the preload script (default: ./preload.js)
-   */
-  preloadPath?: string;
+    /**
+     * Initial path appended to the dev server URL (default: '/').
+     */
+    initialPath?: string;
+
+    /**
+     * Override the path to the preload script. Defaults to the preload
+     * shipped with this package via `getFrameworkPreloadPath()`.
+     */
+    preloadPath?: string;
+
+    /**
+     * Supply an Authorization object for each IPC call. Use this if your
+     * endpoints check user permissions — the default is an empty
+     * Authorization, which is fine for single-user desktop apps.
+     */
+    getAuth?: () => Authorization;
+
+    /**
+     * Called after the main window is created. Useful for opening devtools,
+     * registering extra IPC handlers, or customizing window behavior.
+     */
+    onWindowCreated?: (window: BrowserWindow) => void;
+}
+
+export interface DesktopLaunchResult {
+    /**
+     * The main BrowserWindow, once created.
+     */
+    getMainWindow: () => BrowserWindow | null;
 }
 
 /**
- * Launch the Electron desktop application.
- *
- * This function handles:
- * - Waiting for Electron app to be ready
- * - Creating the main browser window
- * - Loading the appropriate URL (dev server or static files)
- * - Handling window lifecycle events
+ * Launch the Electron desktop application and bind it to a PrismApp.
  */
-export async function desktopLaunch(options: DesktopLaunchOptions = {}): Promise<void> {
-  const {
-    appName,
-    initialPath = '/',
-    windowWidth = 1200,
-    windowHeight = 800,
-    devServerUrl,
-    uiBuildPath,
-    preloadPath,
-  } = options;
+export async function desktopLaunch(options: DesktopLaunchOptions): Promise<DesktopLaunchResult> {
+    const {
+        app: prismApp,
+        appName,
+        windowWidth = 1200,
+        windowHeight = 800,
+        devServerUrl,
+        uiBuildPath,
+        initialPath = '/',
+        preloadPath,
+        getAuth,
+        onWindowCreated,
+    } = options;
 
-  // Set the application name if provided
-  if (appName) {
-    app.setName(appName);
-  }
+    if (!prismApp) {
+        throw new Error('[prism-framework-desktop] desktopLaunch requires an `app` option');
+    }
 
-  // Determine current file location
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
+    if (!devServerUrl && !uiBuildPath) {
+        throw new Error(
+            '[prism-framework-desktop] desktopLaunch requires either `devServerUrl` or `uiBuildPath`'
+        );
+    }
 
-  // Resolve paths
-  const resolvedPreloadPath = preloadPath || getFrameworkPreloadPath();
-  const resolvedUiPath = uiBuildPath || resolve(__dirname, '../../ui/out/index.html');
+    if (appName) {
+        app.setName(appName);
+    }
 
-  // Build the initial URL
-  let initialUrl: string;
-  if (devServerUrl) {
-    // In development, use the dev server
-    initialUrl = `${devServerUrl}${initialPath}`;
-  } else {
-    // In production, use the static files
-    initialUrl = `file://${resolvedUiPath}${initialPath === '/' ? '' : initialPath}`;
-  }
+    const resolvedPreloadPath = preloadPath || getFrameworkPreloadPath();
 
-  console.log(`Starting app with initial URL: ${initialUrl}`);
+    let initialUrl: string;
+    if (devServerUrl) {
+        initialUrl = `${devServerUrl}${initialPath}`;
+    } else {
+        initialUrl = `file://${uiBuildPath}`;
+    }
 
-  // Store the main window reference
-  let mainWindow: BrowserWindow | null = null;
-
-  /**
-   * Create the main browser window
-   */
-  function createWindow() {
-    mainWindow = new BrowserWindow({
-      width: windowWidth,
-      height: windowHeight,
-      webPreferences: {
-        preload: resolvedPreloadPath,
-        nodeIntegration: false,
-        contextIsolation: true,
-      },
+    // Register the IPC handler that routes apiCall messages into the PrismApp.
+    const apiCallHandler = createApiCallHandler(prismApp, { getAuth });
+    ipcMain.handle('prism:apiCall', async (_event, method: string, path: string, payload: any) => {
+        return apiCallHandler(method, path, payload);
     });
 
-    // Load the initial URL
-    mainWindow.loadURL(initialUrl);
-
-    // Open DevTools in development mode
-    /*
-    if (isDev) {
-      mainWindow.webContents.openDevTools();
+    // Run service startup jobs if any.
+    for (const service of prismApp.getAllServices()) {
+        if (service.startJobs) {
+            await service.startJobs();
+        }
     }
-    */
 
-    // Handle window close
-    mainWindow.on('closed', () => {
-      mainWindow = null;
+    let mainWindow: BrowserWindow | null = null;
+
+    function createWindow() {
+        mainWindow = new BrowserWindow({
+            width: windowWidth,
+            height: windowHeight,
+            webPreferences: {
+                preload: resolvedPreloadPath,
+                nodeIntegration: false,
+                contextIsolation: true,
+            },
+        });
+
+        mainWindow.loadURL(initialUrl);
+
+        mainWindow.on('closed', () => {
+            mainWindow = null;
+        });
+
+        onWindowCreated?.(mainWindow);
+    }
+
+    await app.whenReady();
+    createWindow();
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
     });
-  }
 
-  // Wait for Electron to be ready
-  await app.whenReady();
+    app.on('window-all-closed', () => {
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
+    });
 
-  // Create the window
-  createWindow();
-
-  // Handle app activation (macOS specific)
-  app.on('activate', () => {
-    // On macOS it's common to re-create a window when the dock icon is clicked
-    // and there are no other windows open
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-
-  // Quit when all windows are closed (except on macOS)
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
-
-  console.log('Electron app launched successfully');
+    return {
+        getMainWindow: () => mainWindow,
+    };
 }

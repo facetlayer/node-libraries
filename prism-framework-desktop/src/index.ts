@@ -1,16 +1,22 @@
 /**
  * @facetlayer/prism-framework-desktop
  *
- * Electron desktop integration library for Prism Framework applications.
- *
- * This library provides the necessary components to run a Prism Framework
- * application as an Electron desktop app, with support for both development
- * and release modes.
+ * Electron integration for Prism Framework applications. Wires a PrismApp
+ * into an Electron main process and provides an IPC bridge that the renderer
+ * can use as a drop-in replacement for HTTP fetch.
  */
 
-// Export types from preload.ts
-export type { ElectronAPI } from './preload.js';
-
-// Export the desktop launch function and helpers
+// Main-process launcher (imports electron — only usable from the main process)
 export { desktopLaunch, getFrameworkPreloadPath } from './desktopLaunch.js';
-export type { DesktopLaunchOptions } from './desktopLaunch.js';
+export type { DesktopLaunchOptions, DesktopLaunchResult } from './desktopLaunch.js';
+
+// Main-process IPC handler (electron-free, safe to import anywhere)
+export { createApiCallHandler } from './handleApiCall.js';
+export type { HandleApiCallOptions, IpcApiCallPayload } from './handleApiCall.js';
+
+// Renderer-side fetch bridge
+export { createDesktopFetch } from './desktopFetch.js';
+export type { ApiRequestOptions, CreateDesktopFetchOptions } from './desktopFetch.js';
+
+// Preload API type — shape of the bridge installed on `window.electron`.
+export type { ElectronAPI } from './ElectronAPI.js';

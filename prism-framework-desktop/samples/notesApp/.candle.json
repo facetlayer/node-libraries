@@ -1,0 +1,12 @@
+{
+  "services": [
+    {
+      "name": "prism-desktop-sample",
+      "shell": "pnpm electron dist/main.js"
+    },
+    {
+      "name": "prism-desktop-sample-web",
+      "shell": "pnpm serve"
+    }
+  ]
+}

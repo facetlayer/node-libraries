@@ -29,6 +29,8 @@ packages:
   - parse-stdout-lines
   - port-assignment
   - prism-framework
+  - prism-framework-desktop
+  - prism-framework-desktop/samples/notesApp
   - prism-framework-expo
   - prism-framework-ui
   - react-elements
@@ -48,4 +50,5 @@ packages:
 
 onlyBuiltDependencies:
   - better-sqlite3
+  - electron
   - esbuild

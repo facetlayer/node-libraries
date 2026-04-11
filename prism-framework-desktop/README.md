@@ -1,201 +1,127 @@
 # @facetlayer/prism-framework-desktop
 
-Electron desktop integration library for Prism Framework applications.
+Electron integration for [Prism Framework](../prism-framework) applications.
 
-This library provides the necessary components to run a Prism Framework application as an Electron desktop app, with support for both development and release modes.
-
-## Features
-
-- **Dependency Injection**: Electron dependencies are injected into your application, keeping the Electron-specific code isolated
-- **Development Mode Support**: Automatically connects to your Next.js dev server during development
-- **Release Mode Support**: Loads pre-built static UI files in production
-- **IPC Bridge**: Secure communication bridge between Electron main process and renderer
-- **Type Safety**: Full TypeScript support with exported types
+Wires a `PrismApp` into an Electron main process and provides an IPC bridge that the renderer can use as a drop-in replacement for HTTP fetch. The UI calls endpoints on `window.electron.apiCall`, which forwards them to `app.callEndpoint` in the main process — no localhost server required.
 
 ## Installation
 
 ```bash
-pnpm add @facetlayer/prism-framework-desktop
-pnpm add -D electron electron-builder
+pnpm add @facetlayer/prism-framework-desktop @facetlayer/prism-framework
+pnpm add -D electron
 ```
 
-## Project Structure
+`electron` is declared as an optional peer dependency so the library can be imported from non-Electron contexts (e.g. the renderer module).
 
-A typical Prism Framework desktop application has this structure:
+## Architecture
 
 ```
-my-desktop-app/
-├── api/                      # API server (uses HTTP in dev, IPC in release)
-├── ui/                       # Next.js UI (dev server in dev, static in release)
-└── desktop-app/              # Electron wrapper
-    ├── src/
-    │   ├── main.ts           # Copy from this library
-    │   └── preload.ts        # Copy from this library
-    └── package.json
+┌─────────── main process ────────────┐        ┌────── renderer ──────┐
+│  desktopLaunch({ app })              │  IPC   │  createDesktopFetch  │
+│    ├─ ipcMain.handle('prism:apiCall')│ ◀────▶ │    → window.electron │
+│    └─ BrowserWindow + preload        │        │    → apiFetch        │
+└──────────────────────────────────────┘        └──────────────────────┘
 ```
 
-## Development Modes
-
-### Local Development Mode
-
-In local development mode (`NODE_ENV=development`):
-
-- **API Server**: Runs as an HTTP server that the UI connects to
-- **UI**: Runs in live development mode using Next.js dev server with hot module replacement
-- **Electron Window**: Shows the live development server URL (default: `http://localhost:4000`)
-
-This mode is optimized for developer experience with fast refresh and easy debugging.
-
-### Release Mode
-
-In release mode (production):
-
-- **API Server**: Bundled and uses IPC (Inter-Process Communication) for UI actions
-- **UI**: Built as static files using `next build`
-- **Electron Window**: Loads the pre-built static files from the filesystem
-
-This mode is optimized for performance and package size.
+- **Main process** runs the `PrismApp` and registers an IPC handler that routes `apiCall` messages through `callEndpoint`.
+- **Preload script** (shipped in this package) exposes `window.electron.apiCall` to the renderer.
+- **Renderer** uses `createDesktopFetch()` and passes the result to `setFetchImplementation()` from `@facetlayer/prism-framework-ui`, so UI code written against `apiFetch` works without changes.
 
 ## Usage
 
-### Step 1: Copy Template Files
-
-Copy `main.ts` and `preload.ts` from this library's `src` directory to your `desktop-app/src` directory:
-
-```bash
-cp node_modules/@facetlayer/prism-framework-desktop/src/main.ts desktop-app/src/
-cp node_modules/@facetlayer/prism-framework-desktop/src/preload.ts desktop-app/src/
-```
-
-### Step 2: Create Desktop App Entry Point
-
-In your `api/src/_main/desktop-main.ts`, create the main entry point that receives Electron dependencies:
+### Main process (`electron/main.ts`)
 
 ```typescript
-import { ElectronDependencies, DesktopMainConfig } from '@facetlayer/prism-framework-desktop';
+import { desktopLaunch } from '@facetlayer/prism-framework-desktop';
+import { App } from '@facetlayer/prism-framework/core';
+import { myService } from '../api/src/myService.js';
 
-export async function main(electron: ElectronDependencies, config: DesktopMainConfig) {
-  const { app, BrowserWindow, ipcMain } = electron;
+const app = new App({
+    name: 'My Desktop App',
+    services: [myService],
+});
 
-  // Wait for Electron to be ready
-  await app.whenReady();
+await desktopLaunch({
+    app,
+    appName: 'My Desktop App',
+    // Use the dev server during development...
+    devServerUrl: process.env.NODE_ENV === 'development'
+        ? 'http://localhost:4000'
+        : undefined,
+    // ...or load the built static UI in production.
+    uiBuildPath: process.env.NODE_ENV === 'development'
+        ? undefined
+        : '/absolute/path/to/ui/dist/index.html',
+});
+```
 
-  // Create the browser window
-  const mainWindow = new BrowserWindow({
-    width: config.windowWidth || 1200,
-    height: config.windowHeight || 800,
+`desktopLaunch` handles `app.whenReady()`, creates the `BrowserWindow`, registers the IPC handler, and starts any `startJobs` declared on your services.
+
+### Renderer
+
+```typescript
+import { setFetchImplementation } from '@facetlayer/prism-framework-ui';
+import { createDesktopFetch } from '@facetlayer/prism-framework-desktop';
+
+setFetchImplementation(createDesktopFetch());
+```
+
+After this, UI code that calls `apiFetch('GET /items')` goes through Electron IPC to the main process and returns whatever `callEndpoint` returns.
+
+### Preload script
+
+`desktopLaunch` automatically points `webPreferences.preload` at the preload shipped with this package. If you need to bundle your own preload, import the path and use it directly:
+
+```typescript
+import { getFrameworkPreloadPath } from '@facetlayer/prism-framework-desktop';
+
+new BrowserWindow({
     webPreferences: {
-      preload: config.preloadJsPath,
-      contextIsolation: true,
-      nodeIntegration: false,
+        preload: getFrameworkPreloadPath(),
+        contextIsolation: true,
+        nodeIntegration: false,
     },
-  });
-
-  // Load the UI
-  await mainWindow.loadURL(config.initialUrl);
-
-  // Set up IPC handlers (only needed in release mode)
-  if (!config.isDevelopment) {
-    ipcMain.handle('apiCall', async (_event, method, path, options) => {
-      // Handle API calls through your application logic
-      // This replaces HTTP calls in release mode
-    });
-
-    // Set up stream handlers
-    ipcMain.handle('subscribe', async (_event, streamId, path, options) => {
-      // Handle stream subscriptions
-    });
-
-    ipcMain.handle('api-unsubscribe', async (_event, streamId) => {
-      // Handle unsubscribe
-    });
-  }
-
-  // Handle app lifecycle
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
-}
+});
 ```
 
-### Step 3: Configure Desktop App Package
+## Authorization
 
-Create `desktop-app/package.json`:
-
-```json
-{
-  "name": "@my-project/desktop-app",
-  "version": "0.1.0",
-  "type": "module",
-  "main": "dist/main.js",
-  "private": true,
-  "scripts": {
-    "postinstall": "electron-builder install-app-deps",
-    "dev": "NODE_ENV=development electron dist/main.js",
-    "build": "tsc -p .",
-    "package": "pnpm build && electron-builder",
-    "package:mac": "pnpm build && electron-builder --mac",
-    "package:win": "pnpm build && electron-builder --win"
-  },
-  "dependencies": {
-    "electron": "32.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "electron-builder": "^26.0.0",
-    "typescript": "^5.0.0"
-  }
-}
-```
-
-### Step 4: Build and Run
-
-```bash
-# Development mode
-cd desktop-app
-pnpm build
-pnpm dev
-
-# Package for release
-pnpm package
-```
-
-## Environment Variables
-
-Configure the desktop app behavior with these environment variables:
-
-- `NODE_ENV`: Set to `development` for dev mode, otherwise release mode
-- `DATABASE_PATH`: Path to store application databases (default: `.data`)
-- `WINDOW_WIDTH`: Initial window width (default: `1200`)
-- `WINDOW_HEIGHT`: Initial window height (default: `800`)
-- `INITIAL_URL`: Override the URL to load (defaults based on mode)
-
-## Exported Types
-
-The library exports the following TypeScript types:
-
-- `ElectronDependencies`: Type for the injected Electron dependencies
-- `DesktopMainConfig`: Configuration object passed to your main function
-- `ElectronAPI`: Type for the `window.electron` API exposed to the renderer
-
-## UI Integration
-
-In your Next.js UI, you can detect if running in Electron and use the IPC bridge:
+Desktop apps are usually single-user, so the default `Authorization` passed to endpoints is empty. If your endpoints need user context, provide `getAuth`:
 
 ```typescript
-// Check if running in Electron
-const isElectron = typeof window !== 'undefined' && window.electron;
-
-// Make API calls
-if (isElectron) {
-  const result = await window.electron.apiCall('GET', '/api/my-endpoint', {});
-} else {
-  // Use fetch for web version or development mode
-  const result = await fetch('/api/my-endpoint');
-}
+desktopLaunch({
+    app,
+    getAuth: () => {
+        const auth = new Authorization();
+        auth.setUserPermissions({ userId: 'local', permissions: ['read', 'write'] });
+        return auth;
+    },
+    // ...
+});
 ```
+
+## Testing
+
+```bash
+pnpm test
+```
+
+The test suite uses Vitest and covers:
+
+- `createDesktopFetch` with a mock bridge, verifying method/path parsing and the `window.electron` fallback.
+- `createApiCallHandler` against a real `PrismApp`, verifying routing, path params, request-context wiring, and error normalization.
+
+The Electron main-process launcher itself is not exercised in unit tests (it would require a running Electron binary). To smoke-test end-to-end, build the library and run it inside an Electron project.
+
+## Exports
+
+| Export | Process | Purpose |
+|---|---|---|
+| `desktopLaunch(options)` | main | Launches Electron, wires IPC, creates window |
+| `getFrameworkPreloadPath()` | main | Absolute path to the shipped preload script |
+| `createApiCallHandler(app, options)` | main | IPC handler factory (electron-free; used by `desktopLaunch`) |
+| `createDesktopFetch(options?)` | renderer | Fetch function compatible with `@facetlayer/prism-framework-ui` |
+| `ElectronAPI` | types | Shape of `window.electron` |
 
 ## License
 
