@@ -142,10 +142,12 @@ export class Stream<ItemType = any> implements EventReceiver {
         this.event({ t: c_hint, result: c_hint_single_item });
     }
 
-    closeWithError(error: ErrorDetails) {
+    closeWithError(error: Error | ErrorDetails) {
         if (this.isClosed())
             return;
 
+        if (error instanceof Error)
+            error = captureError(error);
         this.event({t: c_fail, error});
     }
 
@@ -330,6 +332,7 @@ export class Stream<ItemType = any> implements EventReceiver {
                     break;
                 case c_fail:
                     reject(toException(msg.error));
+                    this.stopListening();
                     break;
                 }
             });
@@ -547,6 +550,39 @@ export class Stream<ItemType = any> implements EventReceiver {
         return output;
     }
 
+    /*
+       filter
+
+       Returns a new Stream that only includes items for which the callback
+       returns a truthy value. Non-item events pass through unchanged.
+
+       If the callback throws an error, the output stream is closed with
+       a 'fail' event.
+    */
+    filter(callback: (item: ItemType) => boolean): Stream<ItemType> {
+        const output = new Stream<ItemType>();
+
+        this.pipe((evt: StreamEvent<ItemType>) => {
+            switch (evt.t) {
+                case c_item:
+                    try {
+                        if (callback(evt.item))
+                            output.item(evt.item);
+                    } catch (e) {
+                        if (exceptionIsBackpressureStop(e))
+                            throw e;
+
+                        output.fail(e);
+                    }
+                    break;
+                default:
+                    output.event(evt);
+            }
+        });
+
+        return output;
+    }
+
     onItem(callback: (ItemType) => void): void {
         this.pipe({
             event: (evt: StreamEvent) => {
@@ -571,14 +607,19 @@ export class Stream<ItemType = any> implements EventReceiver {
 
     forEach(callback: (ItemType) => void): Promise<void> {
         return new Promise((resolve, reject) => {
+            let failed = false;
             this.pipe({
                 event: (evt: StreamEvent) => {
+                    if (failed)
+                        return;
                     switch (evt.t) {
                         case c_item:
                             try {
                                 callback(evt.item);
                             } catch (e) {
-                                console.error(`${this.getDebugLabel()}: unhandled exception in Stream.forEach: `, e);
+                                failed = true;
+                                reject(e);
+                                this.stopListening();
                             }
                             break;
                         case c_done:
@@ -648,7 +689,7 @@ export class Stream<ItemType = any> implements EventReceiver {
         });
     }
 
-    // Deprecated:
+    // Deprecated: use logSpy() instead, which spies on events without consuming the stream.
     logToConsole(label?: string) {
         const prefix = `${label || this.getDebugLabel()}: `;
         this.pipe(evt => {

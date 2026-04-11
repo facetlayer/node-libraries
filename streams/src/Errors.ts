@@ -20,7 +20,7 @@ export interface ErrorDetails {
     cause?: ErrorDetails
 
     // Arbitrary related information about the error, depending on the context.
-    related?: Array< Record<string, string> >
+    related?: Array< Record<string, any> >
 }
 
 function newErrorId() {

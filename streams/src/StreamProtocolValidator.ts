@@ -9,8 +9,7 @@ export class StreamProtocolValidator {
     hasSentDone: boolean = false
     hasSentFail: boolean = false
     hasSeenFirstItem: boolean = false
-    hasSentClose: boolean = false
-    hasStartedUpdates: boolean = false
+    hasSeenHint: boolean = false
 
     constructor(description: string) {
         this.description = description;
@@ -30,6 +29,21 @@ export class StreamProtocolValidator {
             throw new Error(error);
         }
 
+        // Hints must appear before any items.
+        if (msg.t === c_hint) {
+            if (this.hasSeenFirstItem) {
+                const error = `Stream validation failed for (${this.description}), got 'hint' event after the first 'item' event`;
+                console.error(error);
+                throw new Error(error);
+            }
+            if (this.hasSeenHint) {
+                const error = `Stream validation failed for (${this.description}), got multiple 'hint' events`;
+                console.error(error);
+                throw new Error(error);
+            }
+            this.hasSeenHint = true;
+        }
+
         // Update state
 
         if (msg.t === c_item) {
@@ -42,6 +56,18 @@ export class StreamProtocolValidator {
 
         if (msg.t === c_fail) {
             this.hasSentFail = true;
+        }
+    }
+
+    // Called when the upstream producer finishes. Verifies that the stream
+    // was terminated with either a 'done' or 'fail' event. Call this after
+    // you've stopped feeding events to check() to detect streams that
+    // were abandoned without closing.
+    finalize() {
+        if (!this.hasSentDone && !this.hasSentFail) {
+            const error = `Stream validation failed for (${this.description}), stream was never closed (no 'done' or 'fail' event)`;
+            console.error(error);
+            throw new Error(error);
         }
     }
 }

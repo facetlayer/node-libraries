@@ -46,9 +46,17 @@ export function dynamicOutputToStream(output: any, stream: Stream) {
     if (isObject && output[Symbol.asyncIterator] !== undefined) {
         stream.hintList();
         (async () => {
-            for await (const el of output)
-                stream.item(el);
-            stream.done();
+            try {
+                for await (const el of output)
+                    stream.item(el);
+                stream.done();
+            } catch (e) {
+                if (stream.closedByUpstream) {
+                    recordUnhandledError(e);
+                    return;
+                }
+                stream.fail(e);
+            }
         })();
         return;
     }

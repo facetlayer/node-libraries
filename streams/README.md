@@ -107,9 +107,94 @@ stream.done();
 
 **Note:** Unlike `pipe()`, `listen()` does not accept a simple callback function. Use `pipe()` if you want to handle all events with a single callback.
 
+### `Stream.map(callback)` / `Stream.mapcat(callback)` / `Stream.filter(callback)` ###
+
+Transformation helpers that return a new stream.
+
+ - `.map(cb)` — transforms each item via `cb`. If `cb` returns a falsy value
+   the item is dropped (this means `.map` also acts as a filter). Errors
+   thrown from `cb` close the output stream with `fail`.
+ - `.mapcat(cb)` — like `.map`, but `cb` returns an array and each element
+   is emitted as its own item.
+ - `.filter(cb)` — keeps items for which `cb` returns a truthy value.
+   Errors thrown from `cb` close the output stream with `fail`.
+
+Non-item events (logs, hints) pass through all three unchanged.
+
+### `Stream.spyEvents(callback)` / `Stream.spyItems(callback)` ###
+
+Returns a new stream that forwards all events unchanged while calling
+`callback` as a side effect. Useful for logging or metrics. The callback
+can't modify the events.
+
+### `Stream.logSpy({label})` ###
+
+Convenience wrapper around `spyEvents` that prints every event to the
+console with a prefix. Replaces the deprecated `logToConsole()`.
+
+### Consumer helpers ###
+
+ - `await stream.promiseItems()` — collect all items into an array.
+ - `await stream.promiseItem()` — resolve with the first item.
+ - `await stream.wait()` — resolve when the stream closes.
+ - `await stream.forEach(callback)` — call `callback` for each item. The
+   promise rejects if the stream fails or the callback throws.
+ - `stream.takeItemsSync()` / `takeEventsSync()` / `takeItemSync()` — the
+   same operations but synchronous; throws if the stream hasn't finished.
+ - `for await (const item of stream)` — consume as an async iterator.
+ - `for (const item of stream)` — consume as a synchronous iterator
+   (throws if the stream hasn't finished).
+
+### Static constructors ###
+
+ - `Stream.fromList(items)` — a closed stream containing the given items.
+ - `Stream.fromEvents(events)` — a stream pre-loaded with raw events.
+ - `Stream.newEmptyStream()` — a stream that is already `done`.
+ - `Stream.newNullStream()` — a stream with a null receiver that discards
+   everything sent to it.
+
+## StreamDispatcher ##
+
+`StreamDispatcher` fans a single event source out to multiple listener
+streams. Each call to `.newListener()` returns a new `Stream` that
+receives every event sent to the dispatcher. Listeners that close or
+raise `BackpressureStop` are automatically removed.
+
+```typescript
+import { StreamDispatcher } from '@facetlayer/streams';
+
+const dispatcher = new StreamDispatcher();
+
+const a = dispatcher.newListener();
+const b = dispatcher.newListener();
+
+a.listen({ item: (x) => console.log('a:', x) });
+b.listen({ item: (x) => console.log('b:', x) });
+
+dispatcher.item('hello');
+dispatcher.close();
+```
+
+## StreamProtocolValidator ##
+
+`StreamProtocolValidator` checks that a stream of events follows the
+protocol rules: event types are known, no events are sent after `done`
+or `fail`, `hint` events appear before any items, and only one `hint`
+is sent. Use `wrapStreamInValidator(description, downstream)` to insert
+a validator between a producer and consumer, or call `.check(event)` on
+each event manually. Call `.finalize()` after the producer stops to
+verify that the stream was actually closed.
+
+## dynamicOutputToStream and callbackToStream ##
+
+See below — these turn arbitrary return values (promises, iterators,
+arrays, etc.) into stream events.
+
 ## Error handling ##
 
 The library implements a class called `ErrorDetails` to help normalize handling different kinds of errors.
+
+See [docs/error-handling.md](docs/error-handling.md) for the full guide.
 
 ```
 export interface ErrorDetails {

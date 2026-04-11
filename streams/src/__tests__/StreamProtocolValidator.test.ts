@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest'
 import { StreamProtocolValidator, wrapStreamInValidator } from '../StreamProtocolValidator'
 import { Stream } from '../Stream'
-import { c_item, c_done, c_fail, c_log_info } from '../EventType'
+import { c_item, c_done, c_fail, c_log_info, c_hint, c_hint_list, c_hint_single_item } from '../EventType'
 
 it('validates known event types', () => {
     const validator1 = new StreamProtocolValidator('test1');
@@ -78,6 +78,47 @@ it('wrapStreamInValidator validates events', () => {
     source.done();
     
     expect(() => source.item('after done')).toThrow();
+});
+
+it('allows a hint before the first item', () => {
+    const validator = new StreamProtocolValidator('test');
+    expect(() => validator.check({ t: c_hint, result: c_hint_list })).not.toThrow();
+    expect(() => validator.check({ t: c_item, item: 'first' })).not.toThrow();
+});
+
+it('rejects a hint after the first item', () => {
+    const validator = new StreamProtocolValidator('test');
+    validator.check({ t: c_item, item: 'first' });
+    expect(() => validator.check({ t: c_hint, result: c_hint_list })).toThrow(
+        `got 'hint' event after the first 'item' event`
+    );
+});
+
+it('rejects multiple hint events', () => {
+    const validator = new StreamProtocolValidator('test');
+    validator.check({ t: c_hint, result: c_hint_list });
+    expect(() => validator.check({ t: c_hint, result: c_hint_single_item })).toThrow(
+        `got multiple 'hint' events`
+    );
+});
+
+it('finalize throws if the stream was never closed', () => {
+    const validator = new StreamProtocolValidator('test');
+    validator.check({ t: c_item, item: 'first' });
+    expect(() => validator.finalize()).toThrow('stream was never closed');
+});
+
+it('finalize succeeds after done', () => {
+    const validator = new StreamProtocolValidator('test');
+    validator.check({ t: c_item, item: 'first' });
+    validator.check({ t: c_done });
+    expect(() => validator.finalize()).not.toThrow();
+});
+
+it('finalize succeeds after fail', () => {
+    const validator = new StreamProtocolValidator('test');
+    validator.check({ t: c_fail, error: { errorMessage: 'x' } });
+    expect(() => validator.finalize()).not.toThrow();
 });
 
 it('allows multiple items before closing', () => {

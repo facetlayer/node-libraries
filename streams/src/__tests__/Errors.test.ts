@@ -142,14 +142,73 @@ it('handles cause chains in ErrorWithDetails', () => {
         errorMessage: 'Root cause',
         errorType: 'root_error'
     };
-    
+
     const errorWithCause = new ErrorWithDetails({
         errorMessage: 'Wrapper error',
         errorType: 'wrapper_error',
         cause
     });
-    
+
     const result = captureError(errorWithCause);
-    
+
     expect(result.cause).toBe(cause);
+});
+
+it('captureError merges related context from argument and existing error', () => {
+    const existing = new ErrorWithDetails({
+        errorMessage: 'boom',
+        errorType: 'x',
+        related: [{ source: 'layer1' }],
+    });
+
+    const result = captureError(existing, [{ source: 'layer2' }]);
+
+    expect(result.related).toEqual([{ source: 'layer1' }, { source: 'layer2' }]);
+});
+
+it('captureError assigns errorId when the source lacks one', () => {
+    const input = { errorMessage: 'no id', errorType: 'custom' };
+    const result = captureError(input);
+    expect(result.errorId).toBeTruthy();
+});
+
+it('captureError preserves existing errorId from ErrorWithDetails', () => {
+    const input = new ErrorWithDetails({ errorMessage: 'm', errorId: 'fixed-id' });
+    const result = captureError(input);
+    expect(result.errorId).toBe('fixed-id');
+});
+
+it('captureError roundtrips ErrorWithDetails without losing fields', () => {
+    const original = {
+        errorMessage: 'original',
+        errorType: 'test',
+        errorId: 'id-1',
+        related: [{ a: '1' }],
+        cause: { errorMessage: 'deeper' },
+    };
+    const once = captureError(toException(original));
+    const twice = captureError(toException(once));
+
+    expect(twice.errorMessage).toBe('original');
+    expect(twice.errorType).toBe('test');
+    expect(twice.errorId).toBe('id-1');
+    expect(twice.cause).toEqual({ errorMessage: 'deeper' });
+});
+
+it('captureError uses stack from Error when ErrorWithDetails has none', () => {
+    const err = new ErrorWithDetails({ errorMessage: 'no stack' });
+    const result = captureError(err);
+    expect(result.stack).toBeDefined();
+});
+
+it('errorDetailsToString includes type, message, and stack', async () => {
+    const { errorDetailsToString } = await import('../Errors');
+    const out = errorDetailsToString({
+        errorMessage: 'msg',
+        errorType: 'my_type',
+        stack: 'stack-here',
+    });
+    expect(out).toContain('my_type');
+    expect(out).toContain('msg');
+    expect(out).toContain('stack-here');
 });
