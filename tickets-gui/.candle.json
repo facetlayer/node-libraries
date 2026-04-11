@@ -1,8 +1,12 @@
 {
   "services": [
     {
-      "name": "dev",
-      "shell": "node --watch-path=src src/api.ts"
+      "name": "tickets-gui-desktop",
+      "shell": "pnpm desktop"
+    },
+    {
+      "name": "tickets-gui-web",
+      "shell": "pnpm dev"
     }
   ]
 }

@@ -3,17 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "dist/desktop.js",
   "scripts": {
     "dev": "node --watch-path=src src/api.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "build:all": "pnpm build && pnpm --dir web build",
+    "desktop": "electron dist/desktop.js",
+    "desktop:dev": "pnpm build:all && pnpm desktop",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@facetlayer/prism-framework": "^0.5.0",
+    "@facetlayer/prism-framework": "workspace:*",
+    "@facetlayer/prism-framework-desktop": "workspace:*",
     "@facetlayer/tickets-tool": "^0.2.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
+    "electron": "^41.0.0",
     "typescript": "^5.9.2"
   }
 }

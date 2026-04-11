@@ -174,7 +174,7 @@ importers:
         version: 0.2.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tailwindcss/vite':
         specifier: ^4.1.18
-        version: 4.2.1(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+        version: 4.2.1(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
       react:
         specifier: ^19.0.0
         version: 19.2.0
@@ -193,13 +193,13 @@ importers:
         version: 19.2.2(@types/react@19.2.2)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.7.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+        version: 4.7.0(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
       vite:
         specifier: ^6.0.0
-        version: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
+        version: 6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
 
   claude-worktree-helper:
     dependencies:
@@ -759,8 +759,8 @@ importers:
         specifier: ^22.10.2
         version: 22.13.0
       electron:
-        specifier: ^32.0.0
-        version: 32.3.3
+        specifier: ^41.0.0
+        version: 41.2.0
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -787,8 +787,8 @@ importers:
         specifier: ^22.10.2
         version: 22.13.0
       electron:
-        specifier: ^32.0.0
-        version: 32.3.3
+        specifier: ^41.0.0
+        version: 41.2.0
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -1001,8 +1001,11 @@ importers:
   tickets-gui:
     dependencies:
       '@facetlayer/prism-framework':
-        specifier: ^0.5.0
-        version: 0.5.0(vite@6.4.1(@types/node@20.19.23)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))(zod@4.1.12)
+        specifier: workspace:*
+        version: link:../prism-framework
+      '@facetlayer/prism-framework-desktop':
+        specifier: workspace:*
+        version: link:../prism-framework-desktop
       '@facetlayer/tickets-tool':
         specifier: ^0.2.0
         version: 0.2.0
@@ -1013,6 +1016,9 @@ importers:
       '@types/node':
         specifier: ^20.19.0
         version: 20.19.23
+      electron:
+        specifier: ^41.0.0
+        version: 41.2.0
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -1024,7 +1030,7 @@ importers:
         version: 0.2.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tailwindcss/vite':
         specifier: ^4.1.18
-        version: 4.2.1(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+        version: 4.2.1(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
       '@tanstack/query-core':
         specifier: ^5.90.20
         version: 5.90.20
@@ -1055,13 +1061,13 @@ importers:
         version: 19.2.2(@types/react@19.2.2)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.7.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
+        version: 4.7.0(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
       vite:
         specifier: ^6.0.0
-        version: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
+        version: 6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
 
   tickets-tool:
     dependencies:
@@ -3097,16 +3103,6 @@ packages:
       react: ^19.0.0
       react-dom: ^19.0.0
 
-  '@facetlayer/prism-framework@0.5.0':
-    resolution: {integrity: sha512-rybgPYv01K+UpvMj5JVEWUQiCnEMRqaJP+MKKWLdKdMA8deM1jz233NgpoE7k18xY5XDfItgZIhctcrylgSnrw==}
-    hasBin: true
-    peerDependencies:
-      vite: ^6.0.0
-      zod: ^4.0.5
-    peerDependenciesMeta:
-      vite:
-        optional: true
-
   '@facetlayer/qc@0.1.0':
     resolution: {integrity: sha512-zJ7dfWepReatNzwaTizhzeD5l5xsjmr8YU19cPEq6rTylrZOKSm+fAUGVC+0CVpNDmf/jdP4kwfnConDwmKsvw==}
     hasBin: true
@@ -4105,6 +4101,9 @@ packages:
   '@types/node@22.13.0':
     resolution: {integrity: sha512-ClIbNe36lawluuvq3+YYhnIN2CELi+6q8NpnM7PYp4hBn/TatfboPgVSm2rwKRfnV2M+Ty9GWDFI64KEe+kysA==}
 
+  '@types/node@24.12.2':
+    resolution: {integrity: sha512-A1sre26ke7HDIuY/M23nd9gfB+nrmhtYyMINbjI1zHJxYteKR6qSMX56FsmjMcDb3SMcjJg5BiRRgOCC/yBD0g==}
+
   '@types/picomatch@4.0.3':
     resolution: {integrity: sha512-iG0T6+nYJ9FAPmx9SsUlnwcq1ZVRuCXcVEvWnntoPlrOpwtSTKNDC9uVAxTsC3PUvJ+99n4RpAcNgBbHX3JSnQ==}
 
@@ -4731,9 +4730,6 @@ packages:
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-
-  bintrees@1.0.2:
-    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -5485,8 +5481,8 @@ packages:
   electron-to-chromium@1.5.259:
     resolution: {integrity: sha512-I+oLXgpEJzD6Cwuwt1gYjxsDmu/S/Kd41mmLA3O+/uH2pFRO/DvOjUyGozL8j3KeLV6WyZ7ssPwELMsXCcsJAQ==}
 
-  electron@32.3.3:
-    resolution: {integrity: sha512-7FT8tDg+MueAw8dBn5LJqDvlM4cZkKJhXfgB3w7P5gvSoUQVAY6LIQcXJxgL+vw2rIRY/b9ak7ZBFbCMF2Bk4w==}
+  electron@41.2.0:
+    resolution: {integrity: sha512-0OKLiymqfV0WK68RBXqAm3Myad2TpI5wwxLCBEUcH5Nugo3YfSk7p1Js/AL9266qTz5xZioUnxt9hG8FFwax0g==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -8254,10 +8250,6 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
 
-  prom-client@15.1.3:
-    resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
-    engines: {node: ^16 || ^18 || >=20}
-
   promise@8.3.0:
     resolution: {integrity: sha512-rZPNPKTOYVNEEKFaq1HqTgOwZD+4/YHS5ukLzQCypkj+OkYx7iv0mA91lJlpPPZ8vMau3IIGj5Qlwrx+8iiSmg==}
 
@@ -9037,9 +9029,6 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
-  tdigest@0.1.2:
-    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
-
   terminal-link@2.1.1:
     resolution: {integrity: sha512-un0FmiRUQNr5PJqy9kP7c40F5BOfpGlYTrxonDChEZB7pzZxRNp/bt+ymiy9/npwXya9KH99nJ/GXFIiUkYGFQ==}
     engines: {node: '>=8'}
@@ -9276,6 +9265,9 @@ packages:
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   undici@7.24.7:
     resolution: {integrity: sha512-H/nlJ/h0ggGC+uRL3ovD+G0i4bqhvsDOpbDv7At5eFLlj2b41L8QliGbnl2H7SnDiYhENphh1tQFJZf+MyfLsQ==}
@@ -12775,28 +12767,6 @@ snapshots:
       - '@types/react'
       - '@types/react-dom'
 
-  '@facetlayer/prism-framework@0.5.0(vite@6.4.1(@types/node@20.19.23)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))(zod@4.1.12)':
-    dependencies:
-      '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
-      '@facetlayer/doc-files-helper': 0.1.2
-      '@facetlayer/port-assignment': 0.2.0
-      '@facetlayer/qc': 0.1.1
-      '@facetlayer/sqlite-wrapper': 1.3.0
-      '@facetlayer/streams': 1.0.1
-      cookie-parser: 1.4.7
-      dotenv: 16.6.1
-      express: 4.21.2
-      openapi3-ts: 4.5.0
-      prom-client: 15.1.3
-      swagger-ui-express: 5.0.1(express@4.21.2)
-      uuid: 11.1.0
-      yargs: 18.0.0
-      zod: 4.1.12
-    optionalDependencies:
-      vite: 6.4.1(@types/node@20.19.23)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - supports-color
-
   '@facetlayer/qc@0.1.0': {}
 
   '@facetlayer/qc@0.1.1': {}
@@ -13662,12 +13632,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.2.1
       '@tailwindcss/oxide-win32-x64-msvc': 4.2.1
 
-  '@tailwindcss/vite@4.2.1(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))':
+  '@tailwindcss/vite@4.2.1(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))':
     dependencies:
       '@tailwindcss/node': 4.2.1
       '@tailwindcss/oxide': 4.2.1
       tailwindcss: 4.2.1
-      vite: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
+      vite: 6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
 
   '@tanstack/query-core@5.90.20': {}
 
@@ -13887,6 +13857,10 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
+  '@types/node@24.12.2':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/picomatch@4.0.3': {}
 
   '@types/prismjs@1.26.5': {}
@@ -14103,7 +14077,7 @@ snapshots:
 
   '@vercel/oidc@3.0.5': {}
 
-  '@vitejs/plugin-react@4.7.0(vite@6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))':
+  '@vitejs/plugin-react@4.7.0(vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -14111,7 +14085,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 6.4.1(@types/node@22.13.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
+      vite: 6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -14760,8 +14734,6 @@ snapshots:
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
-
-  bintrees@1.0.2: {}
 
   bl@4.1.0:
     dependencies:
@@ -15576,10 +15548,10 @@ snapshots:
 
   electron-to-chromium@1.5.259: {}
 
-  electron@32.3.3:
+  electron@41.2.0:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 20.19.23
+      '@types/node': 24.12.2
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -19088,11 +19060,6 @@ snapshots:
 
   progress@2.0.3: {}
 
-  prom-client@15.1.3:
-    dependencies:
-      '@opentelemetry/api': 1.9.0
-      tdigest: 0.1.2
-
   promise@8.3.0:
     dependencies:
       asap: 2.0.6
@@ -20081,10 +20048,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  tdigest@0.1.2:
-    dependencies:
-      bintrees: 1.0.2
-
   terminal-link@2.1.1:
     dependencies:
       ansi-escapes: 4.3.2
@@ -20260,6 +20223,8 @@ snapshots:
   undici-types@6.20.0: {}
 
   undici-types@6.21.0: {}
+
+  undici-types@7.16.0: {}
 
   undici@7.24.7: {}
 
@@ -20661,6 +20626,22 @@ snapshots:
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 22.13.0
+      fsevents: 2.3.3
+      jiti: 2.6.1
+      lightningcss: 1.31.1
+      terser: 5.44.1
+      yaml: 2.8.1
+
+  vite@6.4.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.44.1)(yaml@2.8.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.52.5
+      tinyglobby: 0.2.15
+    optionalDependencies:
+      '@types/node': 24.12.2
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.31.1

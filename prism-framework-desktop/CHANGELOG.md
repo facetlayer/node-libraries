@@ -1,4 +1,6 @@
 # Unreleased
+ - Bumped the `electron` dev/peer dependency to `^41.0.0` (Node 24), required for `node:sqlite` support used by `@facetlayer/sqlite-wrapper`. Electron 32 / Node 20 crashed with `ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite`.
+ - Added `docs/DesktopAppArchitecture.md` covering the two supported wiring patterns (IPC bridge vs. wrap-localhost) and the port-0 pattern for concurrent desktop instances.
  - Unified error handling around `@facetlayer/streams`'s `ErrorDetails`. The main-process IPC handler now encodes endpoint errors (including `HttpError`s) into a serializable `ErrorDetails` payload via a new internal codec (`src/ipcErrors.ts`); `desktopFetch` re-hydrates them on the renderer as `ErrorWithDetails` so `errorId`, `errorType`, `stack`, `cause`, and `related` context survive the IPC boundary.
  - Added `@facetlayer/streams` as a workspace dependency (requires streams ≥ 1.0.1).
  - Added a `notesApp` sample under `samples/notesApp/` with two entry points — Electron (`main.ts`) and web/Express (`serve.ts`) — sharing one `createApp()` factory. A transport shim (`web/apiClient.js`) picks `window.electron.apiCall` or HTTP automatically so the same UI runs in both modes.
