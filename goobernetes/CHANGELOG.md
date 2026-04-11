@@ -1,4 +1,4 @@
-# Unreleased
+# 0.7.0
  - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module, eliminating the native compilation dependency
  - Updated `@facetlayer/userdata-db` to `^0.2.0` and `@facetlayer/sqlite-wrapper` to `^1.3.0`
 
