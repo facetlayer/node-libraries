@@ -384,6 +384,34 @@ after-deploy
   candle-restart(my-api)
 ```
 
+Note: `candle-restart(name)` runs `candle restart <name>` in the deployment directory, which requires a `.candle.json` file there. For per-project Candle configuration, prefer the `candle-config` setting described below.
+
+### Candle Config
+
+The `candle-config` setting in `deploy-settings` enables per-project Candle integration. Use it when your project ships its own Candle config file and you want goobernetes to install it and restart every service it defines on each deploy.
+
+```
+deploy-settings
+  project-name=my-app
+  dest-url=http://production-server:4800
+  update-in-place
+  candle-config=candle.json
+
+include candle.json
+include src
+include package.json
+```
+
+The value is a path relative to the deployment directory, pointing at a file that's part of the deploy (make sure it's covered by an `include` rule). After the `after-deploy` hooks run, goobernetes will:
+
+1. Copy `<candle-config>` to `.candle.json` in the deployment directory (overwriting any existing one).
+2. Run `candle restart` from the deployment directory — which restarts every currently-running service defined in that config.
+3. Run `candle check-start` from the deployment directory — which starts any services that weren't already running.
+
+This replaces the pattern of a shared system-wide `.candle.json` and per-service `candle-restart(name)` entries. Each project owns its own `candle.json`, and `candle` always runs from the project's own deployment directory, so working-directory problems from before go away.
+
+If the `candle-config` file is missing from the deployed tree, activation fails with an error — confirm it's listed in your `include` rules.
+
 ### Complete Lifecycle Example
 
 ```

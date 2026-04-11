@@ -1,3 +1,6 @@
+# 0.6.0
+ - Added `candle-config=<path>` setting for `deploy-settings`. On activation, goobernetes copies the referenced file to `.candle.json` inside the deployment directory and runs `candle restart` + `candle check-start` from that directory, replacing the need for a shared system-wide Candle config.
+
 # 0.5.0
  - Added `database <path>` config entries to list SQLite database locations for a project.
  - Added `goob sql <config-file> <sql>` CLI command to run SQL on a deployed project's database.

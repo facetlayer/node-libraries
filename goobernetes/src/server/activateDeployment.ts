@@ -2,7 +2,9 @@ import { Stream } from "@facetlayer/streams";
 import { getDatabase, getDeploymentsDir } from "./Database.ts";
 import { parseFile } from "@facetlayer/qc";
 import Path from 'path';
+import Fs from 'fs/promises';
 import { runShellCommand } from "@facetlayer/subprocess";
+import { getSafePathInDir } from "./deployDirs.ts";
 
 async function executeShellCommand(command: string, workingDir: string, hookType: string) {
     console.log(`Running ${hookType} command (cwd: ${workingDir}):`, command);
@@ -31,6 +33,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
         const configs = parseFile(deploymentRecord.source_config_file);
 
         let projectName: string;
+        let candleConfigPath: string | undefined;
 
         type AfterDeployAction =
             | { type: 'shell'; command: string }
@@ -42,6 +45,9 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             switch (config.command) {
                 case 'deploy-settings':
                     projectName = config.getStringValue('project-name');
+                    if (config.hasAttr('candle-config')) {
+                        candleConfigPath = config.getStringValue('candle-config');
+                    }
                     break;
                 case 'after-deploy':
                     for (const tag of config.tags) {
@@ -73,6 +79,28 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             } else if (action.type === 'candle-restart') {
                 await executeShellCommand(`candle restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
             }
+        }
+
+        if (candleConfigPath) {
+            const sourceFile = getSafePathInDir(deployDir, candleConfigPath);
+            const destFile = Path.join(deployDir, '.candle.json');
+
+            try {
+                await Fs.access(sourceFile);
+            } catch {
+                throw new Error(
+                    `candle-config file not found in deployment: ${candleConfigPath}. ` +
+                    `Make sure this file is included in the deploy.`
+                );
+            }
+
+            console.log(`Installing candle config: ${candleConfigPath} -> .candle.json`);
+            await Fs.copyFile(sourceFile, destFile);
+
+            // Restart any running services defined in the candle config, then
+            // start any that aren't running yet.
+            await executeShellCommand('candle restart', deployDir, 'candle-config:restart');
+            await executeShellCommand('candle check-start', deployDir, 'candle-config:check-start');
         }
 
         getDatabase().upsert('active_deployment', {
