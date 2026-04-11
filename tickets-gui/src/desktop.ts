@@ -6,10 +6,11 @@
  * means multiple instances can run concurrently without port conflicts —
  * each one grabs whatever's free.
  *
- * The existing React UI uses `webFetch` directly and relies on same-origin
- * relative paths, so no renderer-side changes are needed: the BrowserWindow
- * simply loads the local Express server and the UI calls `/api/*` back to
- * the same origin.
+ * Important: this module must not use top-level `await`. Electron's main
+ * process fires its `ready` event only after the main module finishes
+ * synchronous evaluation, so `await app.whenReady()` at module top-level
+ * deadlocks. Wrap async work in a regular function and kick it off with
+ * `.catch()` — never `await` at the top of an Electron main module.
  */
 
 import { startServer } from '@facetlayer/prism-framework';
@@ -21,29 +22,39 @@ import { createApp } from './createApp.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const webDir = join(__dirname, '..', 'web');
+const iconPath = join(__dirname, '..', 'assets', 'icon.png');
 
 // Force static serving mode — the build has no Vite middleware at runtime.
 process.env.NODE_ENV = process.env.NODE_ENV ?? 'production';
 
-const app = createApp();
+async function main() {
+    const app = createApp();
 
-// Start Express on an OS-assigned port so multiple desktop instances don't
-// collide. `server.address().port` returns the actual port once listening.
-const server = await startServer({
-    port: 0,
-    app,
-    web: { dir: webDir },
-});
+    // Start Express on an OS-assigned port so multiple desktop instances
+    // don't collide. `server.address().port` returns the actual port once
+    // listening.
+    const server = await startServer({
+        port: 0,
+        app,
+        web: { dir: webDir },
+    });
 
-const address = server.address() as AddressInfo;
-const port = address.port;
-const devServerUrl = `http://localhost:${port}`;
-console.log(`[tickets-gui] Express bound to ${devServerUrl}`);
+    const { port } = server.address() as AddressInfo;
+    const devServerUrl = `http://localhost:${port}`;
+    console.log(`[tickets-gui] Express bound to ${devServerUrl}`);
 
-await desktopLaunch({
-    app,
-    appName: 'Tickets Manager',
-    devServerUrl,
-    windowWidth: 1200,
-    windowHeight: 800,
+    await desktopLaunch({
+        app,
+        appName: 'Tickets Manager',
+        title: 'Tickets Manager',
+        iconPath,
+        devServerUrl,
+        windowWidth: 1200,
+        windowHeight: 800,
+    });
+}
+
+main().catch((err) => {
+    console.error('[tickets-gui] Failed to launch desktop app:', err);
+    process.exit(1);
 });
