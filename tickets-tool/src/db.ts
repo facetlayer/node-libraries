@@ -247,17 +247,6 @@ export function getComments(ticketId: string): Comment[] {
   ) as Comment[];
 }
 
-export function setComplete(ticketId: string, message: string, user?: string): FeedbackItem | null {
-  const item = getFeedbackByTicketId(ticketId);
-  if (!item) return null;
-
-  const db = getDb();
-  db.update('feedback', { id: item.id }, { status: 'completed' });
-  addComment(ticketId, message, 'completion', user);
-
-  return getFeedbackByTicketId(ticketId);
-}
-
 export function listLibraries(): LibrarySummary[] {
   const db = getDb();
   return db.list(

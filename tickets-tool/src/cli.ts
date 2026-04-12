@@ -7,7 +7,7 @@ import {
   listFeedback,
   listProjects,
   getActiveSummary,
-  setComplete,
+  updateFeedbackStatus,
   addComment,
   getFeedbackByTicketId,
   getComments,
@@ -268,8 +268,8 @@ async function main() {
       }
     )
     .command(
-      'set-complete',
-      'Mark a feedback item as completed',
+      'resolve',
+      'Mark a feedback item as resolved/completed',
       (yargs) => {
         return yargs
           .option('ticket', {
@@ -281,27 +281,31 @@ async function main() {
           .option('message', {
             alias: 'm',
             type: 'string',
-            description: 'Completion message describing what was done',
+            description: 'Resolution message describing what was done',
             demandOption: true,
           })
           .option('user', {
             alias: 'u',
             type: 'string',
-            description: 'User completing the ticket',
+            description: 'User resolving the ticket',
           });
       },
       (argv) => {
-        const item = setComplete(argv.ticket, argv.message, argv.user);
+        const item = getFeedbackByTicketId(argv.ticket);
 
         if (!item) {
           console.error(`Ticket "${argv.ticket}" not found.`);
           process.exit(1);
         }
 
-        console.log(`${bold}Ticket ${item.ticket_id} marked as completed${reset}`);
-        console.log(`  Library:     ${item.library}`);
-        console.log(`  Description: ${item.description}`);
-        console.log(`  Status:      ${statusColor(item.status)}${item.status}${reset}`);
+        updateFeedbackStatus(item.id, 'completed');
+        addComment(argv.ticket, argv.message, 'completion', argv.user);
+        const updated = getFeedbackByTicketId(argv.ticket)!;
+
+        console.log(`${bold}Ticket ${updated.ticket_id} resolved${reset}`);
+        console.log(`  Library:     ${updated.library}`);
+        console.log(`  Description: ${updated.description}`);
+        console.log(`  Status:      ${statusColor(updated.status)}${updated.status}${reset}`);
         console.log(`  Message:     ${argv.message}`);
       }
     )

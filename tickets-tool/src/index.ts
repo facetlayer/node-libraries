@@ -6,7 +6,6 @@ export {
   updateFeedbackStatus,
   addComment,
   getComments,
-  setComplete,
   listLibraries,
   listProjects,
   getActiveSummary,
