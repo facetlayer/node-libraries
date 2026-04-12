@@ -224,6 +224,35 @@ yargs(hideBin(process.argv))
         }
     )
     .command(
+        'history <config-file>',
+        'Show deployment history and current active deployment for a project',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                })
+                .option('limit', {
+                    type: 'number',
+                    default: 10,
+                    describe: 'Number of recent deployments to show',
+                });
+        },
+        async (argv) => {
+            const { history } = await import('./client/history');
+            await history({
+                configFilename: argv['config-file'] as string,
+                overrideDest: argv['override-dest'],
+                limit: argv.limit,
+            });
+        }
+    )
+    .command(
         'copy-back <config-file> <filename>',
         'Copy a file from the server back to the local filesystem',
         (yargs) => {
