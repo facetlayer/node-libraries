@@ -10,6 +10,8 @@
     "build:all": "pnpm build && pnpm --dir web build",
     "desktop": "electron dist/desktop.js",
     "desktop:dev": "pnpm build:all && pnpm desktop",
+    "desktop:package": "pnpm build:all && node scripts/package-desktop.mts",
+    "desktop:packaged": "pnpm desktop:package && open \"release/Claude Code Skills Editor.app\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
