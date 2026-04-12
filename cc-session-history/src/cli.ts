@@ -9,6 +9,7 @@ import { printProjects } from './printProjects.ts';
 import { printChatSessions, printAllSessions, pathToProjectDir } from './printChatSessions.ts';
 import { printSearchResults } from './searchSessions.ts';
 import { printPermissionChecks } from './listPermissionChecks.ts';
+import { runSummarize } from './summarizeSessions.ts';
 import { ChatSessionMessageSchema } from './Schemas.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -527,6 +528,57 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         claudeDir: argv['claude-dir'],
         verbose: argv.verbose
       }).catch(console.error);
+    }
+  )
+  .command(
+    'summarize',
+    'Produce a compact digest of sessions (user prompts, tool counts, errors)',
+    (yargs) => {
+      return yargs
+        .option('project', {
+          type: 'string',
+          alias: 'p',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('session', {
+          type: 'string',
+          alias: 's',
+          description: 'Summarize a single session by ID'
+        })
+        .option('limit', {
+          type: 'number',
+          description: 'Max number of recent sessions to summarize'
+        })
+        .option('include-assistant', {
+          type: 'boolean',
+          description: 'Include short assistant text snippets',
+          default: false
+        })
+        .option('max-prompt-chars', {
+          type: 'number',
+          default: 200
+        })
+        .option('claude-dir', {
+          type: 'string'
+        })
+        .option('verbose', {
+          type: 'boolean',
+          default: false
+        });
+    },
+    (argv) => {
+      runSummarize({
+        project: argv.project,
+        session: argv.session,
+        limit: argv.limit,
+        includeAssistantText: argv['include-assistant'],
+        maxPromptChars: argv['max-prompt-chars'],
+        claudeDir: argv['claude-dir'],
+        verbose: argv.verbose,
+      }).catch((err) => {
+        console.error(err);
+        process.exit(1);
+      });
     }
   )
 docFiles.yargsSetup(args);

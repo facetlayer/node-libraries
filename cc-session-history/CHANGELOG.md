@@ -1,4 +1,5 @@
 # Unreleased
+ - Added `summarize` command that produces a compact digest of sessions (user prompts, tool counts, errors, permission rejections)
  - Fixed `list-sessions --project` bug where project names starting with `-` were misinterpreted as CLI flags by yargs, causing all projects to return the same sessions
  - Changed `--project` from a positional argument to a named option (with `-p` alias) for consistency with `get-chat --session`
  - `list-permission-checks` now shows both approved and rejected permission checks (previously only showed rejected)
