@@ -5,6 +5,16 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./packaging": {
+      "types": "./dist/packageDesktopApp.d.ts",
+      "default": "./dist/packageDesktopApp.js"
+    }
+  },
   "files": [
     "dist",
     "src/preload.cjs"

@@ -10,6 +10,11 @@
 export { desktopLaunch, getFrameworkPreloadPath } from './desktopLaunch.js';
 export type { DesktopLaunchOptions, DesktopLaunchResult } from './desktopLaunch.js';
 
+// NOTE: the packaging helper lives at `@facetlayer/prism-framework-desktop/packaging`
+// rather than this index. It is used from Node build scripts (not the Electron
+// main process), and must not transitively import `electron` — which this
+// module does.
+
 // Main-process IPC handler (electron-free, safe to import anywhere)
 export { createApiCallHandler } from './handleApiCall.js';
 export type { HandleApiCallOptions, IpcApiCallPayload } from './handleApiCall.js';
