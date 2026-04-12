@@ -129,11 +129,14 @@ export async function deploy(options: DeployOptions) {
     console.log('Server has requested', neededFiles.length, 'files to be uploaded');
 
     const uploadErrors: { relPath: string, error: unknown }[] = [];
+    let uploadedCount = 0;
+    const totalCount = neededFiles.length;
 
     for (const fileEntry of neededFiles) {
         await uploadConcurrency.start(async () => {
             try {
-                console.log('Uploading file:', fileEntry.relPath);
+                const currentCount = ++uploadedCount;
+                console.log(`Uploading [${currentCount}/${totalCount}]: ${fileEntry.relPath}`);
                 const sourceFile = sources.getByRelPath(fileEntry.relPath);
                 if (!sourceFile) {
                     uploadErrors.push({ relPath: fileEntry.relPath, error: new Error(`Couldn't find a requested relPath: ${fileEntry.relPath}`) });
