@@ -1,4 +1,5 @@
 ## Unreleased
+ - Added: `preview-deploy` now shows `before-deploy` and `after-deploy` lifecycle hooks (shell commands and candle-restart directives) in the preview output.
  - Improved: Upload progress now shows a counter like `Uploading [15/230]: path/to/file.js` so large deployments are easier to follow.
  - Fixed: `candle-restart(service)` and `candle-config` directives now resolve the `candle` binary by searching common install paths (`/usr/local/bin`, `/root/.local/bin`, `/home/*/.local/bin`, etc.) before falling back to PATH, so they work reliably in non-interactive SSH sessions where the user's shell profile is not loaded.
  - Fixed: `config.json` is no longer blocked by the security scan. It was incorrectly listed as a disallowed file; only files that are essentially always secret-containing (e.g. `.env`, `*.pem`, `credentials.json`) are blocked.
