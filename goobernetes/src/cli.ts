@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { disableSqliteExperimentalWarning } from '@facetlayer/sqlite-wrapper';
+disableSqliteExperimentalWarning();
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { readFileSync } from 'fs';

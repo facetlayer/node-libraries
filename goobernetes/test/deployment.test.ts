@@ -1,5 +1,6 @@
 import { describe, test, beforeAll, afterAll, expect } from 'vitest';
 import { fileExists } from '@facetlayer/file-manifest';
+import { DatabaseLoader, nullDatabaseLogs } from '@facetlayer/sqlite-wrapper';
 import { spawn, ChildProcess } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
@@ -445,10 +446,9 @@ async function runDeploy(configPath: string): Promise<void> {
 }
 
 async function queryDatabase(sql: string): Promise<any[]> {
-    const { DatabaseSync } = await import('node:sqlite');
     const dbPath = path.join(HOME_DIR, 'goobernetes', 'db.sqlite');
-    const db = new DatabaseSync(dbPath);
-    const result = db.prepare(sql).all();
+    const db = new DatabaseLoader({ filename: dbPath, schema: { name: 'test', statements: [] }, migrationBehavior: 'ignore', logs: nullDatabaseLogs }).load();
+    const result = db.list(sql);
     db.close();
     return result;
 }

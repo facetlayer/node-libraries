@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseLoader, nullDatabaseLogs } from '@facetlayer/sqlite-wrapper';
 import { getDatabase } from './Database.ts';
 import { getActiveDeploymentDir, getSafePathInDir } from './deployDirs.ts';
 import { parseGoobDatabases } from '../shared/parseGoobDatabases.ts';
@@ -24,10 +24,14 @@ function getProjectConfig(projectName: string): string {
     return deploymentRecord.source_config_file;
 }
 
+function openExternalDb(dbPath: string) {
+    return new DatabaseLoader({ filename: dbPath, schema: { name: 'external', statements: [] }, migrationBehavior: 'ignore', logs: nullDatabaseLogs }).load();
+}
+
 function getTableNamesInDb(dbPath: string): string[] {
-    const db = new DatabaseSync(dbPath);
+    const db = openExternalDb(dbPath);
     try {
-        const rows = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`).all() as { name: string }[];
+        const rows = db.list(`SELECT name FROM sqlite_master WHERE type='table'`) as { name: string }[];
         return rows.map(r => r.name.toLowerCase());
     } finally {
         db.close();
@@ -91,13 +95,12 @@ function findDatabaseForTables(deployDir: string, dbPaths: string[], tableNames:
 }
 
 function runSql(dbPath: string, sql: string): ExecuteSqlResult {
-    const db = new DatabaseSync(dbPath);
+    const db = openExternalDb(dbPath);
     try {
-        const stmt = db.prepare(sql);
         const isSelect = /^\s*(SELECT|WITH|EXPLAIN)\b/i.test(sql);
 
         if (isSelect) {
-            const rows = stmt.all() as Record<string, any>[];
+            const rows = db.list(sql) as Record<string, any>[];
             const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
             return {
                 columns,
@@ -105,7 +108,7 @@ function runSql(dbPath: string, sql: string): ExecuteSqlResult {
                 rowsAffected: 0,
             };
         } else {
-            const result = stmt.run() as { changes: number };
+            const result = db.run(sql);
             return {
                 columns: [],
                 rows: [],

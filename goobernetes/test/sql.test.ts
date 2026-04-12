@@ -2,7 +2,11 @@ import { describe, test, beforeAll, afterAll, expect } from 'vitest';
 import { spawn, ChildProcess } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseLoader, nullDatabaseLogs } from '@facetlayer/sqlite-wrapper';
+
+function openDb(dbPath: string) {
+    return new DatabaseLoader({ filename: dbPath, schema: { name: 'test', statements: [] }, migrationBehavior: 'ignore', logs: nullDatabaseLogs }).load();
+}
 
 // Test configuration
 const TEST_PORT = 4718;
@@ -210,9 +214,9 @@ describe('SQL Command Tests', () => {
         test('errors when tables exist in multiple databases', async () => {
             // Insert 'users' table into logs db too to create ambiguity
             const logsDb = path.join(DEPLOYS_DIR, 'db-app', 'data', 'logs.sqlite');
-            const db = new DatabaseSync(logsDb);
-            db.exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)`);
-            db.exec(`INSERT OR IGNORE INTO users VALUES (99, 'ghost')`);
+            const db = openDb(logsDb);
+            db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)`);
+            db.run(`INSERT OR IGNORE INTO users VALUES (99, 'ghost')`);
             db.close();
 
             let errorOutput = '';
@@ -232,8 +236,8 @@ describe('SQL Command Tests', () => {
             expect(errorOutput).toContain('data/logs.sqlite');
 
             // Clean up: drop users from logs db
-            const db2 = new DatabaseSync(logsDb);
-            db2.exec(`DROP TABLE IF EXISTS users`);
+            const db2 = openDb(logsDb);
+            db2.run(`DROP TABLE IF EXISTS users`);
             db2.close();
         }, 15000);
 
@@ -383,20 +387,20 @@ async function createTestDatabases(): Promise<void> {
     const dbAppDir = path.join(DEPLOYS_DIR, 'db-app', 'data');
     await fs.mkdir(dbAppDir, { recursive: true });
 
-    const mainDb = new DatabaseSync(path.join(dbAppDir, 'main.sqlite'));
-    mainDb.exec(`
+    const mainDb = openDb(path.join(dbAppDir, 'main.sqlite'));
+    mainDb.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT
         )
     `);
-    mainDb.exec(`INSERT INTO users (name, email) VALUES ('alice', 'alice@example.com')`);
-    mainDb.exec(`INSERT INTO users (name, email) VALUES ('bob', 'bob@example.com')`);
+    mainDb.run(`INSERT INTO users (name, email) VALUES ('alice', 'alice@example.com')`);
+    mainDb.run(`INSERT INTO users (name, email) VALUES ('bob', 'bob@example.com')`);
     mainDb.close();
 
-    const logsDb = new DatabaseSync(path.join(dbAppDir, 'logs.sqlite'));
-    logsDb.exec(`
+    const logsDb = openDb(path.join(dbAppDir, 'logs.sqlite'));
+    logsDb.run(`
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             type TEXT NOT NULL,
@@ -404,23 +408,23 @@ async function createTestDatabases(): Promise<void> {
             created_at TEXT
         )
     `);
-    logsDb.exec(`INSERT INTO events (type, user_id, created_at) VALUES ('login', 1, '2024-01-01')`);
-    logsDb.exec(`INSERT INTO events (type, user_id, created_at) VALUES ('logout', 1, '2024-01-01')`);
+    logsDb.run(`INSERT INTO events (type, user_id, created_at) VALUES ('login', 1, '2024-01-01')`);
+    logsDb.run(`INSERT INTO events (type, user_id, created_at) VALUES ('logout', 1, '2024-01-01')`);
     logsDb.close();
 
     // db-app-single-db: one database - app.sqlite (products)
     const singleDbAppDir = path.join(DEPLOYS_DIR, 'db-app-single-db', 'data');
     await fs.mkdir(singleDbAppDir, { recursive: true });
 
-    const appDb = new DatabaseSync(path.join(singleDbAppDir, 'app.sqlite'));
-    appDb.exec(`
+    const appDb = openDb(path.join(singleDbAppDir, 'app.sqlite'));
+    appDb.run(`
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             price REAL
         )
     `);
-    appDb.exec(`INSERT INTO products (name, price) VALUES ('Widget', 9.99)`);
-    appDb.exec(`INSERT INTO products (name, price) VALUES ('Gadget', 19.99)`);
+    appDb.run(`INSERT INTO products (name, price) VALUES ('Widget', 9.99)`);
+    appDb.run(`INSERT INTO products (name, price) VALUES ('Gadget', 19.99)`);
     appDb.close();
 }
