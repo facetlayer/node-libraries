@@ -190,6 +190,40 @@ yargs(hideBin(process.argv))
         }
     )
     .command(
+        'rollback <config-file> [deploy-name]',
+        'Roll back a project to a previous deployment',
+        (yargs) => {
+            return yargs
+                .positional('config-file', {
+                    type: 'string',
+                    describe: 'Path to the deployment configuration file',
+                    demandOption: true,
+                })
+                .positional('deploy-name', {
+                    type: 'string',
+                    describe: 'Name of the deployment to roll back to (omit to choose interactively)',
+                })
+                .option('override-dest', {
+                    description: 'Override the destination URL from the config file',
+                    type: 'string'
+                })
+                .option('limit', {
+                    type: 'number',
+                    default: 10,
+                    describe: 'Number of recent deployments to list',
+                });
+        },
+        async (argv) => {
+            const { rollback } = await import('./client/rollback');
+            await rollback({
+                configFilename: argv['config-file'] as string,
+                deployName: argv['deploy-name'] as string | undefined,
+                overrideDest: argv['override-dest'],
+                limit: argv.limit,
+            });
+        }
+    )
+    .command(
         'copy-back <config-file> <filename>',
         'Copy a file from the server back to the local filesystem',
         (yargs) => {

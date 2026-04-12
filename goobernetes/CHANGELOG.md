@@ -2,6 +2,7 @@
  - Replace direct `node:sqlite` imports with `@facetlayer/sqlite-wrapper`, suppressing the SQLite experimental warning
  - Fixed: Upload errors during deployment are now collected and reported clearly, aborting the deployment instead of silently continuing to verification
  - Fixed: `active_deployment` pointer now updates before after-deploy hooks run, so it always reflects the newest successful upload even if a hook fails. Hook errors are reported to the client as warnings instead of silently rolling back the pointer.
+ - Added `goob rollback <config-file> [deploy-name]` command to roll back a project to a previous deployment. Lists recent deployments with active marker and prompts interactively when no deploy name is given.
 
 # 0.7.0
  - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module, eliminating the native compilation dependency

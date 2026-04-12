@@ -24,6 +24,9 @@ import {
     ExecuteSqlResult,
     ListDatabasesParams,
     ListDatabasesResult,
+    ListDeploymentsParams,
+    ListDeploymentsResult,
+    RollbackParams,
 } from '../shared/rpc-types.ts';
 
 import { createDeployment } from './createDeployment.ts';
@@ -159,6 +162,40 @@ export class GooberneteRPCServer {
 
         this.server.addMethod(RPC_METHODS.LIST_DATABASES, async (params: ListDatabasesParams): Promise<ListDatabasesResult> => {
             return listProjectDatabases(params);
+        });
+
+        this.server.addMethod(RPC_METHODS.LIST_DEPLOYMENTS, async (params: ListDeploymentsParams): Promise<ListDeploymentsResult> => {
+            const db = getDatabase();
+            const limit = params.limit ?? 10;
+            const deployments = db.all(
+                `select deploy_name, created_at from deployment where project_name = ? order by created_at desc limit ?`,
+                [params.projectName, limit]
+            );
+            const activeRecord = db.get(
+                `select deploy_name from active_deployment where project_name = ?`,
+                [params.projectName]
+            );
+            const activeDeployName = activeRecord ? activeRecord.deploy_name : null;
+            return {
+                deployments: deployments.map(d => ({
+                    deploy_name: d.deploy_name,
+                    created_at: d.created_at,
+                    is_active: d.deploy_name === activeDeployName,
+                })),
+                activeDeployName,
+            };
+        });
+
+        this.server.addMethod(RPC_METHODS.ROLLBACK, async (params: RollbackParams) => {
+            const db = getDatabase();
+            const deployment = db.get(
+                `select * from deployment where deploy_name = ? and project_name = ?`,
+                [params.deployName, params.projectName]
+            );
+            if (!deployment) {
+                throw new Error(`Deployment '${params.deployName}' not found for project '${params.projectName}'`);
+            }
+            return activateDeployment({ deployName: params.deployName });
         });
 
         this.server.addMethod(RPC_METHODS.PREVIEW_BY_DEPLOY_NAME, async (params: PreviewByDeployNameParams): Promise<PreviewDeploymentResult> => {

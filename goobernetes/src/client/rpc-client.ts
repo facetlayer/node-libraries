@@ -25,6 +25,9 @@ import {
     ExecuteSqlResult,
     ListDatabasesParams,
     ListDatabasesResult,
+    ListDeploymentsParams,
+    ListDeploymentsResult,
+    RollbackParams,
 } from '../shared/rpc-types.ts';
 
 export class GooberneteRPCClient {
@@ -151,5 +154,13 @@ export class GooberneteRPCClient {
 
     async listDatabases(params: ListDatabasesParams): Promise<ListDatabasesResult> {
         return this.rpcCall(RPC_METHODS.LIST_DATABASES, params);
+    }
+
+    async listDeployments(params: ListDeploymentsParams): Promise<ListDeploymentsResult> {
+        return this.rpcCall(RPC_METHODS.LIST_DEPLOYMENTS, params);
+    }
+
+    async rollback(params: RollbackParams): Promise<void> {
+        return this.rpcCall(RPC_METHODS.ROLLBACK, params);
     }
 }

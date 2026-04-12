@@ -122,6 +122,27 @@ export interface ListDatabasesResult {
     databases: DatabaseInfo[];
 }
 
+export interface ListDeploymentsParams {
+    projectName: string;
+    limit?: number;
+}
+
+export interface DeploymentInfo {
+    deploy_name: string;
+    created_at: string;
+    is_active: boolean;
+}
+
+export interface ListDeploymentsResult {
+    deployments: DeploymentInfo[];
+    activeDeployName: string | null;
+}
+
+export interface RollbackParams {
+    projectName: string;
+    deployName: string;
+}
+
 // JSON-RPC method names
 export const RPC_METHODS = {
     CREATE_DEPLOYMENT: 'createDeployment',
@@ -140,5 +161,7 @@ export const RPC_METHODS = {
     PREVIEW_BY_DEPLOY_NAME: 'previewByDeployName',
     EXECUTE_SQL: 'executeSql',
     LIST_DATABASES: 'listDatabases',
+    LIST_DEPLOYMENTS: 'listDeployments',
+    ROLLBACK: 'rollback',
 } as const;
 
