@@ -8,9 +8,9 @@ import { runShellCommand } from '@facetlayer/subprocess';
 import { RunningTimer } from '../utils/RunningTimer.ts';
 import { GooberneteRPCClient } from './rpc-client.ts';
 import { setupClient } from './clientSetup.ts';
+import { ManifestBatchSize } from './constants.ts';
 
 const MaxRequestSizeBytes = 80 * 1024;
-const ManifestBatchSize = 500;
 
 export interface DeployOptions {
     configFilename: string;
@@ -128,13 +128,15 @@ export async function deploy(options: DeployOptions) {
 
     console.log('Server has requested', neededFiles.length, 'files to be uploaded');
 
+    const uploadErrors: { relPath: string, error: unknown }[] = [];
+
     for (const fileEntry of neededFiles) {
         await uploadConcurrency.start(async () => {
             try {
                 console.log('Uploading file:', fileEntry.relPath);
                 const sourceFile = sources.getByRelPath(fileEntry.relPath);
                 if (!sourceFile) {
-                    console.error(`Couldn't find a requested relPath`, fileEntry.relPath);
+                    uploadErrors.push({ relPath: fileEntry.relPath, error: new Error(`Couldn't find a requested relPath: ${fileEntry.relPath}`) });
                     return;
                 }
 
@@ -143,12 +145,20 @@ export async function deploy(options: DeployOptions) {
                 await uploadFile(client, deployName, fileEntry.relPath, fileContent);
 
             } catch (e) {
-                console.error('Error uploading file:', fileEntry.relPath, e);
+                uploadErrors.push({ relPath: fileEntry.relPath, error: e });
             }
         });
     }
 
     await uploadConcurrency.allSettled();
+
+    if (uploadErrors.length > 0) {
+        console.error(`\nDeployment failed: ${uploadErrors.length} file(s) could not be uploaded:`);
+        for (const { relPath, error } of uploadErrors) {
+            console.error(`  - ${relPath}: ${error}`);
+        }
+        process.exit(1);
+    }
     console.log(`Finished uploading files (${timer.checkElapsedSecs()}s)`);
 
     await client.finishUploads({

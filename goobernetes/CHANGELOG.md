@@ -1,5 +1,6 @@
 ## Unreleased
  - Replace direct `node:sqlite` imports with `@facetlayer/sqlite-wrapper`, suppressing the SQLite experimental warning
+ - Fixed: Upload errors during deployment are now collected and reported clearly, aborting the deployment instead of silently continuing to verification
 
 # 0.7.0
  - Replaced `better-sqlite3` with Node.js built-in `node:sqlite` module, eliminating the native compilation dependency

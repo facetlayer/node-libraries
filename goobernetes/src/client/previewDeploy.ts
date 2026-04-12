@@ -1,6 +1,7 @@
 import { getSourceManifest } from '@facetlayer/file-manifest';
 import { resolveFileList } from '@facetlayer/file-manifest';
 import { setupClient } from './clientSetup.ts';
+import { ManifestBatchSize } from './constants.ts';
 
 export interface PreviewDeployOptions {
     configFilename: string;
@@ -22,7 +23,6 @@ export async function previewDeploy(options: PreviewDeployOptions) {
         sha: item.sha,
     }));
 
-    const ManifestBatchSize = 500;
     const useBatchedManifest = manifestList.length > ManifestBatchSize;
 
     let result;
