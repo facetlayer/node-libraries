@@ -1,4 +1,5 @@
 ## Unreleased
+ - Fixed: `candle-restart(service)` and `candle-config` directives now resolve the `candle` binary by searching common install paths (`/usr/local/bin`, `/root/.local/bin`, `/home/*/.local/bin`, etc.) before falling back to PATH, so they work reliably in non-interactive SSH sessions where the user's shell profile is not loaded.
  - Fixed: `config.json` is no longer blocked by the security scan. It was incorrectly listed as a disallowed file; only files that are essentially always secret-containing (e.g. `.env`, `*.pem`, `credentials.json`) are blocked.
  - Fixed: Multiple `shell()` commands in an `after-deploy` block now all execute sequentially; previously only one would run. Same fix applies to multiple `candle-restart()` calls in one block.
  - Fixed: `verifyDeployment` now hashes files in parallel (concurrency 20) and emits progress logs every 500 files or 5 seconds, preventing hangs on memory-constrained servers with large static deployments

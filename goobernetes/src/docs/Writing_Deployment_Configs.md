@@ -386,6 +386,8 @@ after-deploy
 
 Note: `candle-restart(name)` runs `candle restart <name>` in the deployment directory, which requires a `.candle.json` file there. For per-project Candle configuration, prefer the `candle-config` setting described below.
 
+> **PATH note:** Goobernetes resolves the `candle` binary by searching common install locations (`/usr/local/bin/candle`, `/root/.local/bin/candle`, `/home/*/.local/bin/candle`, etc.) before falling back to `which candle` and finally the shell's PATH. This makes `candle-restart` work reliably in non-interactive SSH sessions where the user's shell profile is not loaded.
+
 ### Candle Config
 
 The `candle-config` setting in `deploy-settings` enables per-project Candle integration. Use it when your project ships its own Candle config file and you want goobernetes to install it and restart every service it defines on each deploy.

@@ -6,6 +6,57 @@ import Fs from 'fs/promises';
 import { runShellCommand } from "@facetlayer/subprocess";
 import { getSafePathInDir } from "./deployDirs.ts";
 
+/**
+ * Locate the candle binary without relying on PATH.
+ *
+ * Non-interactive SSH sessions often lack the user's full shell profile, so
+ * `candle` may not be on PATH even when it's installed.  We check a list of
+ * common install locations first and fall back to `which candle` as a last
+ * resort.
+ */
+async function findCandleBinary(): Promise<string> {
+    const candidatePaths = [
+        '/usr/local/bin/candle',
+        '/usr/bin/candle',
+        '/root/.local/bin/candle',
+        '/root/.npm-global/bin/candle',
+    ];
+
+    // Also check home directories under /home/*/.local/bin/candle
+    try {
+        const homeEntries = await Fs.readdir('/home');
+        for (const entry of homeEntries) {
+            candidatePaths.push(`/home/${entry}/.local/bin/candle`);
+            candidatePaths.push(`/home/${entry}/.npm-global/bin/candle`);
+        }
+    } catch {
+        // /home may not exist or be readable; ignore
+    }
+
+    for (const candidate of candidatePaths) {
+        try {
+            await Fs.access(candidate, Fs.constants.X_OK);
+            return candidate;
+        } catch {
+            // Not found or not executable at this path; try next
+        }
+    }
+
+    // Fall back to `which candle` using the shell's PATH
+    try {
+        const result = await runShellCommand('which candle', [], { shell: true });
+        const whichOutput = result.stdout?.join('').trim();
+        if (result.exitCode === 0 && whichOutput) {
+            return whichOutput;
+        }
+    } catch {
+        // which failed; fall through
+    }
+
+    // Last resort: just return 'candle' and let the shell resolve it
+    return 'candle';
+}
+
 async function executeShellCommand(command: string, workingDir: string, hookType: string) {
     console.log(`Running ${hookType} command (cwd: ${workingDir}):`, command);
     const result = await runShellCommand(command, [], {
@@ -88,12 +139,16 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
 
         const hookErrors: string[] = [];
 
+        // Resolve the candle binary path once if any candle actions are needed
+        const needsCandle = afterDeployActions.some(a => a.type === 'candle-restart') || !!candleConfigPath;
+        const candleBin = needsCandle ? await findCandleBinary() : 'candle';
+
         for (const action of afterDeployActions) {
             try {
                 if (action.type === 'shell') {
                     await executeShellCommand(action.command, deployDir, 'after-deploy');
                 } else if (action.type === 'candle-restart') {
-                    await executeShellCommand(`candle restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
+                    await executeShellCommand(`${candleBin} restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
                 }
             } catch (e) {
                 const msg = e instanceof Error ? e.message : String(e);
@@ -121,7 +176,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             // Restart any running services defined in the candle config, then
             // start any that aren't running yet.
             try {
-                await executeShellCommand('candle restart', deployDir, 'candle-config:restart');
+                await executeShellCommand(`${candleBin} restart`, deployDir, 'candle-config:restart');
             } catch (e) {
                 const msg = e instanceof Error ? e.message : String(e);
                 console.error(`candle-config:restart hook error: ${msg}`);
@@ -129,7 +184,7 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             }
 
             try {
-                await executeShellCommand('candle check-start', deployDir, 'candle-config:check-start');
+                await executeShellCommand(`${candleBin} check-start`, deployDir, 'candle-config:check-start');
             } catch (e) {
                 const msg = e instanceof Error ? e.message : String(e);
                 console.error(`candle-config:check-start hook error: ${msg}`);
