@@ -73,11 +73,32 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
             throw new Error(`No record found for project ${projectName}`);
         }
 
+        // Upsert active_deployment BEFORE running after-deploy hooks so the
+        // pointer always advances to the newest successful upload regardless
+        // of hook outcomes.
+        getDatabase().upsert('active_deployment', {
+            project_name: deploymentRecord.project_name,
+        }, {
+            project_name: deploymentRecord.project_name,
+            deploy_name: deployName,
+            updated_at: new Date().toISOString(),
+        });
+
+        console.log('Successfully activated deployment:', deployName);
+
+        const hookErrors: string[] = [];
+
         for (const action of afterDeployActions) {
-            if (action.type === 'shell') {
-                await executeShellCommand(action.command, deployDir, 'after-deploy');
-            } else if (action.type === 'candle-restart') {
-                await executeShellCommand(`candle restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
+            try {
+                if (action.type === 'shell') {
+                    await executeShellCommand(action.command, deployDir, 'after-deploy');
+                } else if (action.type === 'candle-restart') {
+                    await executeShellCommand(`candle restart ${action.serviceName}`, deployDir, 'after-deploy:candle-restart');
+                }
+            } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                console.error(`after-deploy hook error: ${msg}`);
+                hookErrors.push(msg);
             }
         }
 
@@ -99,19 +120,26 @@ export function activateDeployment({ deployName }: { deployName: string }): Stre
 
             // Restart any running services defined in the candle config, then
             // start any that aren't running yet.
-            await executeShellCommand('candle restart', deployDir, 'candle-config:restart');
-            await executeShellCommand('candle check-start', deployDir, 'candle-config:check-start');
+            try {
+                await executeShellCommand('candle restart', deployDir, 'candle-config:restart');
+            } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                console.error(`candle-config:restart hook error: ${msg}`);
+                hookErrors.push(msg);
+            }
+
+            try {
+                await executeShellCommand('candle check-start', deployDir, 'candle-config:check-start');
+            } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                console.error(`candle-config:check-start hook error: ${msg}`);
+                hookErrors.push(msg);
+            }
         }
 
-        getDatabase().upsert('active_deployment', {
-            project_name: deploymentRecord.project_name,
-        }, {
-            project_name: deploymentRecord.project_name,
-            deploy_name: deployName,
-            updated_at: new Date().toISOString(),
-        });
-
-        console.log('Successfully activated deployment:', deployName);
+        if (hookErrors.length > 0) {
+            output.item({ type: 'warning', message: `Deployment is active, but some after-deploy hooks failed:\n${hookErrors.map(e => `  - ${e}`).join('\n')}` });
+        }
 
         output.done();
     })()
