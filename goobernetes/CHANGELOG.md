@@ -1,4 +1,5 @@
 ## Unreleased
+ - Fixed: `verifyDeployment` now hashes files in parallel (concurrency 20) and emits progress logs every 500 files or 5 seconds, preventing hangs on memory-constrained servers with large static deployments
  - Replace direct `node:sqlite` imports with `@facetlayer/sqlite-wrapper`, suppressing the SQLite experimental warning
  - Fixed: Upload errors during deployment are now collected and reported clearly, aborting the deployment instead of silently continuing to verification
  - Fixed: `active_deployment` pointer now updates before after-deploy hooks run, so it always reflects the newest successful upload even if a hook fails. Hook errors are reported to the client as warnings instead of silently rolling back the pointer.
