@@ -1,31 +1,37 @@
 import { getDatabase, SqliteDatabase } from './Database.ts';
 
-interface TableRecord {
-    deploy_name: string;
-    rel_path: string;
-}
-
 function cleanupStaleRecords(
     db: SqliteDatabase,
     tableName: string,
     cutoffTime: string
 ) {
-    const records: TableRecord[] = db.all(
-        `select distinct deploy_name, rel_path from ${tableName}`
+    // Delete records whose deployment is older than the cutoff or no longer exists
+    db.run(
+        `delete from ${tableName} where deploy_name in (
+            select t.deploy_name from ${tableName} t
+            left join deployment d on t.deploy_name = d.deploy_name
+            where d.deploy_name is null or d.created_at < ?
+        )`,
+        [cutoffTime]
     );
+}
 
-    for (const record of records) {
-        const deployment = db.get(
-            `select * from deployment where deploy_name = ?`,
-            [record.deploy_name]
+function cleanupOldManifests(db: SqliteDatabase, keepCount: number) {
+    // For each project, null out manifest_json on old deployments beyond the most recent keepCount
+    const projects = db.all(`select distinct project_name from deployment`);
+    for (const project of projects) {
+        db.run(
+            `update deployment set manifest_json = null
+             where project_name = ?
+               and manifest_json is not null
+               and deploy_name not in (
+                 select deploy_name from deployment
+                 where project_name = ?
+                 order by created_at desc
+                 limit ?
+               )`,
+            [project.project_name, project.project_name, keepCount]
         );
-
-        if (!deployment || deployment.created_at < cutoffTime) {
-            db.run(
-                `delete from ${tableName} where deploy_name = ? and rel_path = ?`,
-                [record.deploy_name, record.rel_path]
-            );
-        }
     }
 }
 
@@ -35,6 +41,5 @@ export async function databaseCleanup() {
 
     cleanupStaleRecords(db, 'deployment_needed_file', fourHoursAgo);
     cleanupStaleRecords(db, 'deployment_pending_multi_part_file_chunk', fourHoursAgo);
-
-    db.run('vacuum');
+    cleanupOldManifests(db, 5);
 }
