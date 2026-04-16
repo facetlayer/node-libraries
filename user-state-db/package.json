@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/user-state-db",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "Helper library to set up a SQLite database in the user's state directory following XDG standards",
   "main": "dist/index.js",
@@ -31,10 +31,9 @@
   },
   "homepage": "",
   "dependencies": {
-    "@facetlayer/sqlite-wrapper": "^1.2.0",
+    "@facetlayer/sqlite-wrapper": "^1.3.0",
     "@facetlayer/streams": "^1.0.0",
-    "@facetlayer/user-state-dir": "^0.1.0",
-    "better-sqlite3": "11.8.1"
+    "@facetlayer/user-state-dir": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

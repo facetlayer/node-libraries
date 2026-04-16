@@ -2,7 +2,6 @@ import * as path from 'path'
 import { getOrCreateStateDirectory, getStateDirectory } from '@facetlayer/user-state-dir'
 import { DatabaseLoader, SqliteDatabase, DatabaseSchema } from '@facetlayer/sqlite-wrapper'
 import { Stream } from '@facetlayer/streams'
-import BetterSqlite3 from 'better-sqlite3'
 
 export interface GetStateDatabaseOptions {
   /**
@@ -56,8 +55,7 @@ export function getStateDatabase(
   const loader = new DatabaseLoader({
     filename: dbPath,
     schema,
-    logs,
-    loadDatabase(filename) { return new BetterSqlite3(filename) },
+    logsStream: logs,
     migrationBehavior,
   })
 

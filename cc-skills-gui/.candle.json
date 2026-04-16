@@ -1,8 +1,0 @@
-{
-  "services": [
-    {
-      "name": "cc-skills-gui",
-      "shell": "node dist/main.js"
-    }
-  ]
-}
