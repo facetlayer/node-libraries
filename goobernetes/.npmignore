@@ -1,8 +1,0 @@
-test/
-src/__tests__/
-dist/__tests__/
-.claude/
-.PROJECT_GUIDELINES.md
-.candle.json
-vitest.config.ts
-test.config

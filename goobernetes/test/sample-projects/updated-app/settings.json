@@ -1,9 +1,0 @@
-{
-  "environment": "test",
-  "features": {
-    "newFeature": true,
-    "healthCheck": true,
-    "staticFiles": true
-  },
-  "version": "2.0.0"
-}

@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/prism-framework",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "Base library, server framework, and CLI tools for the Prism app framework",
   "type": "module",
   "main": "dist/index.js",
@@ -44,8 +44,8 @@
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
-    "@facetlayer/doc-files-helper": "0.1.2",
-    "@facetlayer/port-assignment": "0.2.0",
+    "@facetlayer/docs-tool": "^0.2.0",
+    "@facetlayer/port-assignment": "^0.4.1",
     "@facetlayer/qc": "^0.1.0",
     "@facetlayer/sqlite-wrapper": "^1.2.0",
     "@facetlayer/streams": "^1.0.0",
@@ -83,5 +83,9 @@
     "esbuild": "^0.25.12",
     "typescript": "^5.7.2",
     "vitest": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
   }
 }
