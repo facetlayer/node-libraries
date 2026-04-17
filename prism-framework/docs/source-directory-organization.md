@@ -54,9 +54,12 @@ Each service lives in its own top-level folder named after the service. The fold
 import { createEndpoint, type ServiceDefinition } from '@facetlayer/prism-framework';
 import { z } from 'zod';
 
+// Note: do not include a leading `/api` in `path`. The framework mounts
+// every endpoint under /api/ automatically, so this endpoint is served
+// at GET /api/users/:id.
 const getUserEndpoint = createEndpoint({
   method: 'GET',
-  path: '/api/users/:id',
+  path: '/users/:id',
   requestSchema: z.object({ id: z.string() }),
   responseSchema: z.object({ id: z.string(), email: z.string() }),
   handler: async (input) => {

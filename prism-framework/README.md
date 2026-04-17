@@ -48,6 +48,8 @@ async function main() {
 main().catch(console.error);
 ```
 
+The endpoint above is served at `GET http://localhost:3000/api/hello` — every endpoint is mounted under `/api/`, so the `path` you pass to `createEndpoint` does **not** need an `/api` prefix of its own.
+
 ## CLI Commands
 
 | Command | Description |
@@ -64,10 +66,11 @@ main().catch(console.error);
 # List all endpoints
 prism list-endpoints
 
-# Call endpoints
-prism call /users                              # GET request
-prism call POST /users --name "John"           # POST with body
-prism call POST /data --config '{"timeout":30}'  # JSON arguments
+# Call endpoints — note that HTTP paths include the /api/ prefix
+# (the framework mounts every endpoint under /api/)
+prism call /api/users                              # GET request
+prism call POST /api/users --name "John"           # POST with body
+prism call POST /api/data --config '{"timeout":30}'  # JSON arguments
 
 # Generate TypeScript types
 prism generate-api-clients --out ./src/api-types.ts
@@ -90,12 +93,18 @@ Available documentation includes:
 - `getting-started` - Setup guide for Prism Framework projects
 - `overview` - Framework overview and concepts
 - `creating-services` - How to create services and endpoints
+- `creating-mobile-apps` - Running a Prism app on Expo/React Native
 - `server-setup` - Server configuration options
 - `database-setup` - Database integration
 - `authorization` - Authentication and authorization
 - `launch-configuration` - App configuration options
+- `source-directory-organization` - Recommended project layout
 - `endpoint-tools` - CLI tools for calling endpoints
 - `env-files` - Environment configuration strategy
+- `cors-setup` - Cross-origin request configuration
+- `error-handling` - HTTP error classes
+- `generate-api-clients-config` - Configuring generated TypeScript API clients
+- `metrics` - Prometheus metrics integration
 - `stdin-protocol` - Stdin/stdout protocol for subprocess communication
 
 ## Testing Endpoints
@@ -103,12 +112,14 @@ Available documentation includes:
 Use the `prism` CLI to test your endpoints:
 
 ```bash
-prism list-endpoints    # See all available endpoints
-prism call /hello       # Call an endpoint (GET)
-prism call POST /users --name "John" --email "john@example.com"  # POST with data
+prism list-endpoints         # See all available endpoints
+prism call /api/hello        # Call an endpoint (GET)
+prism call POST /api/users --name "John" --email "john@example.com"  # POST with data
 ```
 
-This is preferred over using curl directly because the `prism` CLI automatically reads your `.env` file for the API port.
+The framework mounts every endpoint under `/api/` (so a `createEndpoint({ path: '/hello' })` is served at `GET /api/hello`). Pass the full HTTP path — including `/api/` — to `prism call`.
+
+This is preferred over using curl directly because the `prism` CLI automatically resolves the API port for the current project directory.
 
 ## Environment Variables
 
