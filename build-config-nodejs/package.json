@@ -1,6 +1,6 @@
 {
   "name": "@facetlayer/build-config-nodejs",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Shared build configuration for Node.js libraries using ESBuild and TypeScript",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@facetlayer/docs-tool": "^0.1.0",
+    "@facetlayer/docs-tool": "^0.2.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@typescript-eslint/utils": "^8.0.0",
     "esbuild": "^0.25.9",

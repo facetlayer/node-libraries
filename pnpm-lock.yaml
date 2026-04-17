@@ -33,8 +33,8 @@ importers:
   build-config-nodejs:
     dependencies:
       '@facetlayer/docs-tool':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@typescript-eslint/parser':
         specifier: ^8.0.0
         version: 8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.7.3)
@@ -2724,10 +2724,6 @@ packages:
 
   '@facetlayer/doc-files-helper@0.1.2':
     resolution: {integrity: sha512-GbIblmIHF9epp3s/PXYqa3Nq5kiAdUHMRHScy9CWnUBU/xEvy9UHqgZPM82kCJQ6U43VAxFJVRr3rNTyER1lCw==}
-    hasBin: true
-
-  '@facetlayer/docs-tool@0.1.0':
-    resolution: {integrity: sha512-KLW6V3I1I7tLkD0unZxo1x9/lCRb+6bUmINAqH4TYisVzkUHMvZrLunhOypZDTYU7xlIYhrvz7nkeNHIVwTSdQ==}
     hasBin: true
 
   '@facetlayer/docs-tool@0.2.0':
@@ -11987,11 +11983,6 @@ snapshots:
 
   '@facetlayer/doc-files-helper@0.1.2':
     dependencies:
-      yargs: 18.0.0
-
-  '@facetlayer/docs-tool@0.1.0':
-    dependencies:
-      '@facetlayer/subprocess-wrapper': 1.1.0
       yargs: 18.0.0
 
   '@facetlayer/docs-tool@0.2.0':
