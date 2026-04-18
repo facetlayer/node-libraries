@@ -402,6 +402,18 @@ export function createTableWithReplacedTableName(
 
   it.consume(); // create
   it.consume(); // table
+
+  // Skip IF NOT EXISTS if present
+  if (
+    it.nextText().toLowerCase() === "if" &&
+    it.nextText(1).toLowerCase() === "not" &&
+    it.nextText(2).toLowerCase() === "exists"
+  ) {
+    it.consume(); // if
+    it.consume(); // not
+    it.consume(); // exists
+  }
+
   it.consumeAsText(); // the table name
 
   return `create table ${newTableName} ${it.sourceText.getTextRange(it.getPosition(), it.sourceText.getLastTokenIndex())}`;

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   parseSql,
   stripSqlComments,
+  createTableWithReplacedTableName,
   CreateTableStatement,
 } from "../parser";
 
@@ -141,5 +142,22 @@ describe("parseSql with comments", () => {
       name: "status",
       definition: "TEXT NOT NULL",
     });
+  });
+});
+
+describe("createTableWithReplacedTableName", () => {
+  it("replaces table name in simple CREATE TABLE", () => {
+    const sql = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)";
+    const result = createTableWithReplacedTableName(sql, "tmp_users");
+    expect(result).toContain("create table tmp_users");
+    expect(result).toContain("id INTEGER PRIMARY KEY");
+  });
+
+  it("handles CREATE TABLE IF NOT EXISTS", () => {
+    const sql = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)";
+    const result = createTableWithReplacedTableName(sql, "tmp_users");
+    expect(result).toContain("create table tmp_users");
+    expect(result).toContain("id INTEGER PRIMARY KEY");
+    expect(result).not.toContain("IF");
   });
 });
