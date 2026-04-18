@@ -11,7 +11,13 @@ The `prism` CLI provides commands for interacting with your API endpoints. These
 
 Both commands require:
 - A running Prism API server
-- A `.env` file with `PRISM_API_PORT` set to your server's port
+- The CLI resolves the API port for the current project via `@facetlayer/port-assignment` (a per-project `.env` file is no longer required for this)
+
+## Path prefix
+
+The framework mounts every endpoint under `/api/`. When you write `createEndpoint({ path: '/users' })`, the live HTTP path is `/api/users`, so `prism call` must be given the full HTTP path including `/api/`.
+
+`prism list-endpoints` prints the endpoint path exactly as declared in `createEndpoint` (without the `/api/` prefix), so remember to prepend `/api/` when you copy one of those paths into `prism call`.
 
 ## prism list-endpoints
 
@@ -45,18 +51,18 @@ Calls an endpoint on a running server.
 
 ```bash
 # GET request
-prism call /users
+prism call /api/users
 
 # Explicit method
-prism call GET /users
+prism call GET /api/users
 
 # POST with data
-prism call POST /users --name "John Doe" --email "john@example.com"
+prism call POST /api/users --name "John Doe" --email "john@example.com"
 
 # Other methods
-prism call PUT /users/123 --name "Jane"
-prism call PATCH /users/123 --status active
-prism call DELETE /users/123
+prism call PUT /api/users/123 --name "Jane"
+prism call PATCH /api/users/123 --status active
+prism call DELETE /api/users/123
 ```
 
 ### Passing Data
@@ -64,7 +70,7 @@ prism call DELETE /users/123
 Named arguments become the request body:
 
 ```bash
-prism call POST /users --name "John" --age 30 --active true
+prism call POST /api/users --name "John" --age 30 --active true
 ```
 
 Sends:
@@ -81,7 +87,7 @@ Sends:
 Arguments that look like JSON are parsed automatically:
 
 ```bash
-prism call POST /config --settings '{"timeout": 30, "retries": 3}'
+prism call POST /api/config --settings '{"timeout": 30, "retries": 3}'
 ```
 
 ### Output
@@ -97,10 +103,9 @@ Response: {"id":"123","name":"John","email":"john@example.com"}
 
 ### "Failed to connect"
 
-1. **Check the server is running** - Start your API server
-2. **Verify PRISM_API_PORT** - Ensure `.env` contains `PRISM_API_PORT` matching your server port
-3. **Check dotenv is loaded** - Your server must load the `.env` file (see `env-files` doc)
+1. **Check the server is running** - Start your API server.
+2. **Check the port assignment** - The CLI connects to the port claimed for this project directory via `@facetlayer/port-assignment`. Run `port-assignment list` to see the resolved port, or run your server with `PRISM_API_PORT=<port>` to force a specific port.
 
 ### "Endpoint not found"
 
-Use `prism list-endpoints` to see available endpoints and verify the path.
+Use `prism list-endpoints` to see available endpoints and verify the path. Remember to prepend `/api/` to the path when calling it.

@@ -38,7 +38,7 @@ pnpm add -D vite @vitejs/plugin-react typescript
 
 ### 2. Configure Vite proxy
 
-The simplest approach for local development is to proxy API requests through Vite to the Prism API server. This avoids CORS issues entirely.
+The simplest approach for local development is to proxy `/api` requests through Vite to the Prism API server. This avoids CORS issues entirely.
 
 **vite.config.ts:**
 
@@ -51,24 +51,12 @@ export default defineConfig({
   server: {
     port: 4001,
     proxy: {
-      // Proxy all non-asset requests to the API server.
-      // Adjust the target port to match PRISM_API_PORT.
-      '/': {
+      // The Prism server mounts every endpoint under /api/, so only
+      // proxy that prefix. Vite continues to serve assets, HTML, and
+      // HMR requests itself. Adjust the target to match PRISM_API_PORT.
+      '/api': {
         target: 'http://localhost:4000',
-        bypass(req) {
-          // Let Vite handle HTML, JS, CSS, and HMR requests
-          const accept = req.headers.accept || '';
-          if (accept.includes('text/html')
-              || req.url?.includes('.tsx')
-              || req.url?.includes('.ts')
-              || req.url?.includes('.js')
-              || req.url?.includes('.css')
-              || req.url?.startsWith('/@')
-              || req.url?.startsWith('/src')
-              || req.url?.startsWith('/node_modules')) {
-            return req.url;
-          }
-        },
+        changeOrigin: true,
       },
     },
   },
@@ -79,18 +67,18 @@ With this proxy setup, `webFetch` works without any extra configuration because 
 
 ### 3. Alternative: Use configureWebFetch
 
-If you prefer not to use the Vite proxy (or need to call the API server directly), configure `webFetch` with the API base URL:
+If you prefer not to use the Vite proxy (or need to call the API server directly), configure `webFetch` with the API base URL. The `baseUrl` should end with `/api`, because the server mounts every endpoint under that prefix:
 
 ```typescript
 // src/main.tsx
 import { configureWebFetch } from '@facetlayer/prism-framework-ui';
 
 configureWebFetch({
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:4000',
+  baseUrl: (import.meta.env.VITE_API_URL || 'http://localhost:4000') + '/api',
 });
 ```
 
-When using this approach, make sure the API server has `allowLocalhost: true` in its CORS config.
+When using this approach, make sure the API server has `allowLocalhost: true` in its CORS config (see the `cors-setup` doc in `@facetlayer/prism-framework`).
 
 ## Environment Variables
 
@@ -128,21 +116,21 @@ candle start ui
 
 ## Using webFetch
 
-With the proxy setup, use `webFetch` the same way as in any other Prism frontend. Do not use the `/api` prefix in paths.
+The Prism server mounts every endpoint under `/api/`, so the URLs issued by `webFetch` must include that prefix. Either include `/api` in each call or put it in `configureWebFetch({ baseUrl })` once and drop it from individual paths. The examples below use the "include `/api` in each call" style, which pairs well with the `'/api'` Vite proxy shown above:
 
 ```typescript
 import { webFetch } from '@facetlayer/prism-framework-ui';
 
 // GET request
-const users = await webFetch('GET /users');
+const users = await webFetch('GET /api/users');
 
 // POST with data
-const newUser = await webFetch('POST /users', {
+const newUser = await webFetch('POST /api/users', {
   params: { name: 'John', email: 'john@example.com' },
 });
 
 // Path parameters
-const user = await webFetch('GET /users/:id', {
+const user = await webFetch('GET /api/users/:id', {
   params: { id: '123' },
 });
 ```

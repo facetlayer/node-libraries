@@ -87,13 +87,17 @@ if (auth.hasPermission('write:projects')) {
 
 ## Request Context Integration
 
-Every request has an `Authorization` instance in its context:
+Every in-flight request has an `Authorization` instance attached to its `RequestContext`. Retrieve it with `getCurrentRequestContext()`:
 
 ```typescript
-import { getCurrentRequestContext } from '@facetlayer/prism-framework';
+import { getCurrentRequestContext, UnauthorizedError } from '@facetlayer/prism-framework';
 
 // In endpoint handler
 const context = getCurrentRequestContext();
+if (!context) {
+  // This only happens when code runs outside of any request (e.g. a background job).
+  throw new Error('No request context available');
+}
 const auth = context.auth;
 
 // Check if user is authenticated
@@ -102,6 +106,8 @@ if (!user) {
   throw new UnauthorizedError('Authentication required');
 }
 ```
+
+`getCurrentRequestContext()` returns `RequestContext | undefined`. It is defined whenever code is reached through an HTTP request (web), an IPC call (desktop), or an `apiFetch`/`callEndpoint` on mobile — but it is undefined in `startJobs` callbacks and other background code, so always handle the undefined case in shared helpers.
 
 ## Middleware Example
 
@@ -149,46 +155,53 @@ export const authMiddleware: MiddlewareDefinition = {
 
 ## Endpoint Requirements
 
-Use the `requires` array to enforce authentication:
+The `requires` array is a hint for framework-aware tooling and middleware. Today the only value the framework defines is:
+
+- `'authenticated-user'` — indicates the handler assumes a `user` resource is present on `context.auth`.
+
+The base framework does **not** automatically reject unauthenticated calls based on `requires`; the handler (or a middleware you write) is still responsible for the actual check. Treat `requires` as documentation the framework can consume (for OpenAPI metadata, middleware, etc.), and always guard handlers explicitly:
 
 ```typescript
 createEndpoint({
   method: 'GET',
-  path: '/api/protected',
+  path: '/protected',  // served at /api/protected
   requires: ['authenticated-user'],
   handler: async () => {
-    // This handler only runs if user is authenticated
     const context = getCurrentRequestContext();
-    const user = context.auth.getResource('user');
+    const user = context?.auth.getResource('user');
+    if (!user) {
+      throw new UnauthorizedError('Authentication required');
+    }
     return { userId: user.id };
   },
 });
 ```
-
-The `'authenticated-user'` requirement checks that a user resource exists in the authorization context.
 
 ## Custom Authorization Checks
 
 Implement custom authorization logic in your handlers:
 
 ```typescript
-import { ForbiddenError } from '@facetlayer/prism-framework';
+import { ForbiddenError, UnauthorizedError, getCurrentRequestContext } from '@facetlayer/prism-framework';
 
 createEndpoint({
   method: 'DELETE',
-  path: '/api/projects/:projectId',
+  path: '/projects/:projectId',  // served at /api/projects/:projectId
   requires: ['authenticated-user'],
   handler: async (input) => {
     const context = getCurrentRequestContext();
+    const user = context?.auth.getResource('user');
+    if (!user) {
+      throw new UnauthorizedError('Authentication required');
+    }
 
     // Check permission
-    if (!context.auth.hasPermission('delete:projects')) {
+    if (!context!.auth.hasPermission('delete:projects')) {
       throw new ForbiddenError('Insufficient permissions');
     }
 
     // Check project ownership
     const project = await getProject(input.projectId);
-    const user = context.auth.getResource('user');
 
     if (project.ownerId !== user.id) {
       throw new ForbiddenError('Not the project owner');
@@ -227,7 +240,7 @@ Common permission naming patterns:
 Create helper functions for common authorization checks:
 
 ```typescript
-import { getCurrentRequestContext, ForbiddenError } from '@facetlayer/prism-framework';
+import { getCurrentRequestContext, ForbiddenError, UnauthorizedError } from '@facetlayer/prism-framework';
 
 export function requirePermission(permission: string) {
   const context = getCurrentRequestContext();

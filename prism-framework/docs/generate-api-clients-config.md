@@ -68,9 +68,11 @@ prism generate-api-clients
 ```
 
 The command will:
-1. Read the API server URL from your `.env` file (`PRISM_API_PORT`)
-2. Fetch the OpenAPI schema from `http://localhost:<port>/openapi.json`
-3. Generate TypeScript types and write them to all configured output files
+1. Resolve the API server's base URL for the current project directory (via `@facetlayer/port-assignment`).
+2. Fetch the OpenAPI schema from the server.
+3. Generate TypeScript types and write them to all configured output files.
+
+The framework exposes the OpenAPI schema at `/api/openapi.json` (enable it by passing `openapiConfig: { enable: true }` to `startServer`). Keep the server running while `prism generate-api-clients` executes.
 
 You can also override the config by specifying `--out` directly:
 
@@ -80,5 +82,5 @@ prism generate-api-clients --out ./custom/path/types.ts
 
 ## Requirements
 
-- The API server must be running and serving `/openapi.json`
-- A `.env` file with `PRISM_API_PORT` must exist in the project root
+- The API server must be running with OpenAPI enabled (`openapiConfig: { enable: true }` on `startServer`), serving the schema at `/api/openapi.json`.
+- The project directory must have a port claimed via `@facetlayer/port-assignment` (either by running the server once, or by running `npx @facetlayer/port-assignment claim --name <project>`).

@@ -196,9 +196,9 @@ Express middleware defined on services is ignored on mobile (a warning is logged
 | | Web | Desktop | Mobile |
 |---|---|---|---|
 | Package | `prism-framework` | `prism-framework-desktop` | `prism-framework-expo` |
-| Transport | HTTP (Express) | Electron IPC | In-process `callEndpoint()` |
+| Transport | HTTP (Express) | Electron IPC (or a loopback Express server) | In-process `callEndpoint()` |
 | Database | `better-sqlite3` | `better-sqlite3` | `expo-sqlite` |
-| UI fetch | `webFetch` (HTTP) | `window.electron.apiCall` | `createExpoFetch` (direct) |
-| Events | SSE `ConnectionManager` | SSE `ConnectionManager` | `ExpoEventEmitter` |
-| Auth | Express middleware | Express middleware | `getAuth` option |
-| Import path | `@facetlayer/prism-framework` | `@facetlayer/prism-framework` | `@facetlayer/prism-framework/core` |
+| UI fetch | `webFetch` (HTTP) | `createDesktopFetch` (via `window.electron.apiCall`) | `createExpoFetch` (direct) |
+| Events | SSE `ConnectionManager` | SSE `ConnectionManager` (Option B only) | `ExpoEventEmitter` |
+| Auth | Express middleware | `getAuth` option on `desktopLaunch` | `getAuth` option on `expoLaunch` |
+| Import path | `@facetlayer/prism-framework` | `@facetlayer/prism-framework` and `@facetlayer/prism-framework/core` | `@facetlayer/prism-framework/core` |

@@ -49,6 +49,16 @@ See the `error-handling` doc for available error classes and usage patterns.
 
 See the `source-directory-organization` doc for the recommended directory layout and conventions.
 
+## Running on multiple platforms
+
+The same `PrismApp` and services can run on:
+
+- **Web / server** — via `startServer` from `@facetlayer/prism-framework` (HTTP over Express).
+- **Desktop** — via `desktopLaunch` from `@facetlayer/prism-framework-desktop` (Electron IPC).
+- **Mobile** — via `expoLaunch` from `@facetlayer/prism-framework-expo` (in-process calls on Expo/React Native). See the `creating-mobile-apps` doc.
+
+Frontend code can use `apiFetch` from `@facetlayer/prism-framework-ui` to stay platform-agnostic.
+
 ## Getting Started
 
 1. Install the framework (requires **Zod v4** — Zod v3 is not compatible):
@@ -60,3 +70,15 @@ pnpm add @facetlayer/prism-framework zod@^4
 3. Create your first service (see `creating-services` doc)
 4. Set up the launch configuration (see `launch-configuration` doc)
 5. Start the server (see `server-setup` doc)
+
+## Further reading
+
+Additional docs (run `prism list-docs` for the full list):
+
+- `endpoint-tools` — the `prism` CLI for inspecting and calling a running server
+- `cors-setup` — CORS configuration for browser clients
+- `error-handling` — HTTP error classes and patterns
+- `generate-api-clients-config` — configuring auto-generated TypeScript clients
+- `metrics` — Prometheus metrics integration
+- `stdin-protocol` — running a Prism app as a JSON-over-stdio subprocess
+- `creating-mobile-apps` — running a Prism app on Expo/React Native

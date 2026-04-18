@@ -116,8 +116,10 @@ export async function getUserByEmail(email: string) {
 
 The `DatabaseLoader` handles schema migrations automatically with the `migrationBehavior` option:
 
-- `'safe-upgrades'` - Automatically applies safe migrations (adding tables, columns, indexes)
-- `'strict'` - Only creates schema on first run, no automatic migrations
+- `'strict'` — Throws if the on-disk schema differs from `statements`. No automatic migrations. Recommended for production.
+- `'safe-upgrades'` — Automatically applies additive-only migrations (new tables, columns, indexes). Ignores extra columns/tables already in the database. Recommended for preprod.
+- `'full-destructive-updates'` — Applies any migration, including destructive `ALTER TABLE` and full table rebuilds, to match `statements`. May drop data if the schema shrinks. Recommended for local development and automated tests.
+- `'ignore'` — Accept the on-disk schema as-is and do not migrate.
 
 For complex migrations, add new statements to the `statements` array. The loader will apply them in order.
 

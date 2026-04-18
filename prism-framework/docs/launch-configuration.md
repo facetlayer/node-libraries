@@ -62,11 +62,14 @@ interface DatabaseInitializationOptions {
 
 ### Migration Behavior
 
+`MigrationBehavior` is re-exported from `@facetlayer/sqlite-wrapper`:
+
 ```typescript
 type MigrationBehavior =
-  | 'safe-upgrades'      // Only allow adding columns/tables
-  | 'rebuild'            // Drop and recreate on mismatch
-  | 'error-on-mismatch'; // Throw error on schema mismatch
+  | 'strict'                    // No automatic migrations; throws if the on-disk schema doesn't match. Recommended for production.
+  | 'safe-upgrades'             // Apply additive-only migrations (new tables, columns, indexes). Recommended for preprod.
+  | 'full-destructive-updates'  // Apply any migration, including destructive ALTER/rebuild operations. Recommended for local dev and tests.
+  | 'ignore';                   // Accept the on-disk schema as-is and do not migrate.
 ```
 
 ## Backend Server Example
@@ -220,4 +223,4 @@ This is used internally when initializing databases with `@facetlayer/sqlite-wra
 2. **Call it only once** - The function throws if called multiple times
 3. **Use environment variables** - Make paths configurable
 4. **Ensure directories exist** - Create database directories before setting config
-5. **Use appropriate migration behavior** - `safe-upgrades` for production, `rebuild` for development
+5. **Use appropriate migration behavior** - `strict` for production, `safe-upgrades` for preprod, `full-destructive-updates` for local development and tests
