@@ -26,8 +26,7 @@ src/
 Install the required packages:
 
 ```bash
-pnpm add @facetlayer/sqlite-wrapper better-sqlite3
-pnpm add -D @types/better-sqlite3
+pnpm add @facetlayer/sqlite-wrapper
 ```
 
 ## Database Configuration
@@ -37,7 +36,6 @@ Create a database module at `src/user-database/db.ts`:
 ```typescript
 import { DatabaseLoader, SqliteDatabase } from '@facetlayer/sqlite-wrapper';
 import { toConsoleLog } from '@facetlayer/streams';
-import BetterSqliteDatabase from 'better-sqlite3';
 import Path from 'path';
 
 let db: SqliteDatabase | null = null;
@@ -63,7 +61,6 @@ export function getDatabase(): SqliteDatabase {
   if (!db) {
     const loader = new DatabaseLoader({
       filename: Path.join(DATABASE_DIR, 'app.db'),
-      loadDatabase: (filename) => new BetterSqliteDatabase(filename),
       migrationBehavior: 'safe-upgrades',
       schema,
       logs: toConsoleLog('[database]'),

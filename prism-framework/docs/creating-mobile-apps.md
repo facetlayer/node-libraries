@@ -197,7 +197,7 @@ Express middleware defined on services is ignored on mobile (a warning is logged
 |---|---|---|---|
 | Package | `prism-framework` | `prism-framework-desktop` | `prism-framework-expo` |
 | Transport | HTTP (Express) | Electron IPC (or a loopback Express server) | In-process `callEndpoint()` |
-| Database | `better-sqlite3` | `better-sqlite3` | `expo-sqlite` |
+| Database | `node:sqlite` | `node:sqlite` | `expo-sqlite` |
 | UI fetch | `webFetch` (HTTP) | `createDesktopFetch` (via `window.electron.apiCall`) | `createExpoFetch` (direct) |
 | Events | SSE `ConnectionManager` | SSE `ConnectionManager` (Option B only) | `ExpoEventEmitter` |
 | Auth | Express middleware | `getAuth` option on `desktopLaunch` | `getAuth` option on `expoLaunch` |
