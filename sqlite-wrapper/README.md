@@ -18,30 +18,19 @@ Database usage:
 
 # Implementation #
 
-Uses the **`better-sqlite3`** library as the underlying layer to access SQL. This means
-that all database access operations are syncronous instead of `async` (check their project
-to read more about the motivations for this).
+Uses the built-in **`node:sqlite`** module (Node.js 22+) as the underlying layer to access
+SQLite. All database access operations are synchronous.
 
 # Usage #
 
 Create a new database:
 
 ```typescript
-import { DatabaseLoader, loadBetterSqlite, SqliteDatabase, LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
+import { DatabaseLoader, SqliteDatabase } from '@facetlayer/sqlite-wrapper';
 
-// loadBetterSqlite() is async - call it once at startup
-let _loadDatabaseFn: LoadDatabaseFn | null = null;
 let _dbLoader: DatabaseLoader | null = null;
 
-export async function initDatabase(): Promise<void> {
-    _loadDatabaseFn = await loadBetterSqlite();
-}
-
 export function getDatabase(): SqliteDatabase {
-    if (!_loadDatabaseFn) {
-        throw new Error('Database not initialized. Call initDatabase() first.');
-    }
-
     if (!_dbLoader) {
         _dbLoader = new DatabaseLoader({
             filename: './something.sqlite',
@@ -59,7 +48,6 @@ export function getDatabase(): SqliteDatabase {
                 warn: (msg) => console.warn('[DB]', msg),
                 error: (err) => console.error('[DB]', err.errorMessage),
             },
-            loadDatabase: _loadDatabaseFn,
             migrationBehavior: 'safe-upgrades'
         });
     }
@@ -70,10 +58,6 @@ export function getDatabase(): SqliteDatabase {
 Use the database:
 
 ```typescript
-// At app startup
-await initDatabase();
-
-// Then use throughout your app
 const db = getDatabase();
 const user = db.get(`select * from user_table where user_id = ?`, [user_id]);
 ```
@@ -86,7 +70,6 @@ The `DatabaseLoader` constructor requires the following options:
 - `schema` (DatabaseSchema): Object with `name` and `statements` array
 - `logs` (DatabaseLogs, optional): Object with logging callbacks: `{ info(msg), warn(msg), error(err) }`
 - `logsStream` (Stream, optional): A Stream instance from `@facetlayer/streams` for logging (alternative to `logs`)
-- `loadDatabase` (LoadDatabaseFn): The function returned by `loadBetterSqlite()`
 - `migrationBehavior` (MigrationBehavior): One of `'ignore'`, `'strict'`, `'safe-upgrades'`, or `'full-destructive-updates'`
 
 Provide either `logs` or `logsStream` to enable logging. If both are provided, `logsStream` takes precedence. If neither is provided, logging is silently disabled.
@@ -97,7 +80,7 @@ Provide either `logs` or `logsStream` to enable logging. If both are provided, `
 
 Class that defines the filename and schema.
 
-Will load the SQLite database as soon as you call `DatabaseLoader.get()`
+Will load the SQLite database as soon as you call `DatabaseLoader.load()`
 
 When the table is first loaded, the library will automatically do non-destructive
 migration to the latest schema.
@@ -131,31 +114,25 @@ let _db = new DatabaseLoader({
 
 **Warning:** Use `dropLeftoverTables` and `doDestructiveRebuilds` with caution as they can result in data loss. Always backup your database before enabling these options.
 
-##### DatabaseLoader.get()
+##### DatabaseLoader.load()
 
-Returns a SqliteDatabase instead.
+Returns a SqliteDatabase instance.
 
 ### SqliteDatabase
 
-Wrapper object over a `better-sqlite3` instance.
+Wrapper object over the `node:sqlite` DatabaseSync instance.
 
 ##### SqliteDatabase.get(sql, params)
 
-Calls `.get()` on `better-sqlite3`.
-
-This runs the `select` command and returns the first row that matches, or null.
+Runs the `select` command and returns the first row that matches, or null.
 
 ##### SqliteDatabase.list(sql, params)
 
-Calls `.all()` on `better-sqlite3`.
-
-This runs the `select` command and returns all rows that match as an array.
+Runs the `select` command and returns all rows that match as an array.
 
 ##### SqliteDatabase.each(sql, params)
 
-Calls `.iterate()` on `better-sqlite3`.
-
-This runs the `select` command and returns an iterator for all matching rows.
+Runs the `select` command and returns an iterator for all matching rows.
 
 ##### SqliteDatabase.exists(sql, params)
 
@@ -216,4 +193,3 @@ First the function will try to run an `update` (with the same handling as `Sqlit
 
 If zero rows were changed by the `update`, then upsert() will next run an `insert` (with the
 same handling as `SqliteDatabase.insert`);
-
