@@ -20,7 +20,15 @@ export function getRequestDataFromReq(req: Request): any {
   }
 
   if (req.params) {
-    result = { ...result, ...req.params };
+    for (const [key, value] of Object.entries(req.params)) {
+      // Express stores wildcard (*) params as numeric keys (e.g. "0").
+      // Remap them to "wildcard" so handlers can access them by name.
+      if (/^\d+$/.test(key)) {
+        (result as any).wildcard = value;
+      } else {
+        (result as any)[key] = value;
+      }
+    }
   }
 
   if (req.query) {
