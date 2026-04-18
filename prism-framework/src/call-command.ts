@@ -78,6 +78,11 @@ function parseOptions(looseOptions: CallEndpointLooseOptions): CallEndpointOptio
     throw new Error("unrecognized positional arg:" + positional);
   }
 
+  // Auto-prepend /api prefix if not already present
+  if (!result.path.startsWith('/api/') && !result.path.startsWith('/api?')) {
+    result.path = `/api${result.path}`;
+  }
+
   return result;
 
 }
