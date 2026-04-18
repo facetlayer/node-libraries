@@ -45,6 +45,28 @@ describe("stripSqlComments", () => {
   });
 });
 
+describe("parseSql with IF NOT EXISTS", () => {
+  it("parses CREATE TABLE IF NOT EXISTS", () => {
+    const sql = `CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+    )`;
+
+    const result = parseSql(sql) as CreateTableStatement;
+    expect(result.t).toBe("create_table");
+    expect(result.table_name).toBe("users");
+    expect(result.columns).toHaveLength(2);
+    expect(result.columns[0]).toEqual({
+      name: "id",
+      definition: "INTEGER PRIMARY KEY",
+    });
+    expect(result.columns[1]).toEqual({
+      name: "name",
+      definition: "TEXT NOT NULL",
+    });
+  });
+});
+
 describe("parseSql with comments", () => {
   it("parses CREATE TABLE with inline line comments", () => {
     const sql = `CREATE TABLE users (

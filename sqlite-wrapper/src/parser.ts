@@ -53,6 +53,16 @@ function createTable(it: TokenIterator, sql: string): CreateTableStatement {
   it.consume(); // create
   it.consume(); // table
 
+  if (
+    it.nextText().toLowerCase() === "if" &&
+    it.nextText(1).toLowerCase() === "not" &&
+    it.nextText(2).toLowerCase() === "exists"
+  ) {
+    it.consume(); // if
+    it.consume(); // not
+    it.consume(); // exists
+  }
+
   const table_name = it.consumeAsText();
   const out: CreateTableStatement = {
     t: "create_table",
