@@ -25,11 +25,17 @@ jobs:
           node-version: '24.x'
           cache: 'pnpm'
 
+      - name: Configure GitHub Packages auth
+        run: |
+          echo "@facetlayer:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> .npmrc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build goobernetes (required for its tests)
-        run: pnpm --filter @facetlayer/goobernetes build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: pnpm test

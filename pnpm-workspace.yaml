@@ -1,14 +1,8 @@
 packages:
   - agent-hint-tool
   - build-config-nodejs
-  - claude-ci-followup
-  - cc-confidence
-  - cc-headless
-  - cc-skills-gui
-  - cc-skills-gui/web
   - cc-session-history
   - cc-settings-tool
-  - claude-settings-tidier
   - claude-worktree-helper
   - concurrency-limit
   - csv-tool
@@ -16,18 +10,15 @@ packages:
   - domains-available
   - env-file-rewrite
   - fetch-sse-stream
-  - fl-sdlc
   - file-manifest
   - generic-lexer
-  - goob-static-web-server
-  - goobernetes
   - library-docs-tool
   - local-logs
   - lsp-dev-tools
   - md-reader
   - npm-status
+  - open-async-iterator
   - parse-stdout-lines
-  - port-assignment
   - prism-framework
   - prism-framework-desktop
   - prism-framework-desktop/samples/notesApp
@@ -38,14 +29,11 @@ packages:
   - sqlite-wrapper
   - sqlite-wrapper/docs-site
   - streams
-  - subprocess-wrapper
+  - subprocess
   - qc
   - user-state-db
   - user-state-dir
   - userdata-db
-  - tickets-gui
-  - tickets-gui/web
-  - tickets-tool
   - userdata-db/docs-site
 
 onlyBuiltDependencies:
