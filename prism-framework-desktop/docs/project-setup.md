@@ -220,6 +220,23 @@ The BrowserWindow loads the Express URL, so relative-path `fetch` / `webFetch` c
 - `iconPath` should point at a PNG. It's applied to the `BrowserWindow` (taskbar / title bar on Windows/Linux) and, on macOS, to the dock via `app.dock.setIcon`. For packaged app icons, also configure `electron-builder` — `iconPath` is primarily for dev runs.
 - `title` sets the initial window title. An HTML `<title>` tag in the loaded page will override this once the page loads, so most apps leave `title` unset and let the HTML drive the title.
 
+### macOS menu bar / dock name shows "Electron" in dev
+
+When you run the unpackaged entry (`electron dist/desktop.js`), the macOS menu bar and dock will show **"Electron"** regardless of the `appName` you pass to `desktopLaunch`. This is a macOS-level limitation: the OS reads the app name from `CFBundleName` in the `Info.plist` of the launching `.app` bundle — which is the stock `Electron.app` inside `node_modules`. Electron's own docs confirm that `app.setName()` cannot override this. `desktopLaunch` still calls `app.setName(appName)` so that APIs like `app.getName()` and `userData` paths behave correctly, but the menu bar is untouched.
+
+To get the correct name in the menu bar, dock, and App Switcher, launch the **packaged** build:
+
+```bash
+pnpm desktop:packaged   # uses packageDesktopApp to produce release/<ProductName>.app
+```
+
+`packageDesktopApp` copies the stock `Electron.app`, renames the executable, and rewrites `Info.plist` with the right `CFBundleName` and `CFBundleIdentifier`. See `packageDesktopApp` in the package's `./packaging` export.
+
+Typical workflow:
+
+- **Dev iteration** → `pnpm desktop` (menu bar reads "Electron", which is fine for development).
+- **Demo / share / ship** → `pnpm desktop:packaged` (menu bar reads your product name).
+
 ## 9. Authorization
 
 Desktop apps are single-user by default, so `desktopLaunch` passes an empty `Authorization` to each endpoint. If your endpoints check permissions, supply `getAuth`:
