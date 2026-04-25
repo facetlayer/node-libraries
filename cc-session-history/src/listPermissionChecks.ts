@@ -5,6 +5,7 @@ import { toolNeedsPermission } from './annotateMessages.ts';
 import { pathToProjectDir } from './printChatSessions.ts';
 import * as fs from 'fs/promises';
 import { getClaudeProjectsDir } from './paths.ts';
+import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
 
 export interface PermissionCheck {
   sessionId: string;
@@ -18,12 +19,15 @@ export interface PermissionCheck {
   outcome: 'approved' | 'rejected';
 }
 
-export interface ListPermissionChecksOptions {
+export interface ListPermissionChecksOptions extends SessionFilterOptions {
   project?: string;
   allProjects?: boolean;
   claudeDir?: string;
   verbose?: boolean;
   limit?: number;
+  offset?: number;
+  json?: boolean;
+  count?: boolean;
 }
 
 /**
@@ -175,19 +179,17 @@ export async function listPermissionChecks(options: ListPermissionChecksOptions)
   }
 
   for (const projectDir of projectDirs) {
-    const sessions = await listChatSessions({
+    const rawSessions = await listChatSessions({
       project: projectDir,
       claudeDir: options.claudeDir,
       verbose: options.verbose,
     });
 
+    const sessions = filterSessions(rawSessions, options);
+
     for (const session of sessions) {
       const checks = extractPermissionChecks(session);
       allChecks.push(...checks);
-
-      if (options.limit && allChecks.length >= options.limit) {
-        return allChecks.slice(0, options.limit);
-      }
     }
   }
 
@@ -196,7 +198,12 @@ export async function listPermissionChecks(options: ListPermissionChecksOptions)
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
-  return options.limit ? allChecks.slice(0, options.limit) : allChecks;
+  const offset = options.offset ?? 0;
+  if (offset > 0 || options.limit !== undefined) {
+    const end = options.limit !== undefined ? offset + options.limit : undefined;
+    return allChecks.slice(offset, end);
+  }
+  return allChecks;
 }
 
 function formatRelativeDate(date: Date): string {
@@ -219,6 +226,16 @@ function formatRelativeDate(date: Date): string {
  */
 export async function printPermissionChecks(options: ListPermissionChecksOptions): Promise<void> {
   const checks = await listPermissionChecks(options);
+
+  if (options.count) {
+    console.log(checks.length);
+    return;
+  }
+
+  if (options.json) {
+    console.log(JSON.stringify(checks, null, 2));
+    return;
+  }
 
   if (checks.length === 0) {
     console.log('No permission checks found.');

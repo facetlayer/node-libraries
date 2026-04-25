@@ -1,4 +1,11 @@
 # Unreleased
+ - Added skill and Claude-Routine awareness:
+   - New CLI commands: `list-skills`, `list-routines`, `get-skill-runs`
+   - New filter flags on `list-sessions`, `search`, `summarize`, `list-permission-checks`: `--skill`, `--routine`, `--routine-name`, `--entrypoint`, `--since`, `--until`
+   - `ChatSession` now carries `entrypoint`, `scheduledTask`, and `skillsUsed` fields populated from the session messages
+   - Exported `extractSessionMetadata`, `filterSessions`, `parseTimeBound`, `listSkills`, `listRoutines`, `getSkillRuns`, `listAllSessions`
+ - Added `--json` and `--count` output modes to `list-sessions`, `search`, `list-permission-checks`, and the new commands
+ - Added `--offset` to `search`, `list-permission-checks`, and `summarize` for pagination
  - Added `summarize` command that produces a compact digest of sessions (user prompts, tool counts, errors, permission rejections)
  - Fixed `list-sessions --project` bug where project names starting with `-` were misinterpreted as CLI flags by yargs, causing all projects to return the same sessions
  - Changed `--project` from a positional argument to a named option (with `-p` alias) for consistency with `get-chat --session`

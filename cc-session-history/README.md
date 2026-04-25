@@ -154,5 +154,25 @@ cc-session-history list-sessions --project <project-name>
 # Get details for a single session
 cc-session-history get-chat --session <session-id>
 
+# Skills + Claude Routines
+cc-session-history list-skills --all-projects
+cc-session-history list-routines --all-projects
+cc-session-history get-skill-runs <skill-name> --all-projects --since 14d
 ```
+
+### Filtering sessions by skill or routine
+
+`list-sessions`, `search`, `summarize`, and `list-permission-checks` all accept these
+shared filter flags:
+
+| Flag | Behavior |
+|---|---|
+| `--skill <name>` | Only sessions where the skill (basename of `SKILL.md`'s parent dir, slash command, or Skill tool argument) was invoked. Repeatable / comma-separated. |
+| `--routine` | Only sessions started by a Claude Routine (i.e. with a `<scheduled-task>` tag). |
+| `--routine-name <name>` | Only sessions whose `<scheduled-task name="…">` matches. Implies `--routine`. |
+| `--entrypoint <cli\|claude-desktop>` | Filter by the session's entrypoint. |
+| `--since <when>` / `--until <when>` | ISO date or relative duration (`7d`, `24h`, `30m`, `2w`). |
+
+Most listing commands also support `--offset`, `--limit`, `--json`, and `--count`
+(prints just the matching count, useful in scripts and skills).
 

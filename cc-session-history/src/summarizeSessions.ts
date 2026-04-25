@@ -5,12 +5,16 @@ import { annotateMessages } from './annotateMessages.ts';
 import { listChatSessions } from './listChatSessions.ts';
 import { pathToProjectDir } from './printChatSessions.ts';
 import { getClaudeProjectsDir } from './paths.ts';
+import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
+import { listAllSessions } from './listAllSessions.ts';
 
-export interface SummarizeOptions {
+export interface SummarizeOptions extends SessionFilterOptions {
   project?: string;
+  allProjects?: boolean;
   session?: string;
   claudeDir?: string;
   limit?: number;
+  offset?: number;
   maxPromptChars?: number;
   maxAssistantChars?: number;
   includeAssistantText?: boolean;
@@ -217,12 +221,18 @@ export async function runSummarize(opts: SummarizeOptions): Promise<void> {
     return;
   }
 
-  const sessions = await listChatSessions({ project, claudeDir: opts.claudeDir });
-  const limited = opts.limit ? sessions.slice(0, opts.limit) : sessions;
+  const rawSessions = opts.allProjects
+    ? await listAllSessions({ claudeDir: opts.claudeDir })
+    : await listChatSessions({ project, claudeDir: opts.claudeDir });
+  const filtered = filterSessions(rawSessions, opts);
+  const offset = opts.offset ?? 0;
+  const limited = opts.limit !== undefined
+    ? filtered.slice(offset, offset + opts.limit)
+    : filtered.slice(offset);
 
   for (const session of limited) {
     // listChatSessions already loads messages into session.messages
-    const summary = summarizeSession(project, session.messages, opts);
+    const summary = summarizeSession(session.projectPath, session.messages, opts);
     console.log(formatSummary(summary, opts));
     console.log('');
   }

@@ -3,14 +3,18 @@ import type { ChatMessage } from './types.ts';
 import * as fs from 'fs/promises';
 import { pathToProjectDir } from './printChatSessions.ts';
 import { getClaudeProjectsDir } from './paths.ts';
+import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
 
-export interface SearchOptions {
+export interface SearchOptions extends SessionFilterOptions {
   query: string;
   allProjects?: boolean;
   project?: string;
   claudeDir?: string;
   verbose?: boolean;
   limit?: number;
+  offset?: number;
+  json?: boolean;
+  count?: boolean;
 }
 
 export interface SearchResult {
@@ -72,11 +76,13 @@ export async function searchSessions(options: SearchOptions): Promise<SearchResu
   }
 
   for (const projectDir of projectDirs) {
-    const sessions = await listChatSessions({
+    const rawSessions = await listChatSessions({
       project: projectDir,
       claudeDir: options.claudeDir,
       verbose: options.verbose
     });
+
+    const sessions = filterSessions(rawSessions, options);
 
     for (const session of sessions) {
       for (const message of session.messages) {
@@ -92,10 +98,6 @@ export async function searchSessions(options: SearchOptions): Promise<SearchResu
             timestamp: message.timestamp
           });
 
-          // If we've hit the limit, stop searching
-          if (options.limit && results.length >= options.limit) {
-            return results;
-          }
         }
       }
     }
@@ -106,6 +108,11 @@ export async function searchSessions(options: SearchOptions): Promise<SearchResu
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
+  const offset = options.offset ?? 0;
+  if (offset > 0 || options.limit !== undefined) {
+    const end = options.limit !== undefined ? offset + options.limit : undefined;
+    return results.slice(offset, end);
+  }
   return results;
 }
 
@@ -139,6 +146,23 @@ function highlightMatch(text: string, query: string): string {
 
 export async function printSearchResults(options: SearchOptions): Promise<void> {
   const results = await searchSessions(options);
+
+  if (options.count) {
+    console.log(results.length);
+    return;
+  }
+
+  if (options.json) {
+    const items = results.map(r => ({
+      sessionId: r.sessionId,
+      projectPath: r.projectPath,
+      timestamp: r.timestamp,
+      type: r.message.type,
+      matchingText: r.matchingText,
+    }));
+    console.log(JSON.stringify(items, null, 2));
+    return;
+  }
 
   if (results.length === 0) {
     console.log(`No results found for: "${options.query}"`);

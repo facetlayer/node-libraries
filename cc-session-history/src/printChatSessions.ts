@@ -3,13 +3,16 @@ import { TextGrid } from './TextGrid.ts';
 import type { ChatSession } from './types.ts';
 import * as fs from 'fs/promises';
 import { getClaudeProjectsDir } from './paths.ts';
+import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
 
-export interface PrintSessionsOptions {
+export interface PrintSessionsOptions extends SessionFilterOptions {
   verbose?: boolean;
   claudeDir?: string;
   limit?: number;
   offset?: number;
   project?: string;
+  json?: boolean;
+  count?: boolean;
 }
 
 /**
@@ -43,124 +46,148 @@ function printSessionsGrid(sessions: ChatSession[], showProject: boolean = false
         { header: 'Session ID' },
         { header: 'Last Active' },
         { header: 'Messages', align: 'right' as const },
+        { header: 'Routine' },
       ]
     : [
         { header: 'Session ID' },
         { header: 'Last Active' },
         { header: 'Messages', align: 'right' as const },
+        { header: 'Routine' },
       ];
 
   const grid = new TextGrid(columns);
 
   for (const session of sessions) {
     const lastActive = formatRelativeDate(new Date(session.lastMessageTimestamp));
+    const routine = session.scheduledTask?.name ?? '';
 
     if (showProject) {
-      grid.addRow([session.projectPath, session.sessionId, lastActive, session.messageCount]);
+      grid.addRow([session.projectPath, session.sessionId, lastActive, session.messageCount, routine]);
     } else {
-      grid.addRow([session.sessionId, lastActive, session.messageCount]);
+      grid.addRow([session.sessionId, lastActive, session.messageCount, routine]);
     }
   }
 
   grid.print();
 }
 
+function emitSessions(sessions: ChatSession[], options: PrintSessionsOptions, totalBeforePagination: number, showProject: boolean): void {
+  if (options.count) {
+    console.log(totalBeforePagination);
+    return;
+  }
+
+  if (options.json) {
+    const items = sessions.map(s => ({
+      sessionId: s.sessionId,
+      projectPath: s.projectPath,
+      firstMessageTimestamp: s.firstMessageTimestamp,
+      lastMessageTimestamp: s.lastMessageTimestamp,
+      messageCount: s.messageCount,
+      entrypoint: s.entrypoint,
+      scheduledTask: s.scheduledTask,
+      skillsUsed: s.skillsUsed,
+    }));
+    console.log(JSON.stringify({
+      total: totalBeforePagination,
+      offset: options.offset ?? 0,
+      limit: options.limit,
+      sessions: items,
+    }, null, 2));
+    return;
+  }
+
+  if (sessions.length === 0) {
+    console.log('No sessions found.');
+    return;
+  }
+
+  printSessionsGrid(sessions, showProject);
+
+  console.log(`\nTotal sessions: ${sessions.length}`);
+  if (sessions.length !== totalBeforePagination) {
+    console.log(`(of ${totalBeforePagination} matching, offset=${options.offset || 0}, limit=${options.limit ?? 'all'})`);
+  }
+}
+
 export async function printChatSessions(options: PrintSessionsOptions): Promise<void> {
   try {
-    const verbose = options.verbose || false;
-
     if (!options.project) {
       console.log('No project specified. Use --project or provide a project path.');
       process.exit(1);
     }
 
-    const sessions = await listChatSessions({
+    // Load WITHOUT pagination first so filters apply to the full set, then paginate.
+    const allSessions = await listChatSessions({
       project: options.project,
       claudeDir: options.claudeDir,
       verbose: options.verbose,
-      offset: options.offset,
-      limit: options.limit
     });
 
-    if (sessions.length === 0) {
-      console.log(`No sessions found for project: ${options.project}`);
-      return;
-    }
+    const filtered = filterSessions(allSessions, options);
+    const total = filtered.length;
 
-    printSessionsGrid(sessions, false);
+    const offset = options.offset || 0;
+    const paginated = options.limit !== undefined
+      ? filtered.slice(offset, offset + options.limit)
+      : filtered.slice(offset);
 
-    console.log(`\nTotal sessions: ${sessions.length}`);
-
-    if (options.offset || options.limit) {
-      console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
-    }
+    emitSessions(paginated, options, total, false);
   } catch (error) {
     console.error('Error listing sessions:', error);
     process.exit(1);
   }
 }
 
-export interface PrintAllSessionsOptions {
+export interface PrintAllSessionsOptions extends SessionFilterOptions {
   verbose?: boolean;
   claudeDir?: string;
   limit?: number;
   offset?: number;
+  json?: boolean;
+  count?: boolean;
 }
 
 export async function printAllSessions(options: PrintAllSessionsOptions): Promise<void> {
   try {
-    const verbose = options.verbose || false;
-
-    // Get all projects
     let projectDirs: string[];
     try {
       const projectDirents = await fs.readdir(getClaudeProjectsDir(options.claudeDir), { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);
-    } catch (error) {
-      if (verbose) {
-        console.log('Claude directory does not exist');
+    } catch {
+      if (options.count) {
+        console.log(0);
+        return;
       }
       console.log('No sessions found.');
       return;
     }
 
-    // Collect all sessions from all projects
     const allSessions: ChatSession[] = [];
     for (const projectDir of projectDirs) {
       const sessions = await listChatSessions({
         project: projectDir,
         claudeDir: options.claudeDir,
-        verbose: options.verbose
+        verbose: options.verbose,
       });
-
       allSessions.push(...sessions);
     }
 
-    if (allSessions.length === 0) {
-      console.log('No sessions found.');
-      return;
-    }
-
-    // Sort all sessions by timestamp
     allSessions.sort((a, b) =>
       new Date(b.lastMessageTimestamp).getTime() - new Date(a.lastMessageTimestamp).getTime()
     );
 
-    // Apply pagination
+    const filtered = filterSessions(allSessions, options);
+    const total = filtered.length;
+
     const offset = options.offset || 0;
-    const paginatedSessions = options.limit !== undefined
-      ? allSessions.slice(offset, offset + options.limit)
-      : allSessions.slice(offset);
+    const paginated = options.limit !== undefined
+      ? filtered.slice(offset, offset + options.limit)
+      : filtered.slice(offset);
 
-    printSessionsGrid(paginatedSessions, true);
-
-    console.log(`\nTotal sessions: ${paginatedSessions.length}${allSessions.length > paginatedSessions.length ? ` (of ${allSessions.length})` : ''}`);
-
-    if (options.offset || options.limit) {
-      console.log(`Showing: offset=${options.offset || 0}, limit=${options.limit || 'all'}`);
-    }
+    emitSessions(paginated, options, total, true);
   } catch (error) {
     console.error('Error listing sessions:', error);
     process.exit(1);

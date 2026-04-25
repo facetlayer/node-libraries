@@ -54,6 +54,16 @@ export interface ChatSession {
   lastMessageTimestamp: string;
   projectPath: string;
   messageCount: number;
+  /** Entrypoint reported on the first message that has one (e.g. 'cli', 'claude-desktop'). */
+  entrypoint?: string;
+  /** Populated when the session was started by a Claude Routine / scheduled task. */
+  scheduledTask?: {
+    name: string;
+    skillFile: string;
+    skillName: string;
+  };
+  /** Distinct skill names invoked anywhere in the session. */
+  skillsUsed?: string[];
 }
 
 export interface ProjectDirectory {

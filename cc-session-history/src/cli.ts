@@ -10,6 +10,10 @@ import { printChatSessions, printAllSessions, pathToProjectDir } from './printCh
 import { printSearchResults } from './searchSessions.ts';
 import { printPermissionChecks } from './listPermissionChecks.ts';
 import { runSummarize } from './summarizeSessions.ts';
+import { printListSkills } from './listSkills.ts';
+import { printListRoutines } from './listRoutines.ts';
+import { printSkillRuns } from './getSkillRuns.ts';
+import { normalizeListArg, type SessionFilterOptions } from './sessionFilters.ts';
 import { ChatSessionMessageSchema } from './Schemas.ts';
 import { getClaudeProjectsDir } from './paths.ts';
 import * as path from 'path';
@@ -287,6 +291,49 @@ function resolveClaudeDir(claudeDirOption: string | undefined): string | undefin
   return claudeDirOption || process.env.CC_SESSION_HISTORY_DIR || undefined;
 }
 
+// Add the shared --skill / --routine / --routine-name / --since / --until / --entrypoint flags.
+function addFilterOptions(y: any): any {
+  return y
+    .option('skill', {
+      type: 'string',
+      array: true,
+      description: 'Only sessions that invoked this skill (repeatable, comma-separated)'
+    })
+    .option('routine', {
+      type: 'boolean',
+      default: false,
+      description: 'Only sessions started by a Claude Routine / scheduled task'
+    })
+    .option('routine-name', {
+      type: 'string',
+      array: true,
+      description: 'Only sessions for the named scheduled-task (repeatable, comma-separated). Implies --routine.'
+    })
+    .option('entrypoint', {
+      type: 'string',
+      description: 'Filter by session entrypoint (e.g. cli, claude-desktop)'
+    })
+    .option('since', {
+      type: 'string',
+      description: 'Only sessions newer than this (ISO date or relative duration like 7d, 24h)'
+    })
+    .option('until', {
+      type: 'string',
+      description: 'Only sessions older than this (ISO date or relative duration like 7d, 24h)'
+    });
+}
+
+function buildFilter(argv: any): SessionFilterOptions {
+  return {
+    skill: normalizeListArg(argv['skill']),
+    routine: argv['routine'] || undefined,
+    routineName: normalizeListArg(argv['routine-name']),
+    entrypoint: argv['entrypoint'],
+    since: argv['since'],
+    until: argv['until'],
+  };
+}
+
 const args = yargs(preprocessProjectArg(hideBin(process.argv)))
   .command(
     'list-projects',
@@ -303,7 +350,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           default: false
         });
     },
-    (argv) => {
+    (argv: any) => {
       printProjects({
         claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose
@@ -314,7 +361,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     'list-sessions',
     'List Claude Code chat sessions for a project (defaults to current directory)',
     (yargs) => {
-      return yargs
+      return addFilterOptions(yargs
         .option('project', {
           type: 'string',
           alias: 'p',
@@ -334,6 +381,16 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           type: 'number',
           description: 'Maximum number of sessions to return'
         })
+        .option('json', {
+          type: 'boolean',
+          description: 'Output as JSON',
+          default: false
+        })
+        .option('count', {
+          type: 'boolean',
+          description: 'Print only the matching session count',
+          default: false
+        })
         .option('claude-dir', {
           type: 'string',
           description: 'Custom path to Claude directory'
@@ -342,19 +399,21 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           type: 'boolean',
           description: 'Enable verbose logging',
           default: false
-        });
+        }));
     },
-    (argv) => {
+    (argv: any) => {
+      const filter = buildFilter(argv);
       if (argv['all-projects']) {
         printAllSessions({
           offset: argv.offset,
           limit: argv.limit,
+          json: argv.json,
+          count: argv.count,
           claudeDir: resolveClaudeDir(argv['claude-dir']),
-          verbose: argv.verbose
+          verbose: argv.verbose,
+          ...filter,
         }).catch(console.error);
       } else {
-        // If no project specified, use current directory
-        // If a path is given (starts with /), convert it to project dir format
         let project: string;
         if (!argv.project) {
           project = pathToProjectDir(process.cwd());
@@ -367,8 +426,11 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           project,
           offset: argv.offset,
           limit: argv.limit,
+          json: argv.json,
+          count: argv.count,
           claudeDir: resolveClaudeDir(argv['claude-dir']),
-          verbose: argv.verbose
+          verbose: argv.verbose,
+          ...filter,
         }).catch(console.error);
       }
     }
@@ -399,7 +461,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           default: false
         });
     },
-    (argv) => {
+    (argv: any) => {
       getChat({
         session: argv.session,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
@@ -428,7 +490,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           default: false
         });
     },
-    (argv) => {
+    (argv: any) => {
       checkSchema({
         project: argv.project,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
@@ -440,7 +502,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     'search <query>',
     'Search for text in chat sessions',
     (yargs) => {
-      return yargs
+      return addFilterOptions(yargs
         .positional('query', {
           type: 'string',
           description: 'Text to search for',
@@ -455,9 +517,22 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           type: 'string',
           description: 'Project path or directory name (defaults to current directory)'
         })
+        .option('offset', {
+          type: 'number',
+          description: 'Number of results to skip'
+        })
         .option('limit', {
           type: 'number',
           description: 'Maximum number of results to return'
+        })
+        .option('json', {
+          type: 'boolean',
+          default: false
+        })
+        .option('count', {
+          type: 'boolean',
+          description: 'Print only the count of matches',
+          default: false
         })
         .option('claude-dir', {
           type: 'string',
@@ -467,9 +542,9 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           type: 'boolean',
           description: 'Enable verbose logging',
           default: false
-        });
+        }));
     },
-    (argv) => {
+    (argv: any) => {
       let project: string | undefined;
       if (argv.project) {
         if (argv.project.startsWith('/')) {
@@ -482,9 +557,13 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         query: argv.query as string,
         allProjects: argv['all-projects'],
         project,
+        offset: argv.offset,
         limit: argv.limit,
+        json: argv.json,
+        count: argv.count,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
-        verbose: argv.verbose
+        verbose: argv.verbose,
+        ...buildFilter(argv),
       }).catch(console.error);
     }
   )
@@ -492,7 +571,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     'list-permission-checks',
     'List rejected tool permission checks',
     (yargs) => {
-      return yargs
+      return addFilterOptions(yargs
         .option('project', {
           type: 'string',
           alias: 'p',
@@ -503,9 +582,22 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           description: 'Search across all projects',
           default: false
         })
+        .option('offset', {
+          type: 'number',
+          description: 'Number of results to skip'
+        })
         .option('limit', {
           type: 'number',
           description: 'Maximum number of results to return'
+        })
+        .option('json', {
+          type: 'boolean',
+          default: false
+        })
+        .option('count', {
+          type: 'boolean',
+          description: 'Print only the matching count',
+          default: false
         })
         .option('claude-dir', {
           type: 'string',
@@ -515,9 +607,9 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           type: 'boolean',
           description: 'Enable verbose logging',
           default: false
-        });
+        }));
     },
-    (argv) => {
+    (argv: any) => {
       let project: string | undefined;
       if (argv.project) {
         if (argv.project.startsWith('/')) {
@@ -529,9 +621,13 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
       printPermissionChecks({
         project,
         allProjects: argv['all-projects'],
+        offset: argv.offset,
         limit: argv.limit,
+        json: argv.json,
+        count: argv.count,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
-        verbose: argv.verbose
+        verbose: argv.verbose,
+        ...buildFilter(argv),
       }).catch(console.error);
     }
   )
@@ -539,16 +635,25 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     'summarize',
     'Produce a compact digest of sessions (user prompts, tool counts, errors)',
     (yargs) => {
-      return yargs
+      return addFilterOptions(yargs
         .option('project', {
           type: 'string',
           alias: 'p',
           description: 'Project path or directory name (defaults to current directory)'
         })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Summarize sessions across all projects',
+          default: false
+        })
         .option('session', {
           type: 'string',
           alias: 's',
           description: 'Summarize a single session by ID'
+        })
+        .option('offset', {
+          type: 'number',
+          description: 'Number of sessions to skip'
         })
         .option('limit', {
           type: 'number',
@@ -569,21 +674,130 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         .option('verbose', {
           type: 'boolean',
           default: false
-        });
+        }));
     },
-    (argv) => {
+    (argv: any) => {
       runSummarize({
         project: argv.project,
+        allProjects: argv['all-projects'],
         session: argv.session,
+        offset: argv.offset,
         limit: argv.limit,
         includeAssistantText: argv['include-assistant'],
         maxPromptChars: argv['max-prompt-chars'],
         claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
+        ...buildFilter(argv),
       }).catch((err) => {
         console.error(err);
         process.exit(1);
       });
+    }
+  )
+  .command(
+    'list-skills',
+    'List skills invoked across sessions, with usage counts',
+    (yargs) => {
+      return addFilterOptions(yargs
+        .option('project', {
+          type: 'string',
+          alias: 'p',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Scan all projects',
+          default: false
+        })
+        .option('json', { type: 'boolean', default: false })
+        .option('count', { type: 'boolean', default: false })
+        .option('claude-dir', { type: 'string' })
+        .option('verbose', { type: 'boolean', default: false }));
+    },
+    (argv: any) => {
+      printListSkills({
+        project: argv.project,
+        allProjects: argv['all-projects'],
+        json: argv.json,
+        count: argv.count,
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
+        verbose: argv.verbose,
+        ...buildFilter(argv),
+      }).catch((err) => { console.error(err); process.exit(1); });
+    }
+  )
+  .command(
+    'list-routines',
+    'List Claude Routines (scheduled tasks) seen in sessions',
+    (yargs) => {
+      return addFilterOptions(yargs
+        .option('project', {
+          type: 'string',
+          alias: 'p',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Scan all projects',
+          default: false
+        })
+        .option('json', { type: 'boolean', default: false })
+        .option('count', { type: 'boolean', default: false })
+        .option('claude-dir', { type: 'string' })
+        .option('verbose', { type: 'boolean', default: false }));
+    },
+    (argv: any) => {
+      printListRoutines({
+        project: argv.project,
+        allProjects: argv['all-projects'],
+        json: argv.json,
+        count: argv.count,
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
+        verbose: argv.verbose,
+        ...buildFilter(argv),
+      }).catch((err) => { console.error(err); process.exit(1); });
+    }
+  )
+  .command(
+    'get-skill-runs <skillName>',
+    'List sessions that invoked a particular skill',
+    (yargs) => {
+      return addFilterOptions(yargs
+        .positional('skillName', {
+          type: 'string',
+          description: 'Skill name (basename of the skill directory) to look up',
+          demandOption: true
+        })
+        .option('project', {
+          type: 'string',
+          alias: 'p',
+          description: 'Project path or directory name (defaults to current directory)'
+        })
+        .option('all-projects', {
+          type: 'boolean',
+          description: 'Scan all projects',
+          default: false
+        })
+        .option('offset', { type: 'number' })
+        .option('limit', { type: 'number' })
+        .option('json', { type: 'boolean', default: false })
+        .option('count', { type: 'boolean', default: false })
+        .option('claude-dir', { type: 'string' })
+        .option('verbose', { type: 'boolean', default: false }));
+    },
+    (argv: any) => {
+      printSkillRuns({
+        skillName: argv.skillName as string,
+        project: argv.project,
+        allProjects: argv['all-projects'],
+        offset: argv.offset,
+        limit: argv.limit,
+        json: argv.json,
+        count: argv.count,
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
+        verbose: argv.verbose,
+        ...buildFilter(argv),
+      }).catch((err) => { console.error(err); process.exit(1); });
     }
   )
 docFiles.yargsSetup(args);

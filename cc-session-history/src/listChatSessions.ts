@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import type { ChatMessage, ChatSession } from './types.ts';
 import { annotateMessages } from './annotateMessages.ts';
+import { extractSessionMetadata } from './sessionMetadata.ts';
 import { getClaudeProjectsDir } from './paths.ts';
 
 export interface ListChatSessionsOptions {
@@ -115,13 +116,18 @@ export async function listChatSessions(options: ListChatSessionsOptions): Promis
         const firstMessageWithTimestamp = messages.find(m => m.timestamp);
         const lastMessageWithTimestamp = [...messages].reverse().find(m => m.timestamp);
 
+        const metadata = extractSessionMetadata(messages);
+
         sessions.push({
           sessionId,
           messages,
           firstMessageTimestamp: firstMessageWithTimestamp?.timestamp,
           lastMessageTimestamp: lastMessageWithTimestamp?.timestamp ?? '',
           projectPath: projectDir,
-          messageCount: messages.length
+          messageCount: messages.length,
+          entrypoint: metadata.entrypoint,
+          scheduledTask: metadata.scheduledTask,
+          skillsUsed: metadata.skillsUsed,
         });
 
         if (verbose) {
