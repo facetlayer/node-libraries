@@ -1,9 +1,8 @@
 import { listChatSessions } from './listChatSessions.ts';
 import type { ChatMessage } from './types.ts';
-import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
 import { pathToProjectDir } from './printChatSessions.ts';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface SearchOptions {
   query: string;
@@ -48,7 +47,6 @@ function extractTextContent(message: ChatMessage): string {
 }
 
 export async function searchSessions(options: SearchOptions): Promise<SearchResult[]> {
-  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
   const results: SearchResult[] = [];
   const queryLower = options.query.toLowerCase();
 
@@ -57,7 +55,7 @@ export async function searchSessions(options: SearchOptions): Promise<SearchResu
   if (options.allProjects) {
     // Search all projects
     try {
-      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      const projectDirents = await fs.readdir(getClaudeProjectsDir(options.claudeDir), { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);

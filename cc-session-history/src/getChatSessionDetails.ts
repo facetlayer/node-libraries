@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
 import type { ChatMessage } from './types.ts';
 import { annotateMessages } from './annotateMessages.ts';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface GetChatSessionDetailsOptions {
   /**
@@ -26,14 +26,13 @@ export async function getChatSessionDetails(
   projectName: string,
   options: GetChatSessionDetailsOptions = {}
 ): Promise<ChatMessage[]> {
-  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude');
   const verbose = options.verbose || false;
 
   if (verbose) {
     console.log(`[getSessionDetails] Getting session details for ${sessionId} in project ${projectName}`);
   }
 
-  const sessionFilePath = path.join(claudeDir, 'projects', projectName, `${sessionId}.jsonl`);
+  const sessionFilePath = path.join(getClaudeProjectsDir(options.claudeDir), projectName, `${sessionId}.jsonl`);
 
   try {
     const content = await fs.readFile(sessionFilePath, 'utf-8');

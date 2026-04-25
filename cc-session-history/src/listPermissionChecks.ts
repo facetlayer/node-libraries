@@ -3,9 +3,8 @@ import { TextGrid } from './TextGrid.ts';
 import type { ChatMessage, ChatSession } from './types.ts';
 import { toolNeedsPermission } from './annotateMessages.ts';
 import { pathToProjectDir } from './printChatSessions.ts';
-import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface PermissionCheck {
   sessionId: string;
@@ -157,14 +156,13 @@ function extractPermissionChecks(session: ChatSession): PermissionCheck[] {
  * Collect all permission checks across sessions for the given options.
  */
 export async function listPermissionChecks(options: ListPermissionChecksOptions): Promise<PermissionCheck[]> {
-  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
   const allChecks: PermissionCheck[] = [];
 
   let projectDirs: string[];
 
   if (options.allProjects) {
     try {
-      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      const projectDirents = await fs.readdir(getClaudeProjectsDir(options.claudeDir), { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);

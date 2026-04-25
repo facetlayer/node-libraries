@@ -11,9 +11,9 @@ import { printSearchResults } from './searchSessions.ts';
 import { printPermissionChecks } from './listPermissionChecks.ts';
 import { runSummarize } from './summarizeSessions.ts';
 import { ChatSessionMessageSchema } from './Schemas.ts';
+import { getClaudeProjectsDir } from './paths.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
 import { ZodError } from 'zod';
 import { fileURLToPath } from 'url';
 
@@ -42,13 +42,12 @@ interface CheckSchemaOptions extends GlobalOptions {
 
 async function getChat(options: GetChatOptions): Promise<void> {
   try {
-    const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
     const verbose = options.verbose || false;
 
     // Get all project directories
     let projectDirs: string[];
     try {
-      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      const projectDirents = await fs.readdir(getClaudeProjectsDir(options.claudeDir), { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);
@@ -152,13 +151,13 @@ async function getChat(options: GetChatOptions): Promise<void> {
 
 async function checkSchema(options: CheckSchemaOptions): Promise<void> {
   try {
-    const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
+    const projectsDir = getClaudeProjectsDir(options.claudeDir);
     const verbose = options.verbose || false;
 
     // Get all project directories or filter by specific project
     let projectDirs: string[];
     try {
-      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      const projectDirents = await fs.readdir(projectsDir, { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);
@@ -186,7 +185,7 @@ async function checkSchema(options: CheckSchemaOptions): Promise<void> {
     }> = [];
 
     for (const projectDir of projectDirs) {
-      const projectPath = path.join(claudeDir, projectDir);
+      const projectPath = path.join(projectsDir, projectDir);
 
       // Get all .jsonl files in the project directory
       const files = await fs.readdir(projectPath);
@@ -282,6 +281,12 @@ function preprocessProjectArg(argv: string[]): string[] {
   return result;
 }
 
+// Allow overriding the Claude directory via env var. The CLI flag --claude-dir
+// takes precedence, then CC_SESSION_HISTORY_DIR, then the default ~/.claude.
+function resolveClaudeDir(claudeDirOption: string | undefined): string | undefined {
+  return claudeDirOption || process.env.CC_SESSION_HISTORY_DIR || undefined;
+}
+
 const args = yargs(preprocessProjectArg(hideBin(process.argv)))
   .command(
     'list-projects',
@@ -300,7 +305,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     },
     (argv) => {
       printProjects({
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose
       }).catch(console.error);
     }
@@ -344,7 +349,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         printAllSessions({
           offset: argv.offset,
           limit: argv.limit,
-          claudeDir: argv['claude-dir'],
+          claudeDir: resolveClaudeDir(argv['claude-dir']),
           verbose: argv.verbose
         }).catch(console.error);
       } else {
@@ -362,7 +367,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           project,
           offset: argv.offset,
           limit: argv.limit,
-          claudeDir: argv['claude-dir'],
+          claudeDir: resolveClaudeDir(argv['claude-dir']),
           verbose: argv.verbose
         }).catch(console.error);
       }
@@ -397,7 +402,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     (argv) => {
       getChat({
         session: argv.session,
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
         json: argv.json
       }).catch(console.error);
@@ -426,7 +431,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
     (argv) => {
       checkSchema({
         project: argv.project,
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose
       }).catch(console.error);
     }
@@ -478,7 +483,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         allProjects: argv['all-projects'],
         project,
         limit: argv.limit,
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose
       }).catch(console.error);
     }
@@ -525,7 +530,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         project,
         allProjects: argv['all-projects'],
         limit: argv.limit,
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose
       }).catch(console.error);
     }
@@ -573,7 +578,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         limit: argv.limit,
         includeAssistantText: argv['include-assistant'],
         maxPromptChars: argv['max-prompt-chars'],
-        claudeDir: argv['claude-dir'],
+        claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
       }).catch((err) => {
         console.error(err);

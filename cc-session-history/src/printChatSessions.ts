@@ -1,9 +1,8 @@
 import { listChatSessions } from './listChatSessions.ts';
 import { TextGrid } from './TextGrid.ts';
 import type { ChatSession } from './types.ts';
-import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface PrintSessionsOptions {
   verbose?: boolean;
@@ -110,13 +109,12 @@ export interface PrintAllSessionsOptions {
 
 export async function printAllSessions(options: PrintAllSessionsOptions): Promise<void> {
   try {
-    const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude', 'projects');
     const verbose = options.verbose || false;
 
     // Get all projects
     let projectDirs: string[];
     try {
-      const projectDirents = await fs.readdir(claudeDir, { withFileTypes: true });
+      const projectDirents = await fs.readdir(getClaudeProjectsDir(options.claudeDir), { withFileTypes: true });
       projectDirs = projectDirents
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);

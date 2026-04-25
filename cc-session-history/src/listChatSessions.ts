@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
 import type { ChatMessage, ChatSession } from './types.ts';
 import { annotateMessages } from './annotateMessages.ts';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface ListChatSessionsOptions {
   /**
@@ -33,15 +33,15 @@ export interface ListChatSessionsOptions {
  * @returns Array of chat sessions for the specified project
  */
 export async function listChatSessions(options: ListChatSessionsOptions): Promise<ChatSession[]> {
-  const claudeDir = options.claudeDir || path.join(os.homedir(), '.claude');
+  const projectsDir = getClaudeProjectsDir(options.claudeDir);
   const verbose = options.verbose || false;
   const projectDir = options.project;
 
   if (verbose) {
-    console.log(`[listChatSessions] Scanning project: ${projectDir} in ${claudeDir}`);
+    console.log(`[listChatSessions] Scanning project: ${projectDir} in ${projectsDir}`);
   }
 
-  const projectPath = path.join(claudeDir, 'projects', projectDir);
+  const projectPath = path.join(projectsDir, projectDir);
 
   // Check if project directory exists
   try {

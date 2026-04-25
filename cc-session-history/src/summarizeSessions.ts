@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import * as os from 'os';
 import type { ChatMessage } from './types.ts';
 import { annotateMessages } from './annotateMessages.ts';
 import { listChatSessions } from './listChatSessions.ts';
 import { pathToProjectDir } from './printChatSessions.ts';
+import { getClaudeProjectsDir } from './paths.ts';
 
 export interface SummarizeOptions {
   project?: string;
@@ -202,14 +202,14 @@ export function formatSummary(s: SessionSummary, opts: SummarizeOptions = {}): s
 }
 
 export async function runSummarize(opts: SummarizeOptions): Promise<void> {
-  const claudeDir = opts.claudeDir || path.join(os.homedir(), '.claude');
+  const projectsDir = getClaudeProjectsDir(opts.claudeDir);
 
   let project = opts.project;
   if (!project) project = pathToProjectDir(process.cwd());
   else if (project.startsWith('/')) project = pathToProjectDir(project);
 
   if (opts.session) {
-    const filePath = path.join(claudeDir, 'projects', project, `${opts.session}.jsonl`);
+    const filePath = path.join(projectsDir, project, `${opts.session}.jsonl`);
     const content = await fs.readFile(filePath, 'utf-8');
     const messages: ChatMessage[] = content.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
     const summary = summarizeSession(project, messages, opts);
@@ -217,7 +217,7 @@ export async function runSummarize(opts: SummarizeOptions): Promise<void> {
     return;
   }
 
-  const sessions = await listChatSessions({ project, claudeDir });
+  const sessions = await listChatSessions({ project, claudeDir: opts.claudeDir });
   const limited = opts.limit ? sessions.slice(0, opts.limit) : sessions;
 
   for (const session of limited) {
