@@ -4,6 +4,7 @@ import type { ChatSession } from './types.ts';
 import * as fs from 'fs/promises';
 import { getClaudeProjectsDir } from './paths.ts';
 import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
+import { computeSessionMetrics } from './sessionMetrics.ts';
 
 export interface PrintSessionsOptions extends SessionFilterOptions {
   verbose?: boolean;
@@ -12,7 +13,30 @@ export interface PrintSessionsOptions extends SessionFilterOptions {
   offset?: number;
   project?: string;
   json?: boolean;
+  jsonl?: boolean;
   count?: boolean;
+}
+
+function sessionToRow(s: ChatSession) {
+  const m = computeSessionMetrics(s.messages);
+  return {
+    sessionId: s.sessionId,
+    projectPath: s.projectPath,
+    firstMessageTimestamp: s.firstMessageTimestamp,
+    lastMessageTimestamp: s.lastMessageTimestamp,
+    messageCount: s.messageCount,
+    entrypoint: s.entrypoint,
+    scheduledTask: s.scheduledTask,
+    skillsUsed: s.skillsUsed,
+    // ----- per-session audit metrics (added in 0.3) -----
+    toolErrors: m.toolErrors,
+    interruptCount: m.interruptCount,
+    durationMs: m.durationMs,
+    permissionRejections: m.permissionRejections,
+    firstUserPrompt: m.firstUserPrompt,
+    skillsInvoked: m.skillsInvoked,
+    toolCounts: m.toolCounts,
+  };
 }
 
 /**
@@ -77,21 +101,19 @@ function emitSessions(sessions: ChatSession[], options: PrintSessionsOptions, to
     return;
   }
 
+  if (options.jsonl) {
+    for (const s of sessions) console.log(JSON.stringify(sessionToRow(s)));
+    return;
+  }
+
   if (options.json) {
-    const items = sessions.map(s => ({
-      sessionId: s.sessionId,
-      projectPath: s.projectPath,
-      firstMessageTimestamp: s.firstMessageTimestamp,
-      lastMessageTimestamp: s.lastMessageTimestamp,
-      messageCount: s.messageCount,
-      entrypoint: s.entrypoint,
-      scheduledTask: s.scheduledTask,
-      skillsUsed: s.skillsUsed,
-    }));
+    const items = sessions.map(sessionToRow);
     console.log(JSON.stringify({
       total: totalBeforePagination,
       offset: options.offset ?? 0,
       limit: options.limit,
+      // `sessions` retained for backwards compat; `items` is the new canonical key.
+      items,
       sessions: items,
     }, null, 2));
     return;
@@ -145,6 +167,7 @@ export interface PrintAllSessionsOptions extends SessionFilterOptions {
   limit?: number;
   offset?: number;
   json?: boolean;
+  jsonl?: boolean;
   count?: boolean;
 }
 

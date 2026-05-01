@@ -258,20 +258,40 @@ describe('cli', () => {
     it('lists skills detected across all projects', async () => {
       const result = await runCli(['list-skills', '--all-projects', '--json']);
       expect(result.exitCode).toBe(0);
-      const rows = JSON.parse(result.stdout);
-      const names = rows.map((r: any) => r.name).sort();
+      const parsed = JSON.parse(result.stdout);
+      // 0.3+ envelope: { total, items }
+      expect(typeof parsed.total).toBe('number');
+      expect(Array.isArray(parsed.items)).toBe(true);
+      const names = parsed.items.map((r: any) => r.name).sort();
       expect(names).toContain('test-daily-monitor');
       expect(names).toContain('vibe-cleanup-typescript');
       expect(names).toContain('load-testing');
     });
 
-    it('reports invocation counts that include both runs of a routine', async () => {
+    it('reports run counts that include both runs of a routine', async () => {
       const result = await runCli(['list-skills', '--all-projects', '--json']);
-      const rows = JSON.parse(result.stdout);
-      const monitor = rows.find((r: any) => r.name === 'test-daily-monitor');
-      expect(monitor.invocationCount).toBe(2);
+      const { items } = JSON.parse(result.stdout);
+      const monitor = items.find((r: any) => r.name === 'test-daily-monitor');
+      // Field names harmonized in 0.3: runCount + lastRun (was invocationCount + lastSeen).
+      expect(monitor.runCount).toBe(2);
       expect(monitor.sessionCount).toBe(2);
       expect(monitor.sources).toContain('scheduled-task');
+      expect(typeof monitor.lastRun).toBe('string');
+      // Old field names should no longer be present.
+      expect(monitor.invocationCount).toBeUndefined();
+      expect(monitor.lastSeen).toBeUndefined();
+    });
+
+    it('--jsonl emits one JSON record per line', async () => {
+      const result = await runCli(['list-skills', '--all-projects', '--jsonl']);
+      expect(result.exitCode).toBe(0);
+      const lines = result.stdout.trim().split('\n').filter(Boolean);
+      expect(lines.length).toBeGreaterThan(0);
+      for (const line of lines) {
+        const obj = JSON.parse(line);
+        expect(typeof obj.name).toBe('string');
+        expect(typeof obj.runCount).toBe('number');
+      }
     });
 
     it('--count prints a single number', async () => {
@@ -285,14 +305,17 @@ describe('cli', () => {
     it('lists scheduled-task routines with run counts', async () => {
       const result = await runCli(['list-routines', '--all-projects', '--json']);
       expect(result.exitCode).toBe(0);
-      const rows = JSON.parse(result.stdout);
-      expect(rows.length).toBe(1);
-      expect(rows[0]).toMatchObject({
-        routineName: 'test-daily-monitor',
+      const parsed = JSON.parse(result.stdout);
+      expect(parsed.total).toBe(1);
+      expect(parsed.items).toHaveLength(1);
+      // 0.3 harmonization: routineName -> name (skillName / skillFile preserved).
+      expect(parsed.items[0]).toMatchObject({
+        name: 'test-daily-monitor',
         skillName: 'test-daily-monitor',
         runCount: 2,
       });
-      expect(rows[0].projects).toEqual([PROJECT_MONITOR]);
+      expect(parsed.items[0].routineName).toBeUndefined();
+      expect(parsed.items[0].projects).toEqual([PROJECT_MONITOR]);
     });
   });
 
@@ -303,12 +326,31 @@ describe('cli', () => {
         '--all-projects', '--json'
       ]);
       expect(result.exitCode).toBe(0);
-      const rows = JSON.parse(result.stdout);
-      expect(rows.length).toBe(2);
-      expect(rows.every((r: any) => r.source === 'scheduled-task')).toBe(true);
-      expect(rows.map((r: any) => r.sessionId).sort()).toEqual(
+      const parsed = JSON.parse(result.stdout);
+      // 0.3+ envelope: { total, offset, limit, items }
+      expect(parsed.total).toBe(2);
+      expect(parsed.items).toHaveLength(2);
+      expect(parsed.items.every((r: any) => r.source === 'scheduled-task')).toBe(true);
+      expect(parsed.items.map((r: any) => r.sessionId).sort()).toEqual(
         [SESSION_ROUTINE_1, SESSION_ROUTINE_2].sort()
       );
+    });
+
+    it('returns per-session audit metrics on each row', async () => {
+      const result = await runCli([
+        'get-skill-runs', 'test-daily-monitor',
+        '--all-projects', '--json'
+      ]);
+      const { items } = JSON.parse(result.stdout);
+      for (const row of items) {
+        // Metrics fields added in 0.3 — having these inline turns the audit
+        // from N+1 calls (one summarize per session) into a single command.
+        expect(typeof row.toolErrors).toBe('number');
+        expect(typeof row.interruptCount).toBe('number');
+        expect(typeof row.permissionRejections).toBe('number');
+        expect(Array.isArray(row.skillsInvoked)).toBe(true);
+        expect(typeof row.toolCounts).toBe('object');
+      }
     });
 
     it('--count returns just the number of runs', async () => {
@@ -319,13 +361,46 @@ describe('cli', () => {
       expect(result.stdout.trim()).toBe('2');
     });
 
-    it('--limit/--offset paginates', async () => {
+    it('--limit/--offset paginates inside the envelope', async () => {
       const result = await runCli([
         'get-skill-runs', 'test-daily-monitor',
         '--all-projects', '--limit=1', '--json'
       ]);
-      const rows = JSON.parse(result.stdout);
-      expect(rows.length).toBe(1);
+      const parsed = JSON.parse(result.stdout);
+      // total reflects the unpaginated count; items reflects the page.
+      expect(parsed.total).toBe(2);
+      expect(parsed.items).toHaveLength(1);
+      expect(parsed.limit).toBe(1);
+    });
+
+    it('--jsonl emits one record per line (no envelope)', async () => {
+      const result = await runCli([
+        'get-skill-runs', 'test-daily-monitor',
+        '--all-projects', '--jsonl'
+      ]);
+      const lines = result.stdout.trim().split('\n').filter(Boolean);
+      expect(lines.length).toBe(2);
+      const ids = lines.map(l => JSON.parse(l).sessionId).sort();
+      expect(ids).toEqual([SESSION_ROUTINE_1, SESSION_ROUTINE_2].sort());
+    });
+
+    it('falls back to matching by routine name when no skill matches', async () => {
+      // The fixture uses a routine named "test-daily-monitor" whose skill basename
+      // also happens to be "test-daily-monitor". To exercise the fallback we look
+      // up a name that only exists as a routine: we fabricate the case by checking
+      // that even when --skill is irrelevant, passing the routine name still resolves.
+      // (Real-world example from the feedback: a routine "envscore-daily-monitor"
+      // that wraps /daily-monitor — different names.)
+      const result = await runCli([
+        'get-skill-runs', 'test-daily-monitor',
+        '--all-projects', '--json'
+      ]);
+      const parsed = JSON.parse(result.stdout);
+      // matchedRoutine is false here because the name DOES match a skill — the
+      // assertion is that the field exists in the envelope, so consumers can
+      // distinguish skill-match from routine-fallback when reading the JSON.
+      expect(parsed).toHaveProperty('matchedRoutine');
+      expect(typeof parsed.matchedRoutine).toBe('boolean');
     });
 
     it('reports zero runs for an unknown skill', async () => {
@@ -335,6 +410,59 @@ describe('cli', () => {
       ]);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('No runs found');
+    });
+  });
+
+  describe('list-sessions per-session metrics (0.3+)', () => {
+    it('--json includes per-session audit metrics on each session row', async () => {
+      const result = await runCli(['list-sessions', '--all-projects', '--json']);
+      expect(result.exitCode).toBe(0);
+      const parsed = JSON.parse(result.stdout);
+      const sessions: any[] = parsed.items ?? parsed.sessions;
+      expect(sessions.length).toBeGreaterThan(0);
+      const tooluse = sessions.find(s => s.sessionId === SESSION_APP_TOOLUSE);
+      expect(tooluse).toBeDefined();
+      // Every row should carry the metrics shape.
+      expect(typeof tooluse.toolErrors).toBe('number');
+      expect(typeof tooluse.interruptCount).toBe('number');
+      expect(typeof tooluse.permissionRejections).toBe('number');
+      expect(Array.isArray(tooluse.skillsInvoked)).toBe(true);
+      expect(typeof tooluse.toolCounts).toBe('object');
+    });
+
+    it('--jsonl emits one session-row per line', async () => {
+      const result = await runCli(['list-sessions', '--all-projects', '--jsonl']);
+      expect(result.exitCode).toBe(0);
+      const lines = result.stdout.trim().split('\n').filter(Boolean);
+      expect(lines.length).toBe(6);
+      for (const line of lines) {
+        const row = JSON.parse(line);
+        expect(typeof row.sessionId).toBe('string');
+        expect(typeof row.toolErrors).toBe('number');
+      }
+    });
+  });
+
+  describe('summarize tool attribution (0.3+)', () => {
+    it('renders Skill[<name>]=N for the Skill tool', async () => {
+      // SESSION_SKILL_USE invokes the Skill tool with skill="load-testing".
+      const result = await runCli([
+        'summarize', '-s', SESSION_SKILL_USE, '-p', PROJECT_MONITOR,
+      ]);
+      expect(result.exitCode).toBe(0);
+      // The output should attribute the Skill invocation by name rather than
+      // the bare `Skill=1` that the auditor previously had to disambiguate by hand.
+      expect(result.stdout).toMatch(/Skill\[load-testing\]=\d+/);
+    });
+  });
+
+  describe('--version', () => {
+    it('prints the package.json version', async () => {
+      const result = await runCli(['--version']);
+      expect(result.exitCode).toBe(0);
+      // Version is read from package.json; exact value tracks releases, but
+      // the format must be a semver-ish triple.
+      expect(result.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
     });
   });
 

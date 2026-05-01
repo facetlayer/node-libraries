@@ -1,10 +1,7 @@
 import { TextGrid } from './TextGrid.ts';
-import { listAllSessions } from './listAllSessions.ts';
-import { listChatSessions } from './listChatSessions.ts';
 import { extractSessionMetadata, type SkillInvocationSource } from './sessionMetadata.ts';
 import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
-import type { ChatSession } from './types.ts';
-import { pathToProjectDir } from './printChatSessions.ts';
+import { loadSessionsForCommand } from './loadSessions.ts';
 
 export interface ListSkillsOptions extends SessionFilterOptions {
   project?: string;
@@ -15,20 +12,22 @@ export interface ListSkillsOptions extends SessionFilterOptions {
 
 export interface SkillUsageRow {
   name: string;
-  invocationCount: number;
+  /** Number of invocations across the matched sessions. (Renamed from `invocationCount` in 0.3.) */
+  runCount: number;
   sessionCount: number;
-  lastSeen?: string;
+  /** Timestamp of the most recent invocation. (Renamed from `lastSeen` in 0.3.) */
+  lastRun?: string;
   sources: SkillInvocationSource[];
 }
 
 export async function listSkills(options: ListSkillsOptions): Promise<SkillUsageRow[]> {
-  const sessions = await loadSessions(options);
+  const sessions = await loadSessionsForCommand(options);
   const filtered = filterSessions(sessions, options);
 
   const byName = new Map<string, {
-    invocationCount: number;
+    runCount: number;
     sessionIds: Set<string>;
-    lastSeen?: string;
+    lastRun?: string;
     sources: Set<SkillInvocationSource>;
   }>();
 
@@ -38,18 +37,18 @@ export async function listSkills(options: ListSkillsOptions): Promise<SkillUsage
       let entry = byName.get(inv.name);
       if (!entry) {
         entry = {
-          invocationCount: 0,
+          runCount: 0,
           sessionIds: new Set(),
-          lastSeen: undefined,
+          lastRun: undefined,
           sources: new Set(),
         };
         byName.set(inv.name, entry);
       }
-      entry.invocationCount++;
+      entry.runCount++;
       entry.sessionIds.add(session.sessionId);
       entry.sources.add(inv.source);
-      if (inv.timestamp && (!entry.lastSeen || inv.timestamp > entry.lastSeen)) {
-        entry.lastSeen = inv.timestamp;
+      if (inv.timestamp && (!entry.lastRun || inv.timestamp > entry.lastRun)) {
+        entry.lastRun = inv.timestamp;
       }
     }
   }
@@ -58,29 +57,20 @@ export async function listSkills(options: ListSkillsOptions): Promise<SkillUsage
   for (const [name, entry] of byName) {
     rows.push({
       name,
-      invocationCount: entry.invocationCount,
+      runCount: entry.runCount,
       sessionCount: entry.sessionIds.size,
-      lastSeen: entry.lastSeen,
+      lastRun: entry.lastRun,
       sources: [...entry.sources],
     });
   }
 
-  rows.sort((a, b) => b.invocationCount - a.invocationCount || a.name.localeCompare(b.name));
+  rows.sort((a, b) => b.runCount - a.runCount || a.name.localeCompare(b.name));
   return rows;
-}
-
-async function loadSessions(options: ListSkillsOptions): Promise<ChatSession[]> {
-  if (options.allProjects) {
-    return listAllSessions({ claudeDir: options.claudeDir, verbose: options.verbose });
-  }
-  const project = options.project
-    ? (options.project.startsWith('/') ? pathToProjectDir(options.project) : options.project)
-    : pathToProjectDir(process.cwd());
-  return listChatSessions({ project, claudeDir: options.claudeDir, verbose: options.verbose });
 }
 
 export interface PrintListSkillsOptions extends ListSkillsOptions {
   json?: boolean;
+  jsonl?: boolean;
   count?: boolean;
 }
 
@@ -92,8 +82,13 @@ export async function printListSkills(options: PrintListSkillsOptions): Promise<
     return;
   }
 
+  if (options.jsonl) {
+    for (const r of rows) console.log(JSON.stringify(r));
+    return;
+  }
+
   if (options.json) {
-    console.log(JSON.stringify(rows, null, 2));
+    console.log(JSON.stringify({ total: rows.length, items: rows }, null, 2));
     return;
   }
 
@@ -104,19 +99,19 @@ export async function printListSkills(options: PrintListSkillsOptions): Promise<
 
   const grid = new TextGrid([
     { header: 'Skill' },
-    { header: 'Invocations', align: 'right' },
+    { header: 'Runs', align: 'right' },
     { header: 'Sessions', align: 'right' },
     { header: 'Sources' },
-    { header: 'Last Seen' },
+    { header: 'Last Run' },
   ]);
 
   for (const row of rows) {
     grid.addRow([
       row.name,
-      row.invocationCount,
+      row.runCount,
       row.sessionCount,
       row.sources.join(','),
-      row.lastSeen ?? '',
+      row.lastRun ?? '',
     ]);
   }
 

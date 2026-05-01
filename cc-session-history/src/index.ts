@@ -25,7 +25,16 @@ export { listRoutines } from './listRoutines.ts';
 export type { ListRoutinesOptions, RoutineUsageRow } from './listRoutines.ts';
 
 export { getSkillRuns } from './getSkillRuns.ts';
-export type { GetSkillRunsOptions, SkillRunRow } from './getSkillRuns.ts';
+export type { GetSkillRunsOptions, SkillRunRow, GetSkillRunsResult } from './getSkillRuns.ts';
+
+export {
+  computeSessionMetrics,
+  sessionMetricsFor,
+  isUserTypedPrompt,
+  extractUserText,
+  oneLine,
+} from './sessionMetrics.ts';
+export type { SessionMetrics } from './sessionMetrics.ts';
 
 export { listAllSessions } from './listAllSessions.ts';
 export type { ListAllSessionsOptions } from './listAllSessions.ts';

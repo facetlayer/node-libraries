@@ -7,6 +7,7 @@ import { pathToProjectDir } from './printChatSessions.ts';
 import { getClaudeProjectsDir } from './paths.ts';
 import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
 import { listAllSessions } from './listAllSessions.ts';
+import { computeSessionMetrics, oneLine, isUserTypedPrompt, extractUserText } from './sessionMetrics.ts';
 
 export interface SummarizeOptions extends SessionFilterOptions {
   project?: string;
@@ -31,55 +32,13 @@ interface SessionSummary {
   interruptCount: number;
   assistantSnippets: string[];
   toolCounts: Record<string, number>;
+  /** Skills invoked via the `Skill` tool, by name. (e.g. `{"daily-monitor": 1}`) */
+  skillToolInvocations: Record<string, number>;
   toolErrors: number;
   permissionRejections: Array<{ tool?: string; reason?: string }>;
   bashCommands: string[];
   filesEdited: string[];
   filesRead: string[];
-}
-
-function oneLine(s: string, max: number): string {
-  const collapsed = s.replace(/\s+/g, ' ').trim();
-  if (collapsed.length <= max) return collapsed;
-  return collapsed.slice(0, max - 1) + '…';
-}
-
-function isUserTypedPrompt(msg: ChatMessage): boolean {
-  if (msg.type !== 'user') return false;
-  if (msg.isMeta) return false;
-  if (msg.internalMessageType) return false;
-  const content = msg.message?.content;
-  if (!content) return false;
-  if (typeof content === 'string') {
-    // Skip command/tool-result/caveat wrappers and system-injected notifications
-    if (content.startsWith('<local-command') || content.includes('<command-name>')) return false;
-    if (content.startsWith('Caveat:')) return false;
-    if (content.includes('<task-notification>')) return false;
-    if (content.includes('[Request interrupted by user')) return false;
-    return content.trim().length > 0;
-  }
-  if (Array.isArray(content)) {
-    const textBlocks = content.filter((b: any) => b.type === 'text' && b.text && b.text.trim().length > 0);
-    if (textBlocks.length === 0) return false;
-    const joined = textBlocks.map((b: any) => b.text).join('\n');
-    if (joined.includes('[Request interrupted by user')) return false;
-    if (joined.includes('<task-notification>')) return false;
-    if (joined.startsWith('Caveat:')) return false;
-    return true;
-  }
-  return false;
-}
-
-function extractUserText(msg: ChatMessage): string {
-  const content = msg.message?.content;
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content)) {
-    return content
-      .filter((b: any) => b.type === 'text' && b.text)
-      .map((b: any) => b.text)
-      .join('\n');
-  }
-  return '';
 }
 
 function extractAssistantText(msg: ChatMessage): string {
@@ -104,6 +63,12 @@ export function summarizeSession(
 
   annotateMessages(messages);
 
+  // Shared per-session metrics (toolCounts, toolErrors, interruptCount, etc.)
+  // are computed centrally in `computeSessionMetrics`. This function only
+  // adds the prose-y, summarize-specific fields on top: full prompt list,
+  // assistant snippets, bash commands, file lists, per-rejection tool name.
+  const metrics = computeSessionMetrics(messages);
+
   const summary: SessionSummary = {
     project,
     sessionId: messages.find(m => m.sessionId)?.sessionId ?? '',
@@ -111,10 +76,11 @@ export function summarizeSession(
     lastTimestamp: [...messages].reverse().find(m => m.timestamp && !isNaN(Date.parse(m.timestamp)))?.timestamp,
     messageCount: messages.length,
     userPrompts: [],
-    interruptCount: 0,
+    interruptCount: metrics.interruptCount,
     assistantSnippets: [],
-    toolCounts: {},
-    toolErrors: 0,
+    toolCounts: metrics.toolCounts,
+    skillToolInvocations: {},
+    toolErrors: metrics.toolErrors,
     permissionRejections: [],
     bashCommands: [],
     filesEdited: [],
@@ -123,6 +89,8 @@ export function summarizeSession(
 
   for (const msg of messages) {
     if (msg.permissionResult === 'rejected') {
+      // Summarize keeps the per-rejection tool name (the metrics module just
+      // tracks the count, since that's all consumers needed there).
       const content = msg.message?.content;
       let tool: string | undefined;
       if (Array.isArray(content)) {
@@ -131,13 +99,6 @@ export function summarizeSession(
         }
       }
       summary.permissionRejections.push({ tool });
-    }
-
-    if (msg.type === 'user' && !msg.isMeta && !msg.internalMessageType) {
-      const raw = extractUserText(msg);
-      if (raw.includes('[Request interrupted by user')) {
-        summary.interruptCount++;
-      }
     }
 
     if (isUserTypedPrompt(msg)) {
@@ -155,18 +116,17 @@ export function summarizeSession(
     const content = msg.message?.content;
     if (Array.isArray(content)) {
       for (const block of content as any[]) {
-        if (block.type === 'tool_use') {
-          const name = block.name || 'unknown';
-          summary.toolCounts[name] = (summary.toolCounts[name] ?? 0) + 1;
-          if (name === 'Bash' && block.input?.command) {
-            summary.bashCommands.push(oneLine(String(block.input.command), 120));
-          } else if ((name === 'Edit' || name === 'Write') && block.input?.file_path) {
-            summary.filesEdited.push(String(block.input.file_path));
-          } else if (name === 'Read' && block.input?.file_path) {
-            summary.filesRead.push(String(block.input.file_path));
-          }
-        } else if (block.type === 'tool_result' && block.is_error) {
-          summary.toolErrors++;
+        if (block.type !== 'tool_use') continue;
+        const name = block.name || 'unknown';
+        if (name === 'Skill' && block.input && typeof block.input.skill === 'string') {
+          const sk = block.input.skill;
+          summary.skillToolInvocations[sk] = (summary.skillToolInvocations[sk] ?? 0) + 1;
+        } else if (name === 'Bash' && block.input?.command) {
+          summary.bashCommands.push(oneLine(String(block.input.command), 120));
+        } else if ((name === 'Edit' || name === 'Write') && block.input?.file_path) {
+          summary.filesEdited.push(String(block.input.file_path));
+        } else if (name === 'Read' && block.input?.file_path) {
+          summary.filesRead.push(String(block.input.file_path));
         }
       }
     }
@@ -181,7 +141,19 @@ export function formatSummary(s: SessionSummary, opts: SummarizeOptions = {}): s
   lines.push(`  messages=${s.messageCount}  first=${s.firstTimestamp ?? '?'}  last=${s.lastTimestamp ?? '?'}`);
   const toolPairs = Object.entries(s.toolCounts).sort((a, b) => b[1] - a[1]);
   if (toolPairs.length) {
-    lines.push(`  tools: ${toolPairs.map(([k, v]) => `${k}=${v}`).join(' ')}`);
+    // For the Skill tool, attribute counts to the specific skill name when known
+    // (rendered as `Skill[name]=N`), so consumers don't have to drop into get-chat
+    // to know which skill was invoked.
+    const parts = toolPairs.map(([k, v]) => {
+      if (k === 'Skill' && Object.keys(s.skillToolInvocations).length > 0) {
+        const skillParts = Object.entries(s.skillToolInvocations)
+          .sort((a, b) => b[1] - a[1])
+          .map(([sk, sv]) => `Skill[${sk}]=${sv}`);
+        return skillParts.join(' ');
+      }
+      return `${k}=${v}`;
+    });
+    lines.push(`  tools: ${parts.join(' ')}`);
   }
   if (s.toolErrors) lines.push(`  toolErrors: ${s.toolErrors}`);
   if (s.interruptCount) lines.push(`  userInterrupts: ${s.interruptCount}`);

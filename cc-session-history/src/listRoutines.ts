@@ -1,9 +1,6 @@
 import { TextGrid } from './TextGrid.ts';
-import { listAllSessions } from './listAllSessions.ts';
-import { listChatSessions } from './listChatSessions.ts';
 import { filterSessions, type SessionFilterOptions } from './sessionFilters.ts';
-import { pathToProjectDir } from './printChatSessions.ts';
-import type { ChatSession } from './types.ts';
+import { loadSessionsForCommand } from './loadSessions.ts';
 
 export interface ListRoutinesOptions extends SessionFilterOptions {
   project?: string;
@@ -13,7 +10,8 @@ export interface ListRoutinesOptions extends SessionFilterOptions {
 }
 
 export interface RoutineUsageRow {
-  routineName: string;
+  /** Routine name (the `name` attribute on `<scheduled-task>`). Renamed from `routineName` in 0.3. */
+  name: string;
   skillName: string;
   skillFile: string;
   runCount: number;
@@ -23,11 +21,11 @@ export interface RoutineUsageRow {
 }
 
 export async function listRoutines(options: ListRoutinesOptions): Promise<RoutineUsageRow[]> {
-  const sessions = await loadSessions(options);
+  const sessions = await loadSessionsForCommand(options);
   const filtered = filterSessions(sessions, { ...options, routine: true });
 
   const byRoutine = new Map<string, {
-    routineName: string;
+    name: string;
     skillName: string;
     skillFile: string;
     runCount: number;
@@ -41,7 +39,7 @@ export async function listRoutines(options: ListRoutinesOptions): Promise<Routin
     let entry = byRoutine.get(key);
     if (!entry) {
       entry = {
-        routineName: session.scheduledTask.name,
+        name: session.scheduledTask.name,
         skillName: session.scheduledTask.skillName,
         skillFile: session.scheduledTask.skillFile,
         runCount: 0,
@@ -61,7 +59,7 @@ export async function listRoutines(options: ListRoutinesOptions): Promise<Routin
   const rows: RoutineUsageRow[] = [];
   for (const entry of byRoutine.values()) {
     rows.push({
-      routineName: entry.routineName,
+      name: entry.name,
       skillName: entry.skillName,
       skillFile: entry.skillFile,
       runCount: entry.runCount,
@@ -70,22 +68,13 @@ export async function listRoutines(options: ListRoutinesOptions): Promise<Routin
     });
   }
 
-  rows.sort((a, b) => b.runCount - a.runCount || a.routineName.localeCompare(b.routineName));
+  rows.sort((a, b) => b.runCount - a.runCount || a.name.localeCompare(b.name));
   return rows;
-}
-
-async function loadSessions(options: ListRoutinesOptions): Promise<ChatSession[]> {
-  if (options.allProjects) {
-    return listAllSessions({ claudeDir: options.claudeDir, verbose: options.verbose });
-  }
-  const project = options.project
-    ? (options.project.startsWith('/') ? pathToProjectDir(options.project) : options.project)
-    : pathToProjectDir(process.cwd());
-  return listChatSessions({ project, claudeDir: options.claudeDir, verbose: options.verbose });
 }
 
 export interface PrintListRoutinesOptions extends ListRoutinesOptions {
   json?: boolean;
+  jsonl?: boolean;
   count?: boolean;
 }
 
@@ -97,8 +86,13 @@ export async function printListRoutines(options: PrintListRoutinesOptions): Prom
     return;
   }
 
+  if (options.jsonl) {
+    for (const r of rows) console.log(JSON.stringify(r));
+    return;
+  }
+
   if (options.json) {
-    console.log(JSON.stringify(rows, null, 2));
+    console.log(JSON.stringify({ total: rows.length, items: rows }, null, 2));
     return;
   }
 
@@ -117,7 +111,7 @@ export async function printListRoutines(options: PrintListRoutinesOptions): Prom
 
   for (const row of rows) {
     grid.addRow([
-      row.routineName,
+      row.name,
       row.skillName,
       row.runCount,
       row.projects.length,

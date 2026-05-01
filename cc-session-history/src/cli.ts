@@ -18,6 +18,7 @@ import { ChatSessionMessageSchema } from './Schemas.ts';
 import { getClaudeProjectsDir } from './paths.ts';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { readFileSync } from 'fs';
 import { ZodError } from 'zod';
 import { fileURLToPath } from 'url';
 
@@ -29,6 +30,18 @@ const docFiles = new DocFilesHelper({
   dirs: [path.join(__packageRoot, 'docs')],
   files: [path.join(__packageRoot, 'README.md')],
 });
+
+// Read the version from package.json so `--version` always reflects what is
+// actually installed (the previous hard-coded string drifted from package.json).
+function readPackageVersion(): string {
+  try {
+    const pkgPath = path.join(__packageRoot, 'package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    return typeof pkg.version === 'string' ? pkg.version : '0.0.0';
+  } catch {
+    return '0.0.0';
+  }
+}
 
 interface GlobalOptions {
   verbose?: boolean;
@@ -46,8 +59,6 @@ interface CheckSchemaOptions extends GlobalOptions {
 
 async function getChat(options: GetChatOptions): Promise<void> {
   try {
-    const verbose = options.verbose || false;
-
     // Get all project directories
     let projectDirs: string[];
     try {
@@ -383,7 +394,12 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         })
         .option('json', {
           type: 'boolean',
-          description: 'Output as JSON',
+          description: 'Output as JSON (envelope: { total, offset, limit, items })',
+          default: false
+        })
+        .option('jsonl', {
+          type: 'boolean',
+          description: 'Output as JSON Lines (one record per line)',
           default: false
         })
         .option('count', {
@@ -408,6 +424,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           offset: argv.offset,
           limit: argv.limit,
           json: argv.json,
+          jsonl: argv.jsonl,
           count: argv.count,
           claudeDir: resolveClaudeDir(argv['claude-dir']),
           verbose: argv.verbose,
@@ -427,6 +444,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           offset: argv.offset,
           limit: argv.limit,
           json: argv.json,
+          jsonl: argv.jsonl,
           count: argv.count,
           claudeDir: resolveClaudeDir(argv['claude-dir']),
           verbose: argv.verbose,
@@ -710,6 +728,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           default: false
         })
         .option('json', { type: 'boolean', default: false })
+        .option('jsonl', { type: 'boolean', default: false, description: 'JSON Lines output' })
         .option('count', { type: 'boolean', default: false })
         .option('claude-dir', { type: 'string' })
         .option('verbose', { type: 'boolean', default: false }));
@@ -719,6 +738,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         project: argv.project,
         allProjects: argv['all-projects'],
         json: argv.json,
+        jsonl: argv.jsonl,
         count: argv.count,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
@@ -742,6 +762,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
           default: false
         })
         .option('json', { type: 'boolean', default: false })
+        .option('jsonl', { type: 'boolean', default: false, description: 'JSON Lines output' })
         .option('count', { type: 'boolean', default: false })
         .option('claude-dir', { type: 'string' })
         .option('verbose', { type: 'boolean', default: false }));
@@ -751,6 +772,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         project: argv.project,
         allProjects: argv['all-projects'],
         json: argv.json,
+        jsonl: argv.jsonl,
         count: argv.count,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
@@ -781,6 +803,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         .option('offset', { type: 'number' })
         .option('limit', { type: 'number' })
         .option('json', { type: 'boolean', default: false })
+        .option('jsonl', { type: 'boolean', default: false, description: 'JSON Lines output' })
         .option('count', { type: 'boolean', default: false })
         .option('claude-dir', { type: 'string' })
         .option('verbose', { type: 'boolean', default: false }));
@@ -793,6 +816,7 @@ const args = yargs(preprocessProjectArg(hideBin(process.argv)))
         offset: argv.offset,
         limit: argv.limit,
         json: argv.json,
+        jsonl: argv.jsonl,
         count: argv.count,
         claudeDir: resolveClaudeDir(argv['claude-dir']),
         verbose: argv.verbose,
@@ -806,6 +830,6 @@ args
   .demandCommand(1, 'You must specify a command')
   .help()
   .alias('help', 'h')
-  .version('0.1.0')
+  .version(readPackageVersion())
   .alias('version', 'v')
   .parse();
