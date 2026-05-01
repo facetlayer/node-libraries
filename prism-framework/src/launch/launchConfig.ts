@@ -1,5 +1,4 @@
 import type { DatabaseInitializationOptions } from '../databases/DatabaseInitializationOptions.ts';
-import type { LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
 
 /*
   launchConfig
@@ -11,7 +10,6 @@ import type { LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
 export interface LoggingSettings {
   databaseFilename: string;
   enableConsoleLogging: boolean;
-  loadDatabase: LoadDatabaseFn;
 }
 
 export interface LaunchConfig {

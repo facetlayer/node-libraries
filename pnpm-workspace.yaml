@@ -35,6 +35,9 @@ packages:
   - userdata-db/docs-site
 
 onlyBuiltDependencies:
+  - '@scarf/scarf'
   - better-sqlite3
+  - core-js
+  - core-js-pure
   - electron
   - esbuild

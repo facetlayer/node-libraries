@@ -10,7 +10,7 @@ import { callEndpoint } from './call-command.ts';
 import { listEndpoints } from './list-endpoints-command.ts';
 import { generateApiClients } from './generate-api-clients.ts';
 import { loadConfig } from './config/index.ts';
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
+import { DocFilesHelper } from '@facetlayer/docs-tool';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

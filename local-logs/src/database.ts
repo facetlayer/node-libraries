@@ -1,11 +1,10 @@
-import { DatabaseLoader, loadBetterSqlite, SqliteDatabase, LoadDatabaseFn } from '@facetlayer/sqlite-wrapper';
+import { DatabaseLoader, SqliteDatabase } from '@facetlayer/sqlite-wrapper';
 import { Stream } from '@facetlayer/streams';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const DEFAULT_LOG_PATH = '.logs/logs.db';
 
-let _loadDatabaseFn: LoadDatabaseFn | null = null;
 const _dbLoaders = new Map<string, DatabaseLoader>();
 
 export const schema = {
@@ -25,32 +24,24 @@ export const schema = {
 };
 
 export async function initDatabase(): Promise<void> {
-  if (!_loadDatabaseFn) {
-    _loadDatabaseFn = await loadBetterSqlite();
-  }
+  // No-op: sqlite-wrapper now uses node:sqlite directly.
 }
 
 export function getDatabase(logPath: string = DEFAULT_LOG_PATH): SqliteDatabase {
-  if (!_loadDatabaseFn) {
-    throw new Error('Database not initialized. Call initDatabase() first.');
-  }
-
   const absolutePath = path.isAbsolute(logPath) ? logPath : path.resolve(process.cwd(), logPath);
 
   if (!_dbLoaders.has(absolutePath)) {
-    // Ensure directory exists
     const dir = path.dirname(absolutePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    const logs = new Stream<string>();
+    const logsStream = new Stream();
 
     _dbLoaders.set(absolutePath, new DatabaseLoader({
       filename: absolutePath,
       schema,
-      logs,
-      loadDatabase: _loadDatabaseFn,
+      logsStream,
       migrationBehavior: 'safe-upgrades',
     }));
   }

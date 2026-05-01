@@ -32,9 +32,6 @@ importers:
 
   build-config-nodejs:
     dependencies:
-      '@facetlayer/docs-tool':
-        specifier: ^0.2.0
-        version: link:../docs-tool
       '@typescript-eslint/parser':
         specifier: ^8.0.0
         version: 8.59.1(eslint@9.39.4(jiti@1.21.7))(typescript@5.7.3)
@@ -13941,7 +13938,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.39
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13952,7 +13949,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.39
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13963,7 +13960,7 @@ snapshots:
 
   chromium-edge-launcher@0.3.0:
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 20.19.39
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
