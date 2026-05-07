@@ -1,7 +1,6 @@
 packages:
   - agent-hint-tool
   - build-config-nodejs
-  - cc-session-history
   - cc-settings-tool
   - claude-worktree-helper
   - concurrency-limit
