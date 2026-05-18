@@ -1,4 +1,11 @@
 
+# 1.3.2
+ - `applySafeUpgrades` / `applyFullDestructiveUpdates`: add columns before
+   creating indexes that may reference them (previously, an index added in
+   the same migration as its column would fail with "no such column").
+ - Safe migrations now accept `not null default <literal>` columns via
+   `ALTER TABLE ADD COLUMN`. Previously any `not null` add was skipped.
+
 # 1.3.0
  - Replace better-sqlite3 with Node.js built-in `node:sqlite` module
  - Remove `loadDatabase` option from `DatabaseSetupOptions` (database is now created internally)

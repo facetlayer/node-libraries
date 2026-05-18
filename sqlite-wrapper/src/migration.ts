@@ -153,16 +153,19 @@ function applySafeUpgradesToTable(
         db.run(createStatement);
       }
     } else if (drift.type === "need_to_add_column") {
-      // Check if the new column has NOT NULL constraint
-      const hasNotNull = drift.newDefinition?.toLowerCase().includes("not null");
-      if (!hasNotNull) {
-        const columnDef = drift.newDefinition;
-        const sql = `alter table ${tableName} add column ${drift.columnName} ${columnDef};`;
+      // SQLite can ADD COLUMN safely if the column is nullable, OR if it is
+      // NOT NULL but has a literal DEFAULT (the default fills existing rows).
+      const def = drift.newDefinition ?? "";
+      const lower = def.toLowerCase();
+      const hasNotNull = lower.includes("not null");
+      const hasDefault = /\bdefault\b/.test(lower);
+      if (!hasNotNull || hasDefault) {
+        const sql = `alter table ${tableName} add column ${drift.columnName} ${def};`;
         db.info(`Adding column: ${tableName}.${drift.columnName}`);
         db.run(sql);
       } else {
         db.warn(
-          `Skipping safe migration of adding 'not null' column (requires table rebuild): ${tableName}.${drift.columnName}`,
+          `Skipping safe migration of adding 'not null' column without default (requires table rebuild): ${tableName}.${drift.columnName}`,
         );
       }
     } else {
@@ -192,25 +195,28 @@ export function applySafeUpgrades(
 ): void {
   const schemaMap = buildSchemaMap(schema);
 
-  // Apply safe upgrades for each table
+  // Two-pass: table-level drifts (creates + column adds) before schema-level
+  // drifts (indexes). A new index may reference a newly-added column, so the
+  // column has to exist first or the CREATE INDEX fails.
   for (const [tableName, tableDrift] of dbDrift.tables.entries()) {
-    if (tableName === "__schema__") {
-      // Handle schema-level drifts (indexes, extra tables)
-      for (const drift of tableDrift.drifts) {
-        if (drift.type === "need_to_create_index") {
-          const createStatement = schemaMap.get(`index:${drift.indexName}`);
-          if (createStatement) {
-            db.info(`Creating index: ${drift.indexName}`);
-            db.run(createStatement);
-          }
-        } else {
-          // Skip destructive drifts like extra tables
-          db.warn(`Skipping destructive migration: ${drift.type}`);
-        }
-      }
-    } else {
-      // Handle table-level drifts
+    if (tableName !== "__schema__") {
       applySafeUpgradesToTable(db, tableName, tableDrift.drifts, schemaMap);
+    }
+  }
+
+  for (const [tableName, tableDrift] of dbDrift.tables.entries()) {
+    if (tableName !== "__schema__") continue;
+    for (const drift of tableDrift.drifts) {
+      if (drift.type === "need_to_create_index") {
+        const createStatement = schemaMap.get(`index:${drift.indexName}`);
+        if (createStatement) {
+          db.info(`Creating index: ${drift.indexName}`);
+          db.run(createStatement);
+        }
+      } else {
+        // Skip destructive drifts like extra tables
+        db.warn(`Skipping destructive migration: ${drift.type}`);
+      }
     }
   }
 }
@@ -281,31 +287,34 @@ export function applyFullDestructiveUpdates(
 ): void {
   const schemaMap = buildSchemaMap(schema);
 
-  // Apply destructive updates for each table
+  // Two-pass: table-level drifts (creates, column changes, rebuilds) before
+  // schema-level drifts so a new index can safely reference a freshly-added
+  // column. Extra-table drops also happen in the second pass after table
+  // rebuilds, in case the dropped table feeds a rebuild's data copy.
   for (const [tableName, tableDrift] of dbDrift.tables.entries()) {
-    if (tableName === "__schema__") {
-      // Handle schema-level drifts (indexes, extra tables)
-      for (const drift of tableDrift.drifts) {
-        if (drift.type === "need_to_create_index") {
-          const createStatement = schemaMap.get(`index:${drift.indexName}`);
-          if (createStatement) {
-            db.info(`Creating index: ${drift.indexName}`);
-            db.run(createStatement);
-          }
-        } else if (drift.type === "extra_table") {
-          db.info(`Dropping extra table: ${drift.tableName}`);
-          db.run(`drop table ${drift.tableName};`);
+    if (tableName === "__schema__") continue;
+    applyFullDestructiveUpdatesToTable(
+      db,
+      tableName,
+      tableDrift.drifts,
+      schema,
+      schemaMap,
+    );
+  }
+
+  for (const [tableName, tableDrift] of dbDrift.tables.entries()) {
+    if (tableName !== "__schema__") continue;
+    for (const drift of tableDrift.drifts) {
+      if (drift.type === "need_to_create_index") {
+        const createStatement = schemaMap.get(`index:${drift.indexName}`);
+        if (createStatement) {
+          db.info(`Creating index: ${drift.indexName}`);
+          db.run(createStatement);
         }
+      } else if (drift.type === "extra_table") {
+        db.info(`Dropping extra table: ${drift.tableName}`);
+        db.run(`drop table ${drift.tableName};`);
       }
-    } else {
-      // Handle table-level drifts
-      applyFullDestructiveUpdatesToTable(
-        db,
-        tableName,
-        tableDrift.drifts,
-        schema,
-        schemaMap,
-      );
     }
   }
 }

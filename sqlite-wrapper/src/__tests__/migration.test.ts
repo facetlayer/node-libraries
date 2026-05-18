@@ -495,6 +495,102 @@ describe("applySafeUpgrades", () => {
     expect(indexes).toHaveLength(1);
   });
 
+  it("should add NOT NULL column when it has a literal DEFAULT", () => {
+    // SQLite supports ALTER TABLE ADD COLUMN with `not null default <literal>`,
+    // so the safe-migration path should accept it.
+    db.run("CREATE TABLE agents (id INTEGER PRIMARY KEY)");
+
+    const schema: DatabaseSchema = {
+      name: "test_schema",
+      statements: [
+        "CREATE TABLE agents (id INTEGER PRIMARY KEY, enabled integer not null default 1)",
+      ],
+    };
+
+    const dbDrift: DatabaseDrift = {
+      tables: new Map([
+        [
+          "agents",
+          {
+            drifts: [
+              {
+                type: "need_to_add_column" as const,
+                tableName: "agents",
+                columnName: "enabled",
+                newDefinition: "integer not null default 1",
+              },
+            ],
+          },
+        ],
+      ]),
+      warnings: [],
+    };
+
+    applySafeUpgrades(db, dbDrift, schema);
+
+    const columns = db.list("PRAGMA table_info(agents)");
+    const enabled = columns.find((c) => c.name === "enabled");
+    expect(enabled).toBeDefined();
+    expect(enabled!.notnull).toBe(1);
+    expect(enabled!.dflt_value).toBe("1");
+  });
+
+  it("adds columns before creating indexes that reference them", () => {
+    // Reproduces a real production failure: an existing prod table is missing
+    // a column AND missing an index that references that column. Both drifts
+    // surface together, and if the schema-level index drift runs before the
+    // table-level column-add, `CREATE INDEX … (enabled, …)` fails with
+    // "no such column: enabled".
+    db.run("CREATE TABLE agents (id INTEGER PRIMARY KEY, schedule TEXT)");
+
+    const schema: DatabaseSchema = {
+      name: "test_schema",
+      statements: [
+        "CREATE TABLE agents (id INTEGER PRIMARY KEY, schedule TEXT, enabled integer not null default 1)",
+        "CREATE INDEX agents_schedule_enabled ON agents(enabled, schedule)",
+      ],
+    };
+
+    // Insertion order intentionally puts the schema-level drift first, as the
+    // production failure does — the migrator must reorder, not rely on luck.
+    const dbDrift: DatabaseDrift = {
+      tables: new Map([
+        [
+          "__schema__",
+          {
+            drifts: [
+              {
+                type: "need_to_create_index" as const,
+                indexName: "agents_schedule_enabled",
+              },
+            ],
+          },
+        ],
+        [
+          "agents",
+          {
+            drifts: [
+              {
+                type: "need_to_add_column" as const,
+                tableName: "agents",
+                columnName: "enabled",
+                newDefinition: "integer not null default 1",
+              },
+            ],
+          },
+        ],
+      ]),
+      warnings: [],
+    };
+
+    expect(() => applySafeUpgrades(db, dbDrift, schema)).not.toThrow();
+
+    const indexes = db.list(
+      "SELECT name FROM sqlite_master WHERE type='index' AND name='agents_schedule_enabled'"
+    );
+    expect(indexes).toHaveLength(1);
+  });
+
   it("should skip destructive operations and log warnings", () => {
     db.run("CREATE TABLE users (id INTEGER PRIMARY KEY)");
 
