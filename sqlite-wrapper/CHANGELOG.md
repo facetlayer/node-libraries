@@ -1,4 +1,10 @@
 
+# 1.4.0
+ - Export the SQL parser helpers `parseSql` and `stripSqlComments`.
+ - Add `getLeadingKeyword(sql)` and `isQueryStatement(sql)` for classifying a
+   statement (e.g. telling read queries apart from writes) using the lexer
+   instead of a fragile regex. Both are comment-aware.
+
 # 1.3.2
  - `applySafeUpgrades` / `applyFullDestructiveUpdates`: add columns before
    creating indexes that may reference them (previously, an index added in

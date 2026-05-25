@@ -334,6 +334,33 @@ function tokenizeSql(sql: string) {
   return it;
 }
 
+/**
+ * Return the leading keyword of a SQL statement, lowercased. Reuses the same
+ * comment-stripping + lexer as parseSql, so leading comments and quoted strings
+ * don't confuse the result the way a `/^\s*SELECT/i`-style regex would.
+ * Returns "" for empty/whitespace-only input.
+ */
+export function getLeadingKeyword(sql: string): string {
+  const it = tokenizeSql(sql);
+  return it.finished() ? "" : it.nextText(0).toLowerCase();
+}
+
+/**
+ * True when a statement produces a result set (SELECT / WITH / EXPLAIN /
+ * VALUES). Use this to tell read queries apart from writes without a regex.
+ */
+export function isQueryStatement(sql: string): boolean {
+  switch (getLeadingKeyword(sql)) {
+    case "select":
+    case "with":
+    case "explain":
+    case "values":
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function parseSql(sql: string): SqlStatement {
   const it = tokenizeSql(sql);
 

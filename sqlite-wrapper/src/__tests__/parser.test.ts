@@ -4,6 +4,8 @@ import {
   stripSqlComments,
   createTableWithReplacedTableName,
   CreateTableStatement,
+  getLeadingKeyword,
+  isQueryStatement,
 } from "../parser";
 
 describe("stripSqlComments", () => {
@@ -159,5 +161,43 @@ describe("createTableWithReplacedTableName", () => {
     expect(result).toContain("create table tmp_users");
     expect(result).toContain("id INTEGER PRIMARY KEY");
     expect(result).not.toContain("IF");
+  });
+});
+
+describe("getLeadingKeyword", () => {
+  it("reads the leading keyword, lowercased", () => {
+    expect(getLeadingKeyword("SELECT * FROM users")).toBe("select");
+    expect(getLeadingKeyword("insert into t values (1)")).toBe("insert");
+    expect(getLeadingKeyword("  UPDATE t SET x = 1")).toBe("update");
+  });
+
+  it("ignores leading comments", () => {
+    expect(getLeadingKeyword("-- a comment\nSELECT 1")).toBe("select");
+    expect(getLeadingKeyword("/* block */ DELETE FROM t")).toBe("delete");
+  });
+
+  it("returns empty string for blank input", () => {
+    expect(getLeadingKeyword("")).toBe("");
+    expect(getLeadingKeyword("   \n  ")).toBe("");
+  });
+});
+
+describe("isQueryStatement", () => {
+  it("treats SELECT / WITH / EXPLAIN / VALUES as queries", () => {
+    expect(isQueryStatement("SELECT 1")).toBe(true);
+    expect(isQueryStatement("with cte as (select 1) select * from cte")).toBe(true);
+    expect(isQueryStatement("EXPLAIN QUERY PLAN SELECT 1")).toBe(true);
+    expect(isQueryStatement("VALUES (1), (2)")).toBe(true);
+  });
+
+  it("treats writes and DDL as non-queries", () => {
+    expect(isQueryStatement("INSERT INTO t VALUES (1)")).toBe(false);
+    expect(isQueryStatement("UPDATE t SET x = 1")).toBe(false);
+    expect(isQueryStatement("DELETE FROM t")).toBe(false);
+    expect(isQueryStatement("CREATE TABLE t (id INTEGER)")).toBe(false);
+  });
+
+  it("is not fooled by a leading comment before a SELECT", () => {
+    expect(isQueryStatement("-- fetch rows\nSELECT * FROM t")).toBe(true);
   });
 });
