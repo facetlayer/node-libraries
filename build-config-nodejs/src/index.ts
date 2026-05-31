@@ -1,5 +1,5 @@
 import { build, BuildOptions } from 'esbuild';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, rmSync } from 'fs';
 import { resolve, relative } from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -21,6 +21,13 @@ export interface BuildConfig {
    * Default: 'dist'
    */
   outDir?: string;
+
+  /**
+   * Remove the output directory before building so stale artifacts from
+   * renamed or deleted source files don't linger.
+   * Default: true
+   */
+  clean?: boolean;
 
   /**
    * Platform target
@@ -85,6 +92,35 @@ function getExternalDependencies(packageJsonPath: string): string[] {
   const dependencies = Object.keys(packageJson.dependencies || {});
 
   return dependencies;
+}
+
+/**
+ * Remove the output directory before building so stale artifacts (e.g.
+ * declaration files for deleted/renamed sources) don't survive into the next
+ * build. Guards against removing anything outside the project directory.
+ */
+function cleanOutDir(config: BuildConfig, cwd: string): void {
+  // esbuild and type generation may target different directories; clean both.
+  const dirs = new Set<string>([
+    config.outDir || 'dist',
+    config.typeGenConfig?.outDir || config.outDir || 'dist',
+  ]);
+
+  for (const dir of dirs) {
+    const resolved = resolve(cwd, dir);
+    const rel = relative(cwd, resolved);
+
+    // Refuse to clean cwd itself or anything outside it.
+    if (rel === '' || rel.startsWith('..')) {
+      console.warn(`Skipping clean of '${dir}': not safely inside the project directory.`);
+      continue;
+    }
+
+    if (existsSync(resolved)) {
+      console.log(`Cleaning output directory: ${rel}`);
+      rmSync(resolved, { recursive: true, force: true });
+    }
+  }
 }
 
 /**
@@ -162,6 +198,9 @@ async function runBuild(config: BuildConfig): Promise<void> {
   const cwd = process.cwd();
 
   try {
+    if (config.clean !== false) {
+      cleanOutDir(config, cwd);
+    }
     await runEsbuild(config, cwd);
     generateTypes(config, cwd);
     console.log('Build completed successfully.');

@@ -105,6 +105,11 @@ The `runBuildTool` function accepts a configuration object with the following op
 - Default: `'dist'`
 - Output directory for built files
 
+### `clean`
+- Type: `boolean`
+- Default: `true`
+- Remove the output directory before building so stale artifacts from renamed or deleted source files don't linger. Set to `false` to disable.
+
 ### `platform`
 - Type: `'node' | 'browser' | 'neutral'`
 - Default: `'node'`

@@ -1,4 +1,7 @@
 
+0.4.0
+ - Clean the output directory before building so stale artifacts from renamed/deleted sources don't linger (new `clean` option, default true).
+
 0.3.2
  - Bug fixing how it fixes filename extensions
 
