@@ -33,7 +33,7 @@
     "url": "https://github.com/facetlayer/node-libraries"
   },
   "dependencies": {
-    "@facetlayer/docs-tool": "^0.2.0",
+    "@facetlayer/docs-helper": "^0.1.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {

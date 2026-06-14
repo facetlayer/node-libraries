@@ -5,7 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { DocFilesHelper } from '@facetlayer/docs-tool';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 import { listAllowRules, addAllowRule } from './settings.ts';
 import type { SettingsFileName } from './types.ts';
 

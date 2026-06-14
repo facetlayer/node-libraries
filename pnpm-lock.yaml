@@ -66,9 +66,9 @@ importers:
 
   cc-settings-tool:
     dependencies:
-      '@facetlayer/docs-tool':
-        specifier: ^0.2.0
-        version: 0.2.0
+      '@facetlayer/docs-helper':
+        specifier: ^0.1.0
+        version: 0.1.0
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
