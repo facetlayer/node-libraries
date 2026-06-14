@@ -1,0 +1,40 @@
+{
+  "name": "@facetlayer/docs-helper",
+  "version": "0.1.0",
+  "description": "Library for CLI tools to add 'docs' commands that browse their own doc files",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node build.mts build",
+    "prepublishOnly": "node build.mts validate && node build.mts build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run --testTimeout=30000",
+    "local:install": "pnpm build && npm i -g ."
+  },
+  "keywords": [
+    "doc",
+    "frontmatter",
+    "markdown",
+    "documentation"
+  ],
+  "author": "andyfischer",
+  "license": "MIT",
+  "packageManager": "pnpm@10.15.1",
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@facetlayer/build-config-nodejs": "^0.3.3",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facetlayer/node-libraries"
+  }
+}

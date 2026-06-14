@@ -5,6 +5,7 @@ packages:
   - claude-worktree-helper
   - concurrency-limit
   - csv-tool
+  - docs-helper
   - docs-tool
   - env-file-rewrite
   - fetch-sse-stream
