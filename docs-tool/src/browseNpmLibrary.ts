@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from 
 import { join, dirname } from 'path';
 import { homedir } from 'os';
 import { runShellCommand } from '@facetlayer/subprocess';
-import { DocFilesHelper } from './index.ts';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 import { findInGlobalNpmInstall } from './browseGlobalNpmInstall.ts';
 
 export interface LibraryLocation {

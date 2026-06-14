@@ -1,6 +1,6 @@
 import { resolve, join } from 'path';
 import { existsSync } from 'fs';
-import { DocFilesHelper } from './index.ts';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 
 export interface LocalLibraryDocs {
   libraryPath: string;

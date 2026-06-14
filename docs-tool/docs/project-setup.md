@@ -1,16 +1,17 @@
 ---
 name: project-setup
-description: Instructions for adding docs-tool to your CLI application
+description: Instructions for adding docs-helper to your CLI application
 ---
 
 # Project Setup
 
-This guide explains how to add `@facetlayer/docs-tool` to your CLI application.
+This guide explains how to add `@facetlayer/docs-helper` to your CLI application,
+so your app gains `list-docs` / `get-doc` commands that browse its own doc files.
 
 ## Installation
 
 ```bash
-pnpm add @facetlayer/docs-tool
+pnpm add @facetlayer/docs-helper
 ```
 
 ## Setting Up the Doc Files Folder
@@ -45,7 +46,7 @@ Your markdown content here.
 In your CLI script (e.g., `src/cli.ts`), create a `DocFilesHelper` instance:
 
 ```typescript
-import { DocFilesHelper } from '@facetlayer/docs-tool';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -85,7 +86,7 @@ If your CLI uses yargs with `.parse()` and command handlers, call `yargsSetup()`
 ```typescript
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { DocFilesHelper } from '@facetlayer/docs-tool';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],
@@ -124,7 +125,7 @@ If your CLI uses `.parseSync()` with a switch statement to handle commands, regi
 ```typescript
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { DocFilesHelper } from '@facetlayer/docs-tool';
+import { DocFilesHelper } from '@facetlayer/docs-helper';
 
 const docFiles = new DocFilesHelper({
   dirs: [join(__packageRoot, 'docs')],

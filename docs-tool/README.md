@@ -1,80 +1,52 @@
-# @facetlayer/doc-files-helper
+# @facetlayer/docs-tool
 
-Helper library for CLI tools to share their doc files.
+Standalone CLI tool (`docs`) for browsing documentation in local directories and
+installed NPM packages.
 
-When an app uses this library, they'll typically have these commands:
+For NPM packages, it searches local `node_modules` first, then the global npm
+install, and will `npm install` the package into a local cache if it isn't found
+anywhere else.
 
- `<app> list-docs` - List all the doc files with descriptions.
- `<app> get-doc <name>` - Get the contents for a single doc file.
-
-The `list-docs` and `get-doc` commands will browse through all the doc files that the
-tool owns. These are typically stored in ./docs.
-
-Each doc file should be Markdown and implement frontmatter with `name` and `description`
-(same format that Claude Agent Skills uses). The name & description are shared when
-doing `list-docs`.
+> Building a CLI that should expose *its own* doc files via `list-docs` / `get-doc`
+> commands? Use the [`@facetlayer/docs-helper`](https://github.com/facetlayer/node-libraries)
+> library instead. `docs-tool` is built on top of it.
 
 ## Installation
 
 ```bash
-pnpm add @facetlayer/doc-files-helper
+npm install -g @facetlayer/docs-tool
 ```
 
-## Example
+This installs the `docs` command.
 
-### Listing Docs
+## Usage
+
+```bash
+docs list <target>            # List doc files in a directory or NPM package
+docs show <target> [name]     # Show one doc file (defaults to README)
+docs search <target> <term>   # Search doc files for a term, with context
+```
+
+`<target>` is either:
+ - a directory path (starts with `.` or `/`), or
+ - an NPM package name.
+
+### Examples
+
+```bash
+docs list ./docs                      # List all doc files in ./docs
+docs list yargs                       # List doc files for the yargs NPM package
+docs show ./docs project-setup        # Show the project-setup doc from ./docs
+docs show yargs                       # Show the README for the yargs NPM package
+docs search ./docs config             # Search for "config" in ./docs
+docs search yargs debounce            # Search yargs docs for "debounce"
+```
+
+## Programmatic API
+
+`docs-tool` also exports the library-browsing helpers it uses internally, plus a
+re-export of everything in `@facetlayer/docs-helper`:
 
 ```typescript
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
-
-const helper = new DocFilesHelper({ dirs: ['./docs'] });
-const docs = helper.listDocs();
-// Returns: [{ name: 'my-doc', description: '...', filename: 'my-doc.md' }, ...]
+import { browseNpmLibrary, browseLocalLibrary, parseTarget } from '@facetlayer/docs-tool';
 ```
-
-### Getting a Doc
-
-```typescript
-import { DocFilesHelper } from '@facetlayer/doc-files-helper';
-
-const helper = new DocFilesHelper({ dirs: ['./docs'] });
-const doc = helper.getDoc('my-doc');
-// Returns: { name, description, filename, content, rawContent, fullPath }
-```
-
-## Frontmatter Format
-
-Doc files should have YAML frontmatter at the start:
-
-```markdown
----
-name: doc-name
-description: Brief description of the doc
----
-
-# Doc Content
-
-Your markdown content here.
-```
-
-## API
-
-### `DocFilesHelper`
-
-Helper class for working with doc files.
-
-#### Constructor Options
-
-```typescript
-interface DocFilesHelperOptions {
-  dirs?: string[];   // List of directories to search for .md files
-  files?: string[];  // List of specific files to include
-}
-```
-
-#### Methods
-
-- `listDocs(): DocInfo[]` - Lists all `.md` files with their frontmatter metadata.
-- `getDoc(name: string): DocContent` - Gets a specific doc file by name (without `.md` extension). Throws if not found.
-- `printDocFileList(): void` - Prints a formatted list of all doc files to stdout.
-- `printDocFileContents(name: string): void` - Prints the raw contents of a specific doc file to stdout.
